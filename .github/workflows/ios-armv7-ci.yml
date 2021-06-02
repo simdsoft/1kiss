@@ -1,0 +1,63 @@
+# This is a basic workflow to help you get started with Actions
+
+name: ios-armv7-ci
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+    paths:
+      - .github/workflows/ios-armv7-ci.yml
+      - buildinfo.properties
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  INSTALL_NAME: openssl_ios_armv7
+  IOS_PLATFORM: OS
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Checks-out openssl repo
+        run: |
+          git clone https://github.com/openssl/openssl.git
+          pwd
+          cd openssl
+          git checkout OpenSSL_1_1_1k
+          git submodule update --init --recursive
+      # Runs a set of commands using the runners shell
+      - name: Configure & Build openssl
+        run: |
+          perl --version
+          export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
+          export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
+          cd openssl
+          openssl_src_root=`pwd`
+          mkdir $openssl_src_root/$INSTALL_NAME
+          ./Configure ios-cross no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/$INSTALL_NAME --openssldir=$openssl_src_root/$INSTALL_NAME
+          make VERBOSE=1
+          make install
+          rm -rf ./$INSTALL_NAME/bin
+          rm -rf ./$INSTALL_NAME/misc
+          rm -rf ./$INSTALL_NAME/share
+          
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/openssl_ios_armv7/**/*
+          name: openssl_ios_armv7
