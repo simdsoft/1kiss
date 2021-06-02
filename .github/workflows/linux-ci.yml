@@ -36,16 +36,16 @@ jobs:
         run: |
           git clone https://github.com/openssl/openssl.git
           pwd
-          openssl_ver=$(cat source.properties | grep -w ndk.ver | cut -d '=' -f 2 | tr -d ' \n')
-          echo openssl_ver=$openssl_ver
-          cd openssl
+          export openssl_ver=$(cat source.properties | grep -w 'openssl.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          echo Step1: openssl_ver=$openssl_ver
+          cd openssl 
           git checkout OpenSSL_1_1_1k
           git submodule update --init --recursive
 
       # Runs a set of commands using the runners shell
       - name: Configure & Build openssl
         run: |
-          perl --version
+          echo Step2: openssl_ver=${openssl_ver}
           cd openssl
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/$INSTALL_NAME
