@@ -44,7 +44,7 @@ jobs:
         run: |
           perl --version
           export IOS_PLATFORM=OS
-          export CROSS_TOP=$(shell xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
+          export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
           export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
           cd openssl
           openssl_src_root=`pwd`
