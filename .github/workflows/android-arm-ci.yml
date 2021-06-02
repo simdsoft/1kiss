@@ -1,0 +1,77 @@
+# This is a basic workflow to help you get started with Actions
+
+name: android-arm-ci
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+    paths:
+      - .github/workflows/android-ci.yml
+      - buildinfo.properties
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# env
+# arm64: android-21
+# arm/x86: android-16
+env:
+  INSTALL_NAME: openssl_android
+  NDK_VER: r19c
+  ANDROID_API: 16
+  PLATFORM_SHORT_ARCH: arm
+  OPENSSL_CONFIG_VARS: no-shared no-unit-test no-threads
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Checks-out openssl repo
+        run: |
+          git clone https://github.com/openssl/openssl.git
+          pwd
+          cd openssl
+          git checkout OpenSSL_1_1_1k
+          git submodule update --init --recursive
+      # Runs a set of commands using the runners shell
+      - name: Configure & Build openssl
+        run: |
+          perl --version
+          wget https://dl.google.com/android/repository/android-ndk-${NDK_VER}-linux-x86_64.zip
+          unzip android-ndk-${NDK_VER}-linux-x86_64.zip
+          export ANDROID_NDK_HOME=`pwd`/android-ndk-${NDK_VER}
+          # export ANDROID_SYSROOT=${ANDROID_NDK_HOME}/platforms/${ANDROID_API}/arch-${PLATFORM_SHORT_ARCH}
+          # export SYSROOT=${ANDROID_SYSROOT}
+          # export NDK_SYSROOT=${ANDROID_SYSROOT}
+          # export ANDROID_NDK_SYSROOT=${ANDROID_SYSROOT}
+          # export CROSS_SYSROOT=${ANDROID_SYSROOT}
+          export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
+          cd openssl
+          openssl_src_root=`pwd`
+          export INSTALL_NAME=${INSTALL_NAME}_${PLATFORM_SHORT_ARCH}
+          mkdir $openssl_src_root/${INSTALL_NAME}
+          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=${ANDROID_API} ${OPENSSL_CONFIG_VARS} --prefix=$openssl_src_root/${INSTALL_NAME} --openssldir=$openssl_src_root/${INSTALL_NAME}
+          make VERBOSE=1
+          make install
+          rm -rf ./${INSTALL_NAME}/bin
+          rm -rf ./${INSTALL_NAME}/misc
+          rm -rf ./${INSTALL_NAME}/share
+          
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/openssl_android_arm/**/*
+          name: openssl_android_arm
