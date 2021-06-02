@@ -22,8 +22,11 @@ env:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ${{matrix.os}}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -35,9 +38,14 @@ jobs:
         run: |
           openssl_ver=$(cat source.properties | grep -w 'openssl.ver' | cut -d '=' -f 2 | tr -d ' \n')
           openssl_ver=${openssl_ver//./_}
-          echo "OPENSSL_BUILD_TAG=OpenSSL_${openssl_ver}" >> $GITHUB_ENV
+          echo "OPENSSL_BUILD_TAG=OpenSSL_$openssl_ver" >> $GITHUB_ENV
+          ndk_ver=$(cat source.properties | grep -w 'ndk.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          echo "NDK_VER=$ndk_ver" >> $GITHUB_ENV
+          openssl_config_flags=$(cat source.properties | grep -w 'openssl.config.flags' | cut -d '=' -f 2 | tr -d ' \n')
+          echo "OPENSSL_CONFIG_FLAGS=$openssl_config_flags" >> $GITHUB_ENV
       # Runs a set of commands using the runners shell
       - name: Configure & Build openssl
         run: |
-          echo Test1: OPENSSL_BUILD_TAG=${OPENSSL_BUILD_TAG}
-          echo Test2: OPENSSL_BUILD_TAG=${{env.OPENSSL_BUILD_TAG}}
+          echo OPENSSL_BUILD_TAG=\<$OPENSSL_BUILD_TAG\>
+          echo NDK_VER=\<$NDK_VER\>
+          echo OPENSSL_CONFIG_FLAGS=\<$OPENSSL_CONFIG_FLAGS\>
