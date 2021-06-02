@@ -46,7 +46,7 @@ jobs:
           cd openssl
           openssl_src_root=`pwd`
           mkdir $openssl_src_root/$INSTALL_NAME
-          ./Configure no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/$INSTALL_NAME --openssldir=$openssl_src_root/$INSTALL_NAME
+          ./Configure darwin64-x86_64-cc no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/$INSTALL_NAME --openssldir=$openssl_src_root/$INSTALL_NAME
           make VERBOSE=1
           make install
           rm -rf ./$INSTALL_NAME/bin
