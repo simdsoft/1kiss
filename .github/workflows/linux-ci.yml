@@ -39,13 +39,19 @@ jobs:
         run: |
           perl --version
           cd openssl
-          openssl_source_dir=`pwd`
-          mkdir $openssl_source_dir/intsall_linux_x86_64
-          ./config --prefix=$openssl_source_dir/intsall_linux_x86_64 --openssldir=$openssl_source_dir/intsall_linux_x86_64 --strict-warnings no-shared && perl configdata.pm --dump
+          openssl_src_root=`pwd`
+          mkdir $openssl_src_root/openssl_linux_x86_64
+          ./config --prefix=$openssl_src_root/openssl_linux_x86_64 --openssldir=$openssl_src_root/openssl_linux_x86_64 --strict-warnings no-shared && perl configdata.pm --dump
 
       - name: Build openssl
         run: |
           cd openssl
           make VERBOSE=1
           make install
+
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/openssl_linux_x86_64/**/*
+          name: openssl_linux_x86_64
 
