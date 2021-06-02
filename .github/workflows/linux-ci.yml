@@ -36,10 +36,14 @@ jobs:
           git submodule update --init --recursive
 
       # Runs a set of commands using the runners shell
-      - name: Configure
+      - name: Configure openssl
         run: |
           perl --version
           pwd
           cd openssl
           ./config --banner=Configured --strict-warnings no-shared && perl configdata.pm --dump
-          
+
+      - name: Build openssl
+        run: |
+          make VERBOSE=1
+
