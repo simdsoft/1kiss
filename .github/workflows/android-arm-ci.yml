@@ -61,9 +61,9 @@ jobs:
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
           cd openssl
           openssl_src_root=`pwd`
-          export INSTALL_NAME=${INSTALL_NAME}_${PLATFORM_SHORT_ARCH}
-          mkdir $openssl_src_root/${INSTALL_NAME}
-          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=${ANDROID_API} ${OPENSSL_CONFIG_VARS} --prefix=$openssl_src_root/${INSTALL_NAME} --openssldir=$openssl_src_root/${INSTALL_NAME}
+          openssl_install_dir=$openssl_src_root/${INSTALL_NAME}_${PLATFORM_SHORT_ARCH}
+          mkdir $openssl_install_dir
+          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=${ANDROID_API} ${OPENSSL_CONFIG_VARS} --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           make VERBOSE=1
           make install
           rm -rf ./${INSTALL_NAME}/bin
@@ -73,5 +73,5 @@ jobs:
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/openssl_android_arm/**/*
-          name: openssl_android_arm
+          path: ./openssl/${{ env.INSTALL_NAME }}_${{ env.PLATFORM_SHORT_ARCH }}/**/*
+          name: ${{ env.INSTALL_NAME }}_${{ env.PLATFORM_SHORT_ARCH }}
