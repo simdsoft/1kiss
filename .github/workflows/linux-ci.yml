@@ -41,5 +41,5 @@ jobs:
           perl --version
           pwd
           cd openssl
-          ./config --banner=Configured --strict-warnings no-shared no-fips && perl configdata.pm --dump
+          ./config --banner=Configured --strict-warnings no-shared && perl configdata.pm --dump
           
