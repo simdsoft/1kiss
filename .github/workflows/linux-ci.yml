@@ -48,6 +48,10 @@ jobs:
           cd openssl
           make VERBOSE=1
           make install
+          rm -rf ./openssl_linux_x86_64/bin
+          rm -rf ./openssl_linux_x86_64/misc
+          rm -rf ./openssl_linux_x86_64/share
+          
 
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
