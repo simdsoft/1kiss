@@ -7,6 +7,9 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
+    paths:
+      - .github/workflows/linux-ci.yml
+      - buildinfo.properties
   pull_request:
     branches: [ main ]
 
