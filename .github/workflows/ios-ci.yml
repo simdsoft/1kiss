@@ -17,7 +17,8 @@ on:
   workflow_dispatch:
 
 env:
-  CC: clang
+  INSTALL_NAME: openssl_ios_arm64
+  IOS_PLATFORM: OS
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -43,21 +44,20 @@ jobs:
       - name: Configure & Build openssl
         run: |
           perl --version
-          export IOS_PLATFORM=OS
           export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
           export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
           cd openssl
           openssl_src_root=`pwd`
-          mkdir $openssl_src_root/openssl_ios_arm64
-          ./Configure ios64-cross no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/openssl_ios_arm64 --openssldir=$openssl_src_root/openssl_ios_arm64
+          mkdir $openssl_src_root/$INSTALL_NAME
+          ./Configure ios64-cross no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/$INSTALL_NAME --openssldir=$openssl_src_root/$INSTALL_NAME
           make VERBOSE=1
           make install
-          rm -rf ./openssl_linux_x86_64/bin
-          rm -rf ./openssl_linux_x86_64/misc
-          rm -rf ./openssl_linux_x86_64/share
+          rm -rf ./$INSTALL_NAME/bin
+          rm -rf ./$INSTALL_NAME/misc
+          rm -rf ./$INSTALL_NAME/share
           
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/openssl_ios_arm64/**/*
-          name: openssl_ios_arm64
+          path: ./openssl/$INSTALL_NAME/**/*
+          name: $INSTALL_NAME
