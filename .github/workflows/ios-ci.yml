@@ -7,6 +7,9 @@ on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
+    paths:
+      - .github/workflows/ios-ci.yml
+      - buildinfo.properties
   pull_request:
     branches: [ main ]
 
@@ -17,7 +20,6 @@ env:
   CC: clang
   CROSS_TOP: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer
   CROSS_SDK: iPhoneOS.sdk
-  PATH: "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -46,10 +48,12 @@ jobs:
           cd openssl
           openssl_src_root=`pwd`
           mkdir $openssl_src_root/openssl_ios_arm64
+          export PATH="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
           ./config --prefix=$openssl_src_root/openssl_ios_arm64 --openssldir=$openssl_src_root/openssl_ios_arm64 --strict-warnings ios64-cross no-shared no-dso no-hw no-engine
       - name: Build openssl
         run: |
           cd openssl
+          export PATH="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin:$PATH"
           make VERBOSE=1
           make install
           rm -rf ./openssl_linux_x86_64/bin
