@@ -39,10 +39,13 @@ jobs:
         run: |
           perl --version
           cd openssl
-          ./config --banner=Configured --strict-warnings no-shared && perl configdata.pm --dump
+          openssl_source_dir=`pwd`
+          mkdir $openssl_source_dir/intsall_linux_x86_64
+          ./config --prefix=$openssl_source_dir/intsall_linux_x86_64 --openssldir=$openssl_source_dir/intsall_linux_x86_64 --strict-warnings no-shared && perl configdata.pm --dump
 
       - name: Build openssl
         run: |
           cd openssl
           make VERBOSE=1
+          make install
 
