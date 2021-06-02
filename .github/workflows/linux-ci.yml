@@ -31,7 +31,6 @@ jobs:
           git clone https://github.com/openssl/openssl.git
           pwd
           cd openssl
-          pwd
           git checkout OpenSSL_1_1_1k
           git submodule update --init --recursive
 
@@ -39,11 +38,11 @@ jobs:
       - name: Configure openssl
         run: |
           perl --version
-          pwd
           cd openssl
           ./config --banner=Configured --strict-warnings no-shared && perl configdata.pm --dump
 
       - name: Build openssl
         run: |
+          cd openssl
           make VERBOSE=1
 
