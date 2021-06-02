@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: ios-armv7-ci
+name: ios-arm-ci
 
 # Controls when the action will run. 
 on:
@@ -8,7 +8,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - .github/workflows/ios-armv7-ci.yml
+      - .github/workflows/ios-arm-ci.yml
       - buildinfo.properties
   pull_request:
     branches: [ main ]
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  INSTALL_NAME: openssl_ios_armv7
+  INSTALL_NAME: openssl_ios_arm
   IOS_PLATFORM: OS
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -48,16 +48,18 @@ jobs:
           export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
           cd openssl
           openssl_src_root=`pwd`
-          mkdir $openssl_src_root/$INSTALL_NAME
-          ./Configure ios-cross no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/$INSTALL_NAME --openssldir=$openssl_src_root/$INSTALL_NAME
+          openssl_install_dir=$openssl_src_root/$INSTALL_NAME
+          mkdir $openssl_install_dir
+          ./Configure ios-cross no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           make VERBOSE=1
           make install
-          rm -rf ./$INSTALL_NAME/bin
-          rm -rf ./$INSTALL_NAME/misc
-          rm -rf ./$INSTALL_NAME/share
+          rm -rf ./$openssl_install_dir/bin
+          rm -rf ./$openssl_install_dir/misc
+          rm -rf ./$openssl_install_dir/share
           
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/openssl_ios_armv7/**/*
-          name: openssl_ios_armv7
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
+

@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 env:
-  INSTALL_NAME: openssl_osx
+  INSTALL_NAME: openssl_osx_x86_64
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -39,22 +39,25 @@ jobs:
           cd openssl
           git checkout OpenSSL_1_1_1k
           git submodule update --init --recursive
+
       # Runs a set of commands using the runners shell
       - name: Configure & Build openssl
         run: |
           perl --version
           cd openssl
           openssl_src_root=`pwd`
-          mkdir $openssl_src_root/$INSTALL_NAME
-          ./Configure darwin64-x86_64-cc no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_src_root/$INSTALL_NAME --openssldir=$openssl_src_root/$INSTALL_NAME
+          openssl_install_dir=$openssl_src_root/$INSTALL_NAME
+          mkdir $openssl_install_dir
+          ./Configure darwin64-x86_64-cc no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           make VERBOSE=1
           make install
-          rm -rf ./$INSTALL_NAME/bin
-          rm -rf ./$INSTALL_NAME/misc
-          rm -rf ./$INSTALL_NAME/share
+          rm -rf ./$openssl_install_dir/bin
+          rm -rf ./$openssl_install_dir/misc
+          rm -rf ./$openssl_install_dir/share
           
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/openssl_osx/**/*
-          name: openssl_osx
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
+

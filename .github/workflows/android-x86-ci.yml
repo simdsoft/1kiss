@@ -66,9 +66,9 @@ jobs:
           ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=${ANDROID_API} ${OPENSSL_CONFIG_VARS} --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           make VERBOSE=1
           make install
-          rm -rf ./${INSTALL_NAME}/bin
-          rm -rf ./${INSTALL_NAME}/misc
-          rm -rf ./${INSTALL_NAME}/share
+          rm -rf ./$openssl_install_dir/bin
+          rm -rf ./$openssl_install_dir/misc
+          rm -rf ./$openssl_install_dir/share
           
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2

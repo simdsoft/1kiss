@@ -16,6 +16,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  INSTALL_NAME: openssl_linux_x86_64
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -38,27 +41,23 @@ jobs:
           git submodule update --init --recursive
 
       # Runs a set of commands using the runners shell
-      - name: Configure openssl
+      - name: Configure & Build openssl
         run: |
           perl --version
           cd openssl
           openssl_src_root=`pwd`
-          mkdir $openssl_src_root/openssl_linux_x86_64
-          ./config --prefix=$openssl_src_root/openssl_linux_x86_64 --openssldir=$openssl_src_root/openssl_linux_x86_64 --strict-warnings no-shared && perl configdata.pm --dump
-
-      - name: Build openssl
-        run: |
-          cd openssl
+          openssl_install_dir=$openssl_src_root/$INSTALL_NAME
+          mkdir $openssl_install_dir
+          ./config --prefix=$openssl_install_dir --openssldir=$openssl_install_dir --strict-warnings no-shared && perl configdata.pm --dump
           make VERBOSE=1
           make install
-          rm -rf ./openssl_linux_x86_64/bin
-          rm -rf ./openssl_linux_x86_64/misc
-          rm -rf ./openssl_linux_x86_64/share
+          rm -rf ./$openssl_install_dir/bin
+          rm -rf ./$openssl_install_dir/misc
+          rm -rf ./$openssl_install_dir/share
           
-
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/openssl_linux_x86_64/**/*
-          name: openssl_linux_x86_64
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
