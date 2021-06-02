@@ -36,6 +36,8 @@ jobs:
         run: |
           git clone https://github.com/openssl/openssl.git
           pwd
+          openssl_ver=$(cat source.properties | grep -w ndk.ver | cut -d '=' -f 2 | tr -d ' \n')
+          echo openssl_ver=$openssl_ver
           cd openssl
           git checkout OpenSSL_1_1_1k
           git submodule update --init --recursive
