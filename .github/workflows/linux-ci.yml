@@ -51,9 +51,9 @@ jobs:
           ./config --prefix=$openssl_install_dir --openssldir=$openssl_install_dir --strict-warnings no-shared && perl configdata.pm --dump
           make VERBOSE=1
           make install
-          rm -rf ./$openssl_install_dir/bin
-          rm -rf ./$openssl_install_dir/misc
-          rm -rf ./$openssl_install_dir/share
+          rm -rf $openssl_install_dir/bin
+          rm -rf $openssl_install_dir/misc
+          rm -rf $openssl_install_dir/share
           
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2

@@ -53,9 +53,9 @@ jobs:
           ./Configure ios-cross no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           make VERBOSE=1
           make install
-          rm -rf ./$openssl_install_dir/bin
-          rm -rf ./$openssl_install_dir/misc
-          rm -rf ./$openssl_install_dir/share
+          rm -rf $openssl_install_dir/bin
+          rm -rf $openssl_install_dir/misc
+          rm -rf $openssl_install_dir/share
           
       - name: Upload openssl prebuilt files
         uses: actions/upload-artifact@v2
