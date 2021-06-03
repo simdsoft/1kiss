@@ -47,7 +47,7 @@ echo OPENSSL_CONFIG_OPTIONS=${OPENSSL_CONFIG_OPTIONS}
 
 # Install NDK for android
 if [ "$BUILD_TARGET" = "android" ] ; then
-    wget https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
+    wget -q https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
     unzip -q android-ndk-${ndk_ver}-linux-x86_64.zip
     export ANDROID_NDK_HOME=`pwd`/android-ndk-${ndk_ver}
     export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
@@ -55,7 +55,7 @@ if [ "$BUILD_TARGET" = "android" ] ; then
 fi
 
 # Checkout openssl
-git clone https://github.com/openssl/openssl.git
+git clone -q https://github.com/openssl/openssl.git
 pwd
 cd openssl 
 git checkout $openssl_release_tag
@@ -74,11 +74,11 @@ if [ "$BUILD_TARGET" = "linux" ] ; then
 else
     ./Configure $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
 fi
-# make VERBOSE=1
-# make install
-# rm -rf $openssl_install_dir/bin
-# rm -rf $openssl_install_dir/misc
-# rm -rf $openssl_install_dir/share
+make VERBOSE=1
+make install
+rm -rf $openssl_install_dir/bin
+rm -rf $openssl_install_dir/misc
+rm -rf $openssl_install_dir/share
 
 # Export INSTALL_NAME for uploading
 echo "INSTALL_NAME=$INSTALL_NAME" >> $GITHUB_ENV

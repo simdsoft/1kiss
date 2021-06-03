@@ -1,4 +1,6 @@
-# This is a basic workflow to help you get started with Actions
+#
+# Copyright (c) 2021 Bytedance Inc.
+#
 
 name: all-ci
 
@@ -32,11 +34,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   osx:
     # The type of runner that the job will run on
@@ -54,11 +56,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   ios-arm:
     # The type of runner that the job will run on
@@ -76,11 +78,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   ios-arm64:
     # The type of runner that the job will run on
@@ -98,11 +100,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   ios-x86_64:
     # The type of runner that the job will run on
@@ -120,11 +122,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   android-arm:
     # The type of runner that the job will run on
@@ -142,11 +144,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   android-arm64:
     # The type of runner that the job will run on
@@ -164,11 +166,11 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
 
   android-x86:
     # The type of runner that the job will run on
@@ -186,8 +188,8 @@ jobs:
       - name: Build openssl
         run: source 1k/build.sh
 
-      # - name: Upload openssl prebuilt files
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-      #     name: ${{ env.INSTALL_NAME }}
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
