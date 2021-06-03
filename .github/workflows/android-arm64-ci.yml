@@ -9,22 +9,16 @@ on:
     branches: [ main ]
     paths:
       - .github/workflows/android-arm64-ci.yml
-      - buildinfo.properties
+      - source.properties
   pull_request:
     branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# env
-# arm64: android-21
-# arm/x86: android-16
 env:
   INSTALL_NAME: openssl_android
-  NDK_VER: r19c
-  ANDROID_API: 21
   PLATFORM_SHORT_ARCH: arm64
-  OPENSSL_CONFIG_VARS: no-shared no-unit-test no-threads
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -38,13 +32,27 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Parse source.properties
+        run: |
+          openssl_ver=$(cat source.properties | grep -w 'openssl.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          openssl_ver=${openssl_ver//./_}
+          echo "OPENSSL_BUILD_TAG=OpenSSL_$openssl_ver" >> $GITHUB_ENV
+          ndk_ver=$(cat source.properties | grep -w 'ndk.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          echo "NDK_VER=$ndk_ver" >> $GITHUB_ENV
+          openssl_config_options=$(cat source.properties | grep -w 'openssl.config.options.1' | cut -d '=' -f 2 | tr -d '\n')
+          echo "OPENSSL_CONFIG_OPTIONS_1=$openssl_config_options" >> $GITHUB_ENV
+          openssl_config_options=$(cat source.properties | grep -w 'openssl.config.options.2' | cut -d '=' -f 2 | tr -d '\n')
+          echo "OPENSSL_CONFIG_OPTIONS_2=$openssl_config_options" >> $GITHUB_ENV
+          android_api_level=$(cat source.properties | grep -w 'android.api.level.arm64' | cut -d '=' -f 2 | tr -d ' \n')
+          echo "ANDROID_API_LEVEL=$android_api_level" >> $GITHUB_ENV
+
       # Runs a single command using the runners shell
       - name: Checks-out openssl repo
         run: |
           git clone https://github.com/openssl/openssl.git
           pwd
           cd openssl
-          git checkout OpenSSL_1_1_1k
+          git checkout $OPENSSL_BUILD_TAG
           git submodule update --init --recursive
       # Runs a set of commands using the runners shell
       - name: Configure & Build openssl
@@ -63,7 +71,7 @@ jobs:
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/${INSTALL_NAME}_${PLATFORM_SHORT_ARCH}
           mkdir $openssl_install_dir
-          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=${ANDROID_API} ${OPENSSL_CONFIG_VARS} --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
+          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=$ANDROID_API_LEVEL $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
           make VERBOSE=1
           make install
           rm -rf $openssl_install_dir/bin

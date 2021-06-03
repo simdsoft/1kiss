@@ -9,7 +9,7 @@ on:
     branches: [ main ]
     paths:
       - .github/workflows/osx-ci.yml
-      - buildinfo.properties
+      - source.properties
   pull_request:
     branches: [ main ]
 
@@ -31,13 +31,25 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Parse source.properties
+        run: |
+          openssl_ver=$(cat source.properties | grep -w 'openssl.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          openssl_ver=${openssl_ver//./_}
+          echo "OPENSSL_BUILD_TAG=OpenSSL_$openssl_ver" >> $GITHUB_ENV
+          ndk_ver=$(cat source.properties | grep -w 'ndk.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          echo "NDK_VER=$ndk_ver" >> $GITHUB_ENV
+          openssl_config_options=$(cat source.properties | grep -w 'openssl.config.options.1' | cut -d '=' -f 2 | tr -d '\n')
+          echo "OPENSSL_CONFIG_OPTIONS_1=$openssl_config_options" >> $GITHUB_ENV
+          openssl_config_options=$(cat source.properties | grep -w 'openssl.config.options.2' | cut -d '=' -f 2 | tr -d '\n')
+          echo "OPENSSL_CONFIG_OPTIONS_2=$openssl_config_options" >> $GITHUB_ENV
+
       # Runs a single command using the runners shell
       - name: Checks-out openssl repo
         run: |
           git clone https://github.com/openssl/openssl.git
           pwd
           cd openssl
-          git checkout OpenSSL_1_1_1k
+          git checkout $OPENSSL_BUILD_TAG
           git submodule update --init --recursive
 
       # Runs a set of commands using the runners shell
@@ -48,7 +60,7 @@ jobs:
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/$INSTALL_NAME
           mkdir $openssl_install_dir
-          ./Configure darwin64-x86_64-cc no-shared no-dso no-hw no-engine no-threads --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
+          ./Configure darwin64-x86_64-cc $OPENSSL_CONFIG_OPTIONS_1 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
           make VERBOSE=1
           make install
           rm -rf $openssl_install_dir/bin
