@@ -30,6 +30,9 @@ mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/android/arm64-v8a
 mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/android/x86
 ls -R ${OPENSSL_DIST_DIR}
 
+# copy the adxe cmake for openssl
+cp "1k/CMakeLists.txt.in" ${OPENSSL_DIST_DIR}/CMakeLists.txt
+
 # copy common headers
 cp -rf openssl_linux_x86_64/include/openssl ${OPENSSL_DIST_DIR}/include/
 rm -rf ${OPENSSL_DIST_DIR}/include/opensslconf.h
