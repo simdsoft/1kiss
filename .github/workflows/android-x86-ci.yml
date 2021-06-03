@@ -54,19 +54,23 @@ jobs:
           cd openssl
           git checkout $OPENSSL_BUILD_TAG
           git submodule update --init --recursive
+
+      - name: Install NDK
+        run: |
+          wget https://dl.google.com/android/repository/android-ndk-${NDK_VER}-linux-x86_64.zip
+          unzip -q android-ndk-${NDK_VER}-linux-x86_64.zip
+
       # Runs a set of commands using the runners shell
       - name: Configure & Build openssl
         run: |
-          perl --version
-          wget https://dl.google.com/android/repository/android-ndk-${NDK_VER}-linux-x86_64.zip
-          unzip android-ndk-${NDK_VER}-linux-x86_64.zip
           export ANDROID_NDK_HOME=`pwd`/android-ndk-${NDK_VER}
           export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
           cd openssl
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/${INSTALL_NAME}_${PLATFORM_SHORT_ARCH}
           mkdir $openssl_install_dir
-          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=$ANDROID_API_LEVEL $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+          echo android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=$ANDROID_API_LEVEL $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
+          ./Configure android-${PLATFORM_SHORT_ARCH} -D__ANDROID_API__=$ANDROID_API_LEVEL $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           make VERBOSE=1
           make install
           rm -rf $openssl_install_dir/bin
