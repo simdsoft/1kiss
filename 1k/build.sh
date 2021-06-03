@@ -52,7 +52,7 @@ INSTALL_NAME=$BUILD_TARGET_$BUILD_ARCH
 openssl_install_dir=$openssl_src_root/$INSTALL_NAME
 mkdir $openssl_install_dir
 echo $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
-perl Configure $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+./config $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
 make VERBOSE=1
 make install
 rm -rf $openssl_install_dir/bin
