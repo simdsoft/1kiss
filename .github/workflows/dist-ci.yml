@@ -8,13 +8,6 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Distribute openssl prebuilt lib?'
-        # Default value if no value is explicitly provided
-        default: 'yes'
-        # Input has to be provided for the workflow to run
-        required: true
       run_id:
         # actions run ID
         description: 'Specific run id to dist'
@@ -32,10 +25,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Test input
-      run: echo "Hello ${{ github.event.inputs.name }}"
-
+    
     - name: Download artifact
       uses: dawidd6/action-download-artifact@v2
       with:
@@ -68,10 +58,15 @@ jobs:
         # https://github.com/actions/download-artifact#download-all-artifacts
         # name: artifact_name
         # Optional, directory where to extract artifact
-        path: artifacts_extracted
+        # path: openssl-dist-src
         # Optional, defaults to current repo
         # repo: ${{github.repository}}
 
-    - name: Test downloaded files
-      run: |
-        ls -R
+    - name: Distribute openssl lib for adxe engine
+      run: source dist.sh
+      
+    - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.OPENSSL_DIST_DIR }}/**/*
+          name: ${{ env.OPENSSL_DIST_DIR }}
