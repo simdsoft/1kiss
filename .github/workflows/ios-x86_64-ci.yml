@@ -62,7 +62,7 @@ jobs:
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/$INSTALL_NAME
           mkdir $openssl_install_dir
-          ./Configure ios-sim-cross-x86_64 $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+          ./Configure darwin64-x86_64-cc $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
           make VERBOSE=1
           make install
           rm -rf $openssl_install_dir/bin
