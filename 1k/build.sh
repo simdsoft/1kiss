@@ -16,14 +16,18 @@ if [ "$BUILD_TARGET" = "linux" ]; then
 elif [ "$BUILD_TARGET" = "osx" ]; then
     OPENSSL_TARGET=darwin64-x86_64-cc
 elif [ "$BUILD_TARGET" = "ios" ]; then
+    IOS_PLATFORM=OS
     if [ "$BUILD_ARCH" = "arm" ] ; then
         OPENSSL_TARGET=ios-cross
     elif [ "$BUILD_ARCH" = 'arm64' ] ; then
         OPENSSL_TARGET=ios64-cross
     elif [ "$BUILD_ARCH" = "x86_x64" ] ; then
         OPENSSL_TARGET=darwin64-x86_64-cc
+        IOS_PLATFORM=Simulator
     fi
     OPENSSL_CONFIG_OPTIONS=$OPENSSL_CONFIG_OPTIONS $openssl_config_options_2
+    export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
+    export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
 elif [ "$BUILD_TARGET" = "android" ] ; then
     wget https://dl.google.com/android/repository/android-ndk-${NDK_VER}-linux-x86_64.zip
     unzip -q android-ndk-${NDK_VER}-linux-x86_64.zip
@@ -48,16 +52,16 @@ git submodule update --init --recursive
 
 # Config & Build
 openssl_src_root=`pwd`
-INSTALL_NAME=$BUILD_TARGET_$BUILD_ARCH
+INSTALL_NAME=${BUILD_TARGET}_${BUILD_ARCH}
 openssl_install_dir=$openssl_src_root/$INSTALL_NAME
 mkdir $openssl_install_dir
 echo $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
 ./config $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
-make VERBOSE=1
-make install
-rm -rf $openssl_install_dir/bin
-rm -rf $openssl_install_dir/misc
-rm -rf $openssl_install_dir/share
+# make VERBOSE=1
+# make install
+# rm -rf $openssl_install_dir/bin
+# rm -rf $openssl_install_dir/misc
+# rm -rf $openssl_install_dir/share
 
 # Export INSTALL_NAME for uploading
 echo "INSTALL_NAME=$INSTALL_NAME" >> $GITHUB_ENV
