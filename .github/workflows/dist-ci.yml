@@ -5,6 +5,9 @@ name: dist-ci
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
+  workflow_run:
+    workflows: ["ci-all"]
+    types: [completed]
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
