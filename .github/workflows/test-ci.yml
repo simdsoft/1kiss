@@ -10,7 +10,7 @@ on:
     inputs:
       name:
         # Friendly description to be shown in the UI instead of 'name'
-        description: 'Merge openssl prebuilt lib?'
+        description: 'Distribute openssl prebuilt lib?'
         # Default value if no value is explicitly provided
         default: 'yes'
         # Input has to be provided for the workflow to run
@@ -19,7 +19,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  greet:
+  dist:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -31,6 +31,6 @@ jobs:
       
     - name: Test downloaded files
       run: |
-        gh auth login
+        gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
         gh run download 901546696
         ls -R
