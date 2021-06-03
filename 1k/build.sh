@@ -62,7 +62,7 @@ INSTALL_NAME=${BUILD_TARGET}_${BUILD_ARCH}
 openssl_install_dir=$openssl_src_root/$INSTALL_NAME
 mkdir $openssl_install_dir
 echo $OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
-OPENSSL_CONFIG_ALL_OPTIONS="OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
+OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
 echo OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}
 if [ "$RUNNER_OS" = "Linux" ] ; then
     ./config $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
