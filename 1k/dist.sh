@@ -35,8 +35,8 @@ cp "1k/CMakeLists.txt.in" ${OPENSSL_DIST_DIR}/CMakeLists.txt
 
 # copy common headers
 cp -rf openssl_linux_x86_64/include/openssl ${OPENSSL_DIST_DIR}/include/
-rm -rf ${OPENSSL_DIST_DIR}/include/opensslconf.h
-cp "1k/opensslconf.h.in" ${OPENSSL_DIST_DIR}/include/opensslconf.h
+rm -rf ${OPENSSL_DIST_DIR}/include/openssl/opensslconf.h
+cp "1k/opensslconf.h.in" ${OPENSSL_DIST_DIR}/include/openssl/opensslconf.h
 
 # copy platform spec opensslconf.h
 cp "1k/opensslconf-win32.h.in" ${OPENSSL_DIST_DIR}/include/win32/openssl/opensslconf.h
