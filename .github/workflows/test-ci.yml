@@ -32,5 +32,5 @@ jobs:
     - name: Test downloaded files
       run: |
         gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
-        gh run download 901546696
+        gh run download https://github.com/adxeproject/openssl-build/runs/901546696
         ls -R
