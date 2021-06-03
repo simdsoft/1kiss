@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      INSTALL_NAME: openssl_linux_x86_64
+      BUILD_TARGET: linux
+      BUILD_ARCH: x86_64
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
