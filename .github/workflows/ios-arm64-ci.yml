@@ -62,6 +62,7 @@ jobs:
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/$INSTALL_NAME
           mkdir $openssl_install_dir
+          echo ios64-cross $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           ./Configure ios64-cross $OPENSSL_CONFIG_OPTIONS_1 $OPENSSL_CONFIG_OPTIONS_2 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
           make VERBOSE=1
           make install

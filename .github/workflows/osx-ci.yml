@@ -33,14 +33,14 @@ jobs:
 
       - name: Parse source.properties
         run: |
-          openssl_ver=$(cat source.properties | grep -w 'openssl.ver' | cut -d '=' -f 2 | tr -d ' \n')
+          openssl_ver=$(cat source.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
           openssl_ver=${openssl_ver//./_}
           echo "OPENSSL_BUILD_TAG=OpenSSL_$openssl_ver" >> $GITHUB_ENV
           ndk_ver=$(cat source.properties | grep -w 'ndk.ver' | cut -d '=' -f 2 | tr -d ' \n')
           echo "NDK_VER=$ndk_ver" >> $GITHUB_ENV
-          openssl_config_options=$(cat source.properties | grep -w 'openssl.config.options.1' | cut -d '=' -f 2 | tr -d '\n')
+          openssl_config_options=$(cat source.properties | grep -w 'openssl_config_options_1' | cut -d '=' -f 2 | tr -d '\n')
           echo "OPENSSL_CONFIG_OPTIONS_1=$openssl_config_options" >> $GITHUB_ENV
-          openssl_config_options=$(cat source.properties | grep -w 'openssl.config.options.2' | cut -d '=' -f 2 | tr -d '\n')
+          openssl_config_options=$(cat source.properties | grep -w 'openssl_config_options_2' | cut -d '=' -f 2 | tr -d '\n')
           echo "OPENSSL_CONFIG_OPTIONS_2=$openssl_config_options" >> $GITHUB_ENV
 
       # Runs a single command using the runners shell
@@ -60,6 +60,7 @@ jobs:
           openssl_src_root=`pwd`
           openssl_install_dir=$openssl_src_root/$INSTALL_NAME
           mkdir $openssl_install_dir
+          echo darwin64-x86_64-cc $OPENSSL_CONFIG_OPTIONS_1 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
           ./Configure darwin64-x86_64-cc $OPENSSL_CONFIG_OPTIONS_1 --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
           make VERBOSE=1
           make install
