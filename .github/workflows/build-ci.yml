@@ -2,7 +2,7 @@
 # Copyright (c) 2021 Bytedance Inc.
 #
 
-name: all-ci
+name: build-ci
 
 # Controls when the action will run. 
 on:
