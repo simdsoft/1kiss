@@ -70,5 +70,5 @@ jobs:
     - name: Upload openssl prebuilt files
       uses: actions/upload-artifact@v2
       with:
-        path: ./${{ env.OPENSSL_DIST_DIR }}/**/*
-        name: ${{ env.OPENSSL_DIST_DIR }}
+        path: ./openssl-dist/${{ env.OPENSSL_DIST_NAME }}/**/*
+        name: ${{ env.OPENSSL_DIST_NAME }}

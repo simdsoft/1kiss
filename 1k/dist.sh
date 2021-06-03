@@ -2,7 +2,9 @@ ls -R
 
 openssl_ver=$(cat build.ini | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
 openssl_ver=${openssl_ver//./_}
-OPENSSL_DIST_DIR="openssl-dist/openssl_${openssl_ver}"
+
+OPENSSL_DIST_NAME="openssl_${openssl_ver}"
+OPENSSL_DIST_DIR="openssl-dist/${OPENSSL_DIST_NAME}"
 
 # mkdir for commen
 mkdir -p ${OPENSSL_DIST_DIR}/include
@@ -59,5 +61,5 @@ lipo -info ${OPENSSL_DIST_DIR}/prebuilt/ios/libcrypto.a
 
 ls -R ${OPENSSL_DIST_DIR}
 
-# Export OPENSSL_DIST_DIR for uploading
-echo "OPENSSL_DIST_DIR=$OPENSSL_DIST_DIR" >> $GITHUB_ENV
+# Export OPENSSL_DIST_NAME for uploading
+echo "OPENSSL_DIST_NAME=$OPENSSL_DIST_NAME" >> $GITHUB_ENV
