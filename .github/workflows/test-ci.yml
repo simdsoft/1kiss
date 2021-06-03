@@ -10,9 +10,9 @@ on:
     inputs:
       name:
         # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
+        description: 'Merge openssl prebuilt lib?'
         # Default value if no value is explicitly provided
-        default: 'World'
+        default: 'yes'
         # Input has to be provided for the workflow to run
         required: true
 
@@ -26,10 +26,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Runs a single command using the runners shell
-    - name: Send greeting
+    - name: Test input
       run: echo "Hello ${{ github.event.inputs.name }}"
       
     - name: Test downloaded files
       run: |
+        gh auth login
         gh run download 901546696
         ls -R
