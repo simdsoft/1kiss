@@ -9,20 +9,19 @@ android_api_level=$(cat source.properties | grep -w 'android_api_level' | cut -d
 android_api_level_arm64=$(cat source.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
 
 
-
 # Determine build target & config options
 OPENSSL_CONFIG_OPTIONS=$openssl_config_options_1
 if [ "$BUILD_TARGET" = "linux" ]; then
-    $OPENSSL_TARGET=
+    OPENSSL_TARGET=
 elif [ "$BUILD_TARGET" = "osx" ]; then
-    $OPENSSL_TARGET=darwin64-x86_64-cc
+    OPENSSL_TARGET=darwin64-x86_64-cc
 elif [ "$BUILD_TARGET" = "ios" ]; then
     if [ "$BUILD_ARCH" = "arm" ] ; then
-        $OPENSSL_TARGET=ios-cross
+        OPENSSL_TARGET=ios-cross
     elif [ "$BUILD_ARCH" = 'arm64' ] ; then
-        $OPENSSL_TARGET=ios64-cross
+        OPENSSL_TARGET=ios64-cross
     elif [ "$BUILD_ARCH" = "x86_x64" ] ; then
-        $OPENSSL_TARGET=darwin64-x86_64-cc
+        OPENSSL_TARGET=darwin64-x86_64-cc
     fi
     OPENSSL_CONFIG_OPTIONS=$OPENSSL_CONFIG_OPTIONS $openssl_config_options_2
 elif [ "$BUILD_TARGET" = "android" ] ; then
@@ -31,9 +30,9 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
     export ANDROID_NDK_HOME=`pwd`/android-ndk-${NDK_VER}
     export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
     if [ "$BUILD_ARCH" = "arm64" ] ; then
-        $OPENSSL_TARGET=android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64
+        OPENSSL_TARGET=android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64
     else
-        $OPENSSL_TARGET=android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level
+        OPENSSL_TARGET=android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level
     fi
     OPENSSL_CONFIG_OPTIONS=$OPENSSL_CONFIG_OPTIONS $openssl_config_options_2
 else
