@@ -63,7 +63,7 @@ jobs:
         # repo: ${{github.repository}}
 
     - name: Distribute openssl lib for adxe engine
-      run: source dist.sh
+      run: source 1k/dist.sh
       
     - name: Upload openssl prebuilt files
       uses: actions/upload-artifact@v2
