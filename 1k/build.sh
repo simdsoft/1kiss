@@ -8,6 +8,7 @@ openssl_config_options_2=$(cat source.properties | grep -w 'openssl_config_optio
 android_api_level=$(cat source.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
 android_api_level_arm64=$(cat source.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
 
+echo "RUNNER_OS=$RUNNER_OS"
 
 # Determine build target & config options
 OPENSSL_CONFIG_OPTIONS=$openssl_config_options_1
@@ -56,7 +57,11 @@ INSTALL_NAME=${BUILD_TARGET}_${BUILD_ARCH}
 openssl_install_dir=$openssl_src_root/$INSTALL_NAME
 mkdir $openssl_install_dir
 echo $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
-./config $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+if [ "$RUNNER_OS" = "Linux" ] ; then
+    ./config $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+else
+    ./Configure $OPENSSL_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+fi
 # make VERBOSE=1
 # make install
 # rm -rf $openssl_install_dir/bin
