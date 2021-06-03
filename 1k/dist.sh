@@ -50,8 +50,8 @@ cp openssl_android_arm64/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/android/arm64-v8a/
 cp openssl_android_x86/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/android/x86/
 
 # create flat lib for ios
-lipo -create openssl_ios_arm/lib/libssl.a openssl_ios_arm64/lib/libssl.a openssl_ios_x86_64/lib/libssl.a -output ${OPENSSL_DIST_DIR}/prebuilt/ios/
-lipo -create openssl_ios_arm/lib/libcrypto.a openssl_ios_arm64/lib/libcrypto.a openssl_ios_x86_64/lib/libcrypto.a -output ${OPENSSL_DIST_DIR}/prebuilt/ios/
+lipo -create openssl_ios_arm/lib/libssl.a openssl_ios_arm64/lib/libssl.a openssl_ios_x86_64/lib/libssl.a -output ${OPENSSL_DIST_DIR}/prebuilt/ios/libssl.a
+lipo -create openssl_ios_arm/lib/libcrypto.a openssl_ios_arm64/lib/libcrypto.a openssl_ios_x86_64/lib/libcrypto.a -output ${OPENSSL_DIST_DIR}/prebuilt/ios/libcrypto.a
 
 # check the flat lib
 lipo -info ${OPENSSL_DIST_DIR}/prebuilt/ios/libssl.a
