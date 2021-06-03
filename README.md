@@ -17,3 +17,5 @@ Building openssl for multi-platforms with github actions.
   - armv7
   - arm64
   - x86
+- windows
+  - x86 (inprogress)
