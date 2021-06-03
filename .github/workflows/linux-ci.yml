@@ -61,7 +61,7 @@ jobs:
           mkdir $openssl_install_dir
           echo OPENSSL_CONFIG_OPTIONS_1=$OPENSSL_CONFIG_OPTIONS_1
           echo $OPENSSL_CONFIG_OPTIONS_1 --strict-warnings --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
-          ./config $OPENSSL_CONFIG_OPTIONS_1 --strict-warnings --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
+          ./Configure $OPENSSL_CONFIG_OPTIONS_1 --strict-warnings --prefix=$openssl_install_dir --openssldir=$openssl_install_dir && perl configdata.pm --dump
           make VERBOSE=1
           make install
           rm -rf $openssl_install_dir/bin
