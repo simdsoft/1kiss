@@ -6,7 +6,7 @@ name: dist-ci
 # or API.
 on:
   workflow_run:
-    workflows: ["ci-all"]
+    workflows: ["build-ci"]
     types: [completed]
   workflow_dispatch:
     # Inputs the workflow accepts.
