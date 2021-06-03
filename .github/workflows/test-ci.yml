@@ -18,28 +18,8 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  job1:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - run: mkdir -p dist
-    - run: echo hello > dist/world.txt
-    - uses: actions/upload-artifact@master
-      with:
-        name: hello-world-artifact
-        path: dist/world.txt
-  job2:
-    runs-on: macos-latest
-    steps:
-    - run: mkdir -p dist
-    - uses: actions/download-artifact@master
-      with:
-        name: hello-world-artifact
-        path: dist/world.txt
-    - run: cat dist/world.txt
-  
   # This workflow contains a single job called "greet"
-  job3:
+  dist:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -48,10 +28,43 @@ jobs:
     # Runs a single command using the runners shell
     - name: Test input
       run: echo "Hello ${{ github.event.inputs.name }}"
-      
+
+    - name: Download artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        # Optional, GitHub token
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        # Required, workflow file name or ID
+        workflow: ios-arm-ci.yml
+        # Optional, the status or conclusion of a completed workflow to search for
+        # Can be one of a workflow conclusion::
+        # "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
+        # Or a workflow status:
+        # "completed", "in_progress", "queued"
+        # Default: "completed,success"
+        workflow_conclusion: success
+        # Optional, will get head commit SHA
+        pr: ${{github.event.pull_request.number}}
+        # Optional, no need to specify if PR is
+        # commit: ${{github.event.pull_request.head.sha}}
+        # Optional, will use the branch
+        branch: main
+        # Optional, defaults to all types
+        # event: push
+        # Optional, will use specified workflow run
+        run_id: 1122334455
+        # Optional, run number from the workflow
+        # run_number: 34
+        # Optional, uploaded artifact name,
+        # will download all artifacts if not specified
+        # and extract them in respective subdirectories
+        # https://github.com/actions/download-artifact#download-all-artifacts
+        # name: artifact_name
+        # Optional, directory where to extract artifact
+        path: artifacts_extracted
+        # Optional, defaults to current repo
+        # repo: ${{github.repository}}
+
     - name: Test downloaded files
       run: |
-        gh version
-        # gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
-        # gh run download
         ls -R
