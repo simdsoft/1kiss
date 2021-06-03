@@ -1,18 +1,19 @@
 # Prepare env
-openssl_ver=$(cat source.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
+openssl_ver=$(cat build.ini | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
 openssl_ver=${openssl_ver//./_}
 openssl_release_tag=OpenSSL_$openssl_ver
-ndk_ver=$(cat source.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d ' \n')
-openssl_config_options_1=$(cat source.properties | grep -w 'openssl_config_options_1' | cut -d '=' -f 2 | tr -d '\n')
-openssl_config_options_2=$(cat source.properties | grep -w 'openssl_config_options_2' | cut -d '=' -f 2 | tr -d '\n')
-android_api_level=$(cat source.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
-android_api_level_arm64=$(cat source.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
+ndk_ver=$(cat build.ini | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d ' \n')
+openssl_config_options_1=$(cat build.ini | grep -w 'openssl_config_options_1' | cut -d '=' -f 2 | tr -d '\n')
+openssl_config_options_2=$(cat build.ini | grep -w 'openssl_config_options_2' | cut -d '=' -f 2 | tr -d '\n')
+android_api_level=$(cat build.ini | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
+android_api_level_arm64=$(cat build.ini | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
 
 echo "RUNNER_OS=$RUNNER_OS"
 echo "BUILD_TARGET=$BUILD_TARGET"
 echo "BUILD_ARCH=$BUILD_ARCH"
 
 # Determine build target & config options
+export OPENSSL_LOCAL_CONFIG_DIR="`pwd`/1k"
 OPENSSL_CONFIG_OPTIONS=$openssl_config_options_1
 if [ "$BUILD_TARGET" = "linux" ]; then
     OPENSSL_CONFIG_TARGET=
@@ -25,7 +26,7 @@ elif [ "$BUILD_TARGET" = "ios" ]; then
     elif [ "$BUILD_ARCH" = 'arm64' ] ; then
         OPENSSL_CONFIG_TARGET=ios64-cross
     elif [ "$BUILD_ARCH" = "x86_64" ] ; then
-        OPENSSL_CONFIG_TARGET=darwin64-x86_64-cc
+        OPENSSL_CONFIG_TARGET=ios-sim-cross-x86_64
         IOS_PLATFORM=Simulator
     fi
     OPENSSL_CONFIG_OPTIONS="$OPENSSL_CONFIG_OPTIONS $openssl_config_options_2"
@@ -67,7 +68,7 @@ INSTALL_NAME=openssl_${BUILD_TARGET}_${BUILD_ARCH}
 openssl_install_dir=$openssl_src_root/$INSTALL_NAME
 mkdir $openssl_install_dir
 echo $OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
-OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS BN_LLONG RC4_CHAR --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
+OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
 echo OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}
 if [ "$BUILD_TARGET" = "linux" ] ; then
     ./config $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
