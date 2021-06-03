@@ -24,7 +24,7 @@ elif [ "$BUILD_TARGET" = "ios" ]; then
         OPENSSL_CONFIG_TARGET=ios-cross
     elif [ "$BUILD_ARCH" = 'arm64' ] ; then
         OPENSSL_CONFIG_TARGET=ios64-cross
-    elif [ "$BUILD_ARCH" = "x86_x64" ] ; then
+    elif [ "$BUILD_ARCH" = "x86_64" ] ; then
         OPENSSL_CONFIG_TARGET=darwin64-x86_64-cc
         IOS_PLATFORM=Simulator
     fi
@@ -32,10 +32,6 @@ elif [ "$BUILD_TARGET" = "ios" ]; then
     export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
     export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
 elif [ "$BUILD_TARGET" = "android" ] ; then
-    wget https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
-    unzip -q android-ndk-${ndk_ver}-linux-x86_64.zip
-    export ANDROID_NDK_HOME=`pwd`/android-ndk-${ndk_ver}
-    export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
     if [ "$BUILD_ARCH" = "arm64" ] ; then
         OPENSSL_CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
     else
@@ -49,6 +45,15 @@ fi
 echo OPENSSL_CONFIG_TARGET=${OPENSSL_CONFIG_TARGET}
 echo OPENSSL_CONFIG_OPTIONS=${OPENSSL_CONFIG_OPTIONS}
 
+# Install NDK for android
+if [ "$BUILD_TARGET" = "android" ] ; then
+    wget https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
+    unzip -q android-ndk-${ndk_ver}-linux-x86_64.zip
+    export ANDROID_NDK_HOME=`pwd`/android-ndk-${ndk_ver}
+    export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
+    echo PATH=$PATH
+fi
+
 # Checkout openssl
 git clone https://github.com/openssl/openssl.git
 pwd
@@ -59,12 +64,12 @@ git submodule update --init --recursive
 # Config & Build
 openssl_src_root=`pwd`
 INSTALL_NAME=${BUILD_TARGET}_${BUILD_ARCH}
-openssl_install_dir=$openssl_src_root/$INSTALL_NAME
+openssl_install_dir=$openssl_src_root/openssl_$INSTALL_NAME
 mkdir $openssl_install_dir
 echo $OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
 OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
 echo OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}
-if [ "$RUNNER_OS" = "Linux" ] ; then
+if [ "$BUILD_TARGET" = "linux" ] ; then
     ./config $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
 else
     ./Configure $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
