@@ -14,7 +14,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  linux:
+  win32:
     # The type of runner that the job will run on
     runs-on: windows-latest
     
@@ -29,6 +29,10 @@ jobs:
 
       - name: Build openssl
         run: |
+          curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o nasm-2.15.05-win64.zip
+          Expand-Archive -Path nasm-2.15.05-win64.zip -DestinationPath .\
+          ls -R
           git clone -q https://github.com/openssl/openssl
           cd openssl
+          git checkout OpenSSL_1.1.1k
           perl Configure VC-WIN32
