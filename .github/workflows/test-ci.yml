@@ -18,6 +18,32 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - run: mkdir -p dist
+
+    - run: echo hello > dist/world.txt
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: hello-world-artifact
+        path: dist/world.txt
+
+  job2:
+    runs-on: macos-latest
+
+    steps:
+    - run: mkdir -p dist
+
+    - uses: actions/download-artifact@master
+      with:
+        name: hello-world-artifact
+        path: dist/world.txt
+
+    - run: cat dist/world.txt
   # This workflow contains a single job called "greet"
   dist:
     # The type of runner that the job will run on
@@ -32,6 +58,6 @@ jobs:
     - name: Test downloaded files
       run: |
         gh version
-        gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
-        gh run download
+        # gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
+        # gh run download
         ls -R
