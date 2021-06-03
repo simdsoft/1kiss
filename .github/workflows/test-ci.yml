@@ -33,5 +33,5 @@ jobs:
       run: |
         gh version
         gh auth login --with-token ${{ secrets.GITHUB_TOKEN }}
-        gh run download 901546696
+        gh run download
         ls -R
