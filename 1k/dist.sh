@@ -33,8 +33,10 @@ ls -R ${OPENSSL_DIST_DIR}
 # copy common headers
 cp -rf openssl_linux_x86_64/include/openssl ${OPENSSL_DIST_DIR}/include/
 rm -rf ${OPENSSL_DIST_DIR}/include/opensslconf.h
+cp "1k/opensslconf.h.in" ${OPENSSL_DIST_DIR}/include/opensslconf.h
 
 # copy platform spec opensslconf.h
+cp "1k/opensslconf-win32.h.in" ${OPENSSL_DIST_DIR}/include/win32/openssl/opensslconf.h
 cp openssl_linux_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/linux/openssl/
 cp openssl_osx_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/mac/openssl/
 cp openssl_ios_arm/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/ios-arm/openssl/
