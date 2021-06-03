@@ -37,5 +37,6 @@ jobs:
           nasm -v
           git clone -q https://github.com/openssl/openssl
           cd openssl
-          git checkout OpenSSL_1.1.1k
+          git checkout OpenSSL_1_1_1k
           perl Configure VC-WIN32
+          nmake
