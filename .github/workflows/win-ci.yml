@@ -31,7 +31,10 @@ jobs:
         run: |
           curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o nasm-2.15.05-win64.zip
           Expand-Archive -Path nasm-2.15.05-win64.zip -DestinationPath .\
-          ls -R
+          ls -R nasm-2.15.05
+          $nasm_bin = (Resolve-Path .\nasm-2.15.05).Path
+          $env:Path = "$nasm_bin;$env:Path"
+          nasm -v
           git clone -q https://github.com/openssl/openssl
           cd openssl
           git checkout OpenSSL_1.1.1k
