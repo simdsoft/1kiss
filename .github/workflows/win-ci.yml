@@ -27,5 +27,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Prepare build tools
-        run: perl version
+      - name: Build openssl
+        run: |
+          git clone -q https://github.com/openssl/openssl
+          cd openssl
+          perl Configure VC-WIN32
