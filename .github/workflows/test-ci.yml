@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+name: test-ci
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -28,7 +28,8 @@ jobs:
     # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Hello ${{ github.event.inputs.name }}"
-    - name: Download a Build Artifact
-      uses: actions/download-artifact@v2.0.9
-    - name: Display structure of downloaded files
-      run: ls -R
+      
+    - name: Test downloaded files
+      run: |
+        gh run download 901546696
+        ls -R
