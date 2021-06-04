@@ -25,7 +25,7 @@ $OPENSSL_CONFIG_OPTIONS=($openssl_config_options_msw -split ' ')
 $OPENSSL_CONFIG_ALL_OPTIONS=@()
 
 # Determine build target & config options
-if($env:BUILD_ARCH -eq "x64") {
+if($env:BUILD_ARCH -eq "x86_64") {
     $OPENSSL_CONFIG_ALL_OPTIONS += 'VC-WIN64A'
 }
 else {
