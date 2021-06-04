@@ -7,7 +7,8 @@ on:
     branches: [ main ]
     paths:
       - .github/workflows/windows-ci.yml
-      - build.ini
+      - 1k/build.ps1
+      - build.properties
   pull_request:
     branches: [ main ]
 

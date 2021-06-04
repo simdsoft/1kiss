@@ -54,6 +54,9 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     echo PATH=$PATH
 fi
 
+# Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
+export OPENSSL_LOCAL_CONFIG_DIR="`pwd`/1k" 
+
 # Checkout openssl
 git clone -q https://github.com/openssl/openssl.git
 pwd
@@ -69,7 +72,6 @@ mkdir $openssl_install_dir
 echo $OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
 OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
 echo OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}
-export OPENSSL_LOCAL_CONFIG_DIR="`pwd`/1k" # perl script file 'Configure' 
 if [ "$BUILD_TARGET" = "linux" ] ; then
     ./config $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
 else

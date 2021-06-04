@@ -30,7 +30,7 @@ git checkout $openssl_release_tag
 # Config & Build
 $openssl_src_root=(Resolve-Path .\).Path
 $INSTALL_NAME="openssl_windows_${env:BUILD_ARCH}"
-$openssl_install_dir="$openssl_src_root/$INSTALL_NAME"
+$openssl_install_dir="$openssl_src_root\$INSTALL_NAME"
 $OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
 echo "OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}"
 mkdir "$openssl_install_dir"
@@ -39,11 +39,11 @@ nmake
 nmake install
 
 # Delete files what we don't want
-del -recurse html
-del lib\engines-1_1 -recurse
-del bin\*.pl
-del bin\*.pdb
-del bin\*.exe
+del "$openssl_install_dir\html" -recurse
+del "$openssl_install_dir\lib\engines-1_1" -recurse
+del "$openssl_install_dir\bin\*.pl"
+del "$openssl_install_dir\bin\*.pdb"
+del "$openssl_install_dir\bin\*.exe"
 
 # Export INSTALL_NAME for uploading
 echo "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}

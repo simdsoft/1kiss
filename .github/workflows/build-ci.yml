@@ -12,7 +12,7 @@ on:
     paths:
       - .github/workflows/build-ci.yml
       - 1k/build.sh
-      - build.ini
+      - build.properties
   pull_request:
     branches: [ main ]
 
