@@ -1,4 +1,6 @@
-# This is a basic workflow that is manually triggered
+#
+# Copyright (c) 2021 Bytedance Inc.
+#
 
 name: dist-ci
 
@@ -23,7 +25,7 @@ on:
         required: false
       release_tag:
         # actions run ID
-        description: 'Please specific a exists release tag name£¬such as v1.0.0'
+        description: 'Please specific a exists release tag nameÂ£Â¬such as v1.0.0'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
@@ -41,7 +43,7 @@ jobs:
 
     - uses: actions/checkout@v2
     
-    - name: Download artifact
+    - name: Download artifact from workflow build-ci
       uses: dawidd6/action-download-artifact@v2
       with:
         # Optional, GitHub token
