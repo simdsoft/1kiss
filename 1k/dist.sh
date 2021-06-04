@@ -1,6 +1,6 @@
 ls -R
 
-openssl_ver=$(cat build.ini | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
+openssl_ver=$(cat build.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
 openssl_ver=${openssl_ver//./_}
 
 OPENSSL_DIST_NAME="openssl_${openssl_ver}"
@@ -39,7 +39,7 @@ rm -rf ${OPENSSL_DIST_DIR}/include/openssl/opensslconf.h
 cp "1k/opensslconf.h.in" ${OPENSSL_DIST_DIR}/include/openssl/opensslconf.h
 
 # copy platform spec opensslconf.h
-cp "1k/opensslconf-win32.h.in" ${OPENSSL_DIST_DIR}/include/win32/openssl/opensslconf.h
+cp openssl_windows_x86/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/win32/openssl/opensslconf.h
 cp openssl_linux_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/linux/openssl/
 cp openssl_osx_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/mac/openssl/
 cp openssl_ios_arm/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/ios-arm/openssl/
@@ -50,6 +50,8 @@ cp openssl_android_arm64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/inclu
 cp openssl_android_x86/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/android-x86/openssl/
 
 # copy libs
+cp openssl_windows_x86/lib/*.lib ${OPENSSL_DIST_DIR}/prebuilt/win32/
+cp openssl_windows_x86/bin/*.dll ${OPENSSL_DIST_DIR}/prebuilt/win32/
 cp openssl_linux_x86_64/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/linux/64-bit/
 cp openssl_osx_x86_64/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/mac/
 cp openssl_android_arm/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/android/armeabi-v7a/
