@@ -5,6 +5,9 @@ name: dist-ci
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
+  push:
+    tags:
+      - 'v*.*.*'
   workflow_run:
     workflows: ["build-ci"]
     types: [completed]
@@ -73,5 +76,16 @@ jobs:
     - name: Upload openssl prebuilt files
       uses: actions/upload-artifact@v2
       with:
-        path: ./openssl-dist/**/*
+        path: ./${{ env.OPENSSL_DIST_PACKAGE }}
         name: ${{ env.OPENSSL_DIST_NAME }}
+
+    - name: Parse release tag name
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo "RELEASE_TAG_NAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
+    - name: Upload openssl dist package
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        name: ${{ env.RELEASE_TAG_NAME }}-${{ env.OPENSSL_DIST_NAME }}
+        files: ${{ env.OPENSSL_DIST_PACKAGE }}

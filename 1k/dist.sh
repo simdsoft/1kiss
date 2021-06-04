@@ -66,7 +66,12 @@ lipo -create openssl_ios_arm/lib/libcrypto.a openssl_ios_arm64/lib/libcrypto.a o
 lipo -info ${OPENSSL_DIST_DIR}/prebuilt/ios/libssl.a
 lipo -info ${OPENSSL_DIST_DIR}/prebuilt/ios/libcrypto.a
 
+# create dist package
+OPENSSL_DIST_PACKAGE=${OPENSSL_DIST_NAME}.zip
+zip -q -r ${OPENSSL_DIST_PACKAGE} ${OPENSSL_DIST_DIR}
+
 ls -R ${OPENSSL_DIST_DIR}
 
-# Export OPENSSL_DIST_NAME for uploading
+# Export OPENSSL_DIST_NAME and OPENSSL_DIST_PACKAGE for uploading
 echo "OPENSSL_DIST_NAME=$OPENSSL_DIST_NAME" >> $GITHUB_ENV
+echo "OPENSSL_DIST_PACKAGE=${OPENSSL_DIST_PACKAGE}" >> $GITHUB_ENV
