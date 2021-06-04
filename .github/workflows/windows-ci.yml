@@ -6,7 +6,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - .github/workflows/win-ci.yml
+      - .github/workflows/windows-ci.yml
       - build.ini
   pull_request:
     branches: [ main ]
