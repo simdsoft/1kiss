@@ -12,6 +12,7 @@ on:
     paths:
       - .github/workflows/build-ci.yml
       - 1k/build.sh
+      - 1k/build.ps1
       - build.properties
   pull_request:
     branches: [ main ]
