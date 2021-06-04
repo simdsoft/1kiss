@@ -20,7 +20,7 @@ else {
     $OPENSSL_CONFIG_TARGET = 'VC-WIN32'
 }
 
-$OPENSSL_CONFIG_OPTIONS="no-unit-test"
+$OPENSSL_CONFIG_OPTIONS=""
 
 # Checkout openssl
 git clone -q https://github.com/openssl/openssl
