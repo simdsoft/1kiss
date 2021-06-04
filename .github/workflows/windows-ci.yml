@@ -40,5 +40,8 @@ jobs:
       - name: Build openssl
         run: .\1k\build.ps1
 
-      - name: Check INSTALL_NAME
-        run: echo "INSTALL_NAME=${env:INSTALL_NAME}"
+      - name: Upload openssl prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
+          name: ${{ env.INSTALL_NAME }}
