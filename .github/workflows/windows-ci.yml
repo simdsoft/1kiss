@@ -24,6 +24,9 @@ jobs:
         arch:
           - x86
           - x64
+    env:
+      BUILD_ARCH: ${{ matrix.arch }}
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -35,4 +38,4 @@ jobs:
 
       - name: Build openssl
         run: |
-          echo building for windows ${{ matrix.arch }}
+          echo "Building for windows ${env:BUILD_ARCH}"
