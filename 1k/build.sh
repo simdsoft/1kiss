@@ -1,19 +1,18 @@
 # Prepare env
-openssl_ver=$(cat build.ini | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
+openssl_ver=$(cat build.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
 openssl_ver=${openssl_ver//./_}
 openssl_release_tag=OpenSSL_$openssl_ver
-ndk_ver=$(cat build.ini | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d ' \n')
-openssl_config_options_1=$(cat build.ini | grep -w 'openssl_config_options_1' | cut -d '=' -f 2 | tr -d '\n')
-openssl_config_options_2=$(cat build.ini | grep -w 'openssl_config_options_2' | cut -d '=' -f 2 | tr -d '\n')
-android_api_level=$(cat build.ini | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
-android_api_level_arm64=$(cat build.ini | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
+ndk_ver=$(cat build.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d ' \n')
+openssl_config_options_1=$(cat build.properties | grep -w 'openssl_config_options_1' | cut -d '=' -f 2 | tr -d '\n')
+openssl_config_options_2=$(cat build.properties | grep -w 'openssl_config_options_2' | cut -d '=' -f 2 | tr -d '\n')
+android_api_level=$(cat build.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
+android_api_level_arm64=$(cat build.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
 
 echo "RUNNER_OS=$RUNNER_OS"
 echo "BUILD_TARGET=$BUILD_TARGET"
 echo "BUILD_ARCH=$BUILD_ARCH"
 
 # Determine build target & config options
-export OPENSSL_LOCAL_CONFIG_DIR="`pwd`/1k"
 OPENSSL_CONFIG_OPTIONS=$openssl_config_options_1
 if [ "$BUILD_TARGET" = "linux" ]; then
     OPENSSL_CONFIG_TARGET=
@@ -70,6 +69,7 @@ mkdir $openssl_install_dir
 echo $OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
 OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
 echo OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}
+export OPENSSL_LOCAL_CONFIG_DIR="`pwd`/1k" # perl script file 'Configure' 
 if [ "$BUILD_TARGET" = "linux" ] ; then
     ./config $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
 else

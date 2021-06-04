@@ -37,5 +37,7 @@ jobs:
           arch: ${{ matrix.arch }}
 
       - name: Build openssl
-        run: |
-          echo "Building for windows ${env:BUILD_ARCH}"
+        run: .\1k\build.ps1
+
+      - name: Check INSTALL_NAME
+        run: echo "INSTALL_NAME=${env:INSTALL_NAME}"
