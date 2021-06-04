@@ -16,7 +16,14 @@ on:
     inputs:
       run_id:
         # actions run ID
-        description: 'Specific run id to dist'
+        description: 'Please specific build-c run id to dist'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: false
+      release_tag:
+        # actions run ID
+        description: 'Please specific a exists release tag name£¬such as v1.0.0'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
@@ -49,7 +56,7 @@ jobs:
         # Default: "completed,success"
         workflow_conclusion: success
         # Optional, will get head commit SHA
-        pr: ${{github.event.pull_request.number}}
+        # pr: ${{github.event.pull_request.number}}
         # Optional, no need to specify if PR is
         # commit: ${{github.event.pull_request.head.sha}}
         # Optional, will use the branch
@@ -82,10 +89,17 @@ jobs:
     - name: Parse release tag name
       if: startsWith(github.ref, 'refs/tags/')
       run: echo "RELEASE_TAG_NAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-
+    - name: Determine release tag name from input
+      run: |
+        if [ "$RELEASE_TAG_NAME" = "" ]; then
+          RELEASE_TAG_NAME=${{github.event.inputs.release_tag}}
+          echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME" >> $GITHUB_ENV
+        fi
     - name: Upload openssl dist package to release page
+      if: ${{ env.RELEASE_TAG_NAME != '' }}
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: ${{ env.RELEASE_TAG_NAME }}
         name: ${{ env.RELEASE_TAG_NAME }}-${{ env.OPENSSL_DIST_NAME }}
         files: ${{ env.OPENSSL_DIST_PACKAGE }}
       env:
