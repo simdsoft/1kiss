@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2021 Bytedance Inc.
+#
+
 # Prepare env
 openssl_ver=$(cat build.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
 openssl_ver=${openssl_ver//./_}

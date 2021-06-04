@@ -353,3 +353,5 @@ MigrationBackup/
 *.xsxproj
 
 .vs
+
+/openssl
