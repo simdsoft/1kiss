@@ -70,10 +70,10 @@ jobs:
         # Optional, defaults to current repo
         # repo: ${{github.repository}}
 
-    - name: Distribute openssl lib for adxe engine
+    - name: Prepare openssl dist package
       run: source 1k/dist.sh
       
-    - name: Upload openssl prebuilt files
+    - name: Upload openssl dist package to artifact page
       uses: actions/upload-artifact@v2
       with:
         path: ./${{ env.OPENSSL_DIST_PACKAGE }}
@@ -83,9 +83,11 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: echo "RELEASE_TAG_NAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
-    - name: Upload openssl dist package
+    - name: Upload openssl dist package to release page
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         name: ${{ env.RELEASE_TAG_NAME }}-${{ env.OPENSSL_DIST_NAME }}
         files: ${{ env.OPENSSL_DIST_PACKAGE }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: adxeproject/openssl-build
