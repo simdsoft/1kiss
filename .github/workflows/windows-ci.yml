@@ -1,4 +1,4 @@
-name: win-ci
+name: windows-ci
 
 # Controls when the action will run. 
 on:
@@ -14,14 +14,16 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  win32:
+  windows:
     # The type of runner that the job will run on
     runs-on: windows-latest
     
-    env:
-      BUILD_TARGET: windows
-      BUILD_ARCH: x86
-
+    # Run a job for each of the specified target architectures:
+    strategy:
+      matrix:
+        arch:
+          - x86
+          - x64
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -29,18 +31,8 @@ jobs:
 
       - uses: ilammy/msvc-dev-cmd@v1.9.0
         with:
-          arch: x86
+          arch: ${{ matrix.arch }}
 
       - name: Build openssl
         run: |
-          curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o nasm-2.15.05-win64.zip
-          Expand-Archive -Path nasm-2.15.05-win64.zip -DestinationPath .\
-          ls -R nasm-2.15.05
-          $nasm_bin = (Resolve-Path .\nasm-2.15.05).Path
-          $env:Path = "$nasm_bin;$env:Path"
-          nasm -v
-          git clone -q https://github.com/openssl/openssl
-          cd openssl
-          git checkout OpenSSL_1_1_1k
-          perl Configure VC-WIN32
-          nmake
+          echo building for windows ${{ matrix.arch }}
