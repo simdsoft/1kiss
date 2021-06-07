@@ -17,11 +17,15 @@ if(!(Test-Path $PROPS_FILE -PathType Leaf)) {
     return -1
 }
 
+# Create buildsrc tmp dir for build libs
+$buildware_root = (Resolve-Path .\).Path
+mkdir "buildsrc"
+
 # Install nasm
-$nasm_bin = (Resolve-Path .\buildsrc\nasm-2.15.05).Path
+$nasm_bin = "$buildware_root\buildsrc\nasm-2.15.05"
 if(!(Test-Path "$nasm_bin" -PathType Container)) {
     curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o .\buildsrc\nasm-2.15.05-win64.zip
-    Expand-Archive -Path nasm-2.15.05-win64.zip -DestinationPath .\buildsrc
+    Expand-Archive -Path .\buildsrc\nasm-2.15.05-win64.zip -DestinationPath .\buildsrc
 }
 $env:Path = "$nasm_bin;$env:Path"
 nasm -v
@@ -65,8 +69,6 @@ else { # opnel openssl use perl
 
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
-$buildware_root=(Resolve-Path .\).Path
-$install_dir="${buildware_root}\${INSTALL_ROOT}\${LIB_NAME}"
 
 # Checkout repo
 Set-Location buildsrc
@@ -90,27 +92,27 @@ else {
 }
 
  # Config & Build
- $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$install_dir"
+ $install_dir="${buildware_root}\${INSTALL_ROOT}\${LIB_NAME}"
  mkdir "$install_dir"
- Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
-
 if ($cb_tool -eq 'cmake') {
     if(!$cmake_target) {
         $cmake_target = 'INSTALL'
     }
+    $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$install_dir"
+    Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     cmake -S . -B build_$ARCH $CONFIG_ALL_OPTIONS
     cmake --build build_$ARCH --config Release --target $cmake_target
 }
 else { # only openssl use perl
-    $CONFIG_ALL_OPTIONS += "--openssldir=$openssl_install_dir"
+    CONFIG_ALL_OPTIONS += "--prefix=$openssl_install_dir", "--openssldir=$openssl_install_dir"
+    Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
-    nmake
+    nmake clean
     nmake install
 }
 
 Set-Location ..\..\
 
-return
 $clean_script = "src\${LIB_NAME}\clean.ps1"
 if(Test-Path $clean_script -PathType Leaf) {
     Invoke-Expression -Command "$clean_script $install_dir"
