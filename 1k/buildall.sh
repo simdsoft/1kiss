@@ -1,6 +1,8 @@
 BUILD_TARGET=$1
 BUILD_ARCH=$2
 
+echo "RUNNER_OS=$RUNNER_OS"
+
 BUILDWARE_ROOT=`pwd`
 INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 
@@ -8,7 +10,11 @@ INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 mkdir -p "buildsrc"
 
 # Install nasm
-sudo apt install nasm
+if [ "$RUNNER_OS" = "macOS" ] ; then
+    brew install nasm
+else
+    sudo apt-get install nasm
+fi
 nasm -v
 
 # Install android ndk
