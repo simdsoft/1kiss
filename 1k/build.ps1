@@ -1,62 +1,98 @@
 #
 # Copyright (c) 2021 Bytedance Inc.
 #
+# params: arch libname
+
+if(-not (Test-Path 'buildsrc' -PathType Container)) {
+    mkdir buildsrc
+}
+
+$libname=$args[1]
+echo "libname=$libname"
+$PROPS_FILE="sources\${libname}.properties"
+if(-not (Test-Path $PROPS_FILE -PathType Leaf)) {
+    echo "repo config for lib not exists!"
+    return -1
+}
 
 # Install nasm
-curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o nasm-2.15.05-win64.zip
-Expand-Archive -Path nasm-2.15.05-win64.zip -DestinationPath .\
-ls -R nasm-2.15.05
-$nasm_bin = (Resolve-Path .\nasm-2.15.05).Path
+$nasm_bin = (Resolve-Path .\buildsrc\nasm-2.15.05).Path
+if(-not (Test-Path "$nasm_bin" -PathType Container)) {
+    curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o .\buildsrc\nasm-2.15.05-win64.zip
+    Expand-Archive -Path nasm-2.15.05-win64.zip -DestinationPath .\buildsrc
+}
 $env:Path = "$nasm_bin;$env:Path"
 nasm -v
 
 # Parse openssl checkout tag, such as OpenSSL_1_1_1k
-$BUILD_PROPS = ConvertFrom-StringData (Get-Content build.properties -raw)
-$openssl_ver = $BUILD_PROPS.'openssl_ver'
-$openssl_config_options_msw=$BUILD_PROPS.'openssl_config_options_msw'
+$PROPS = ConvertFrom-StringData (Get-Content $PROPS_FILE -raw)
+$repo = $PROPS.'repo'
+$ver = $PROPS.'ver'
+$tag_prefix = $PROPS.'tag_prefix'
+$tag_dot2ul = $PROPS.'tag_dot2ul'
+$config_options_msw=$PROPS.'config_options_msw'
 
-$openssl_ver = ([Regex]::Replace($openssl_ver, '\.', '_'))
-$openssl_release_tag="OpenSSL_$openssl_ver"
+if($tag_dot2ul -eq 'true') {
+    $ver = ([Regex]::Replace($ver, '\.', '_'))
+}
+$release_tag="${tag_prefix}${ver}"
 
-echo $openssl_config_options_msw
-$OPENSSL_CONFIG_OPTIONS=($openssl_config_options_msw -split ' ')
+echo $config_options_msw
+$CONFIG_OPTIONS=($config_options_msw -split ' ')
 
-# OPENSSL_CONFIG_ALL_OPTIONS
-$OPENSSL_CONFIG_ALL_OPTIONS=@()
+# CONFIG_ALL_OPTIONS
+$CONFIG_ALL_OPTIONS=@()
 
 # Determine build target & config options
 if($env:BUILD_ARCH -eq "x86_64") {
-    $OPENSSL_CONFIG_ALL_OPTIONS += 'VC-WIN64A'
+    $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
 }
 else {
-    $OPENSSL_CONFIG_ALL_OPTIONS += 'VC-WIN32'
+    $CONFIG_ALL_OPTIONS += 'VC-WIN32'
 }
 
-$OPENSSL_CONFIG_ALL_OPTIONS += $OPENSSL_CONFIG_OPTIONS
+$CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
-# Checkout openssl
-git clone -q https://github.com/openssl/openssl
-cd openssl
-git checkout $openssl_release_tag
+# Checkout repo
+cd buildsrc
+if(-not (Test-Path $libname -PathType Container)) {
+    if ($repo.EndsWith('.git')) {
+        echo "Checking out $repo, please wait..."
+        git clone -q $repo $libname
+        cd $libname
+        git checkout $release_tag
+    }
+    #else {
+    #    $outputFile = "${libname}.zip" # Split-Path https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1k.zip -leaf
+    #    echo "Downloading $repo ---> $outputFile"
+    #    curl $repo -o .\$outputFile
+    #    Expand-Archive -Path $outputFile -DestinationPath .\
+    #    cd $libname
+    #}
+}
+else {
+    cd $libname
+}
 
 # Config & Build
-$openssl_src_root=(Resolve-Path .\).Path
-$INSTALL_NAME="openssl_windows_${env:BUILD_ARCH}"
-$openssl_install_dir="$openssl_src_root\$INSTALL_NAME"
-$OPENSSL_CONFIG_ALL_OPTIONS += "--prefix=$openssl_install_dir", "--openssldir=$openssl_install_dir"
-mkdir "$openssl_install_dir"
-echo ("OPENSSL_CONFIG_ALL_OPTIONS=$OPENSSL_CONFIG_ALL_OPTIONS, Count={0}" -f $OPENSSL_CONFIG_ALL_OPTIONS.Count)
-perl Configure $OPENSSL_CONFIG_ALL_OPTIONS
+$src_root=(Resolve-Path .\).Path
+$INSTALL_NAME="windows_${env:BUILD_ARCH}"
+$install_dir="$src_root\$INSTALL_NAME"
+$CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
+mkdir "$install_dir"
+echo ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
+perl Configure $CONFIG_ALL_OPTIONS
 nmake
 nmake install
 
 # Delete files what we don't want
-del "$openssl_install_dir\html" -recurse
-del "$openssl_install_dir\lib\engines-1_1" -recurse
-del "$openssl_install_dir\bin\*.pl"
-del "$openssl_install_dir\bin\*.pdb"
-del "$openssl_install_dir\bin\*.exe"
-cd ..
+del "$install_dir\html" -recurse
+del "$install_dir\lib\engines-1_1" -recurse
+del "$install_dir\bin\*.pl"
+del "$install_dir\bin\*.pdb"
+del "$install_dir\bin\*.exe"
+
+cd ..\..\
 
 # Export INSTALL_NAME for uploading
 echo "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}
