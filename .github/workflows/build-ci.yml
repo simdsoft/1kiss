@@ -64,35 +64,20 @@ jobs:
           path: ./openssl/${{ env.INSTALL_NAME }}/**/*
           name: ${{ env.INSTALL_NAME }}
 
-  ios-arm:
+  ios:
     # The type of runner that the job will run on
     runs-on: macos-latest
     
-    env:
-      BUILD_TARGET: ios
-      BUILD_ARCH: arm
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Build openssl
-        run: source 1k/build.sh
-
-      - name: Upload openssl prebuilt files
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
-
-  ios-arm64:
-    # The type of runner that the job will run on
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch:
+          - arm
+          - arm64
+          - x86_64
     
     env:
       BUILD_TARGET: ios
-      BUILD_ARCH: arm64
+      BUILD_ARCH: ${{ matrix.arch }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -108,79 +93,20 @@ jobs:
           path: ./openssl/${{ env.INSTALL_NAME }}/**/*
           name: ${{ env.INSTALL_NAME }}
 
-  ios-x86_64:
-    # The type of runner that the job will run on
-    runs-on: macos-latest
-    
-    env:
-      BUILD_TARGET: ios
-      BUILD_ARCH: x86_64
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Build openssl
-        run: source 1k/build.sh
-
-      - name: Upload openssl prebuilt files
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
-
-  android-arm:
+  android:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     
-    env:
-      BUILD_TARGET: android
-      BUILD_ARCH: arm
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Build openssl
-        run: source 1k/build.sh
-
-      - name: Upload openssl prebuilt files
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
-
-  android-arm64:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - arm
+          - arm64
+          - x86
     
     env:
       BUILD_TARGET: android
-      BUILD_ARCH: arm64
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      - name: Build openssl
-        run: source 1k/build.sh
-
-      - name: Upload openssl prebuilt files
-        uses: actions/upload-artifact@v2
-        with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
-
-  android-x86:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    
-    env:
-      BUILD_TARGET: android
-      BUILD_ARCH: x86
+      BUILD_ARCH: ${{ matrix.arch }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
