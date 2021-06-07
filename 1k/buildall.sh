@@ -28,7 +28,7 @@ fi
 
 # Build libs
 source 1k/build.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-# source 1k/build.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 
 # Export INSTALL_ROOT for uploading
 if [ -n "$GITHUB_ENV" ] ; then
