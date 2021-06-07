@@ -3,10 +3,6 @@
 #
 # params: LIB_NAME ARCH $INSTALL_ROOT
 
-if(!(Test-Path 'buildsrc' -PathType Container)) {
-    mkdir buildsrc
-}
-
 $LIB_NAME = $args[0]
 $ARCH = $args[1]
 $INSTALL_ROOT = $args[2]
