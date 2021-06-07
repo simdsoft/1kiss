@@ -1,30 +1,18 @@
 #
 # Copyright (c) 2021 Bytedance Inc.
 #
-# params: LIB_NAME ARCH $INSTALL_ROOT
+# params: LIB_NAME ARCH INSTALL_ROOT BUILDWARE_ROOT
 
 $LIB_NAME = $args[0]
 $ARCH = $args[1]
 $INSTALL_ROOT = $args[2]
+$BUILDWARE_ROOT = $args[3]
 
 $PROPS_FILE="src\${LIB_NAME}\build.properties"
 if(!(Test-Path $PROPS_FILE -PathType Leaf)) {
     Write-Output "repo config for lib not exists!"
     return -1
 }
-
-# Create buildsrc tmp dir for build libs
-$buildware_root = (Resolve-Path .\).Path
-mkdir "buildsrc"
-
-# Install nasm
-$nasm_bin = "$buildware_root\buildsrc\nasm-2.15.05"
-if(!(Test-Path "$nasm_bin" -PathType Container)) {
-    curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o .\buildsrc\nasm-2.15.05-win64.zip
-    Expand-Archive -Path .\buildsrc\nasm-2.15.05-win64.zip -DestinationPath .\buildsrc
-}
-$env:Path = "$nasm_bin;$env:Path"
-nasm -v
 
 # Parse openssl checkout tag, such as OpenSSL_1_1_1k
 $PROPS = ConvertFrom-StringData (Get-Content $PROPS_FILE -raw)
@@ -88,7 +76,7 @@ else {
 }
 
  # Config & Build
- $install_dir="${buildware_root}\${INSTALL_ROOT}\${LIB_NAME}"
+ $install_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\${LIB_NAME}"
  mkdir "$install_dir"
 if ($cb_tool -eq 'cmake') {
     if(!$cmake_target) {

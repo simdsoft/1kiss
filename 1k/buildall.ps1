@@ -1,11 +1,24 @@
 $ARCH = $args[0]
 
-$buildware_root=(Resolve-Path .\).Path
-$build_script = "$buildware_root\1k\build.ps1"
+$BUILDWARE_ROOT=(Resolve-Path .\).Path
+$build_script = "$BUILDWARE_ROOT\1k\build.ps1"
 $INSTALL_ROOT="install_windows_${ARCH}"
 
-Invoke-Expression -Command "$build_script jpeg-turbo $ARCH $INSTALL_ROOT"
-Invoke-Expression -Command "$build_script openssl $ARCH $INSTALL_ROOT"
+# Create buildsrc tmp dir for build libs
+mkdir "buildsrc"
+
+# Install nasm
+$nasm_bin = "$BUILDWARE_ROOT\buildsrc\nasm-2.15.05"
+if(!(Test-Path "$nasm_bin" -PathType Container)) {
+    curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o .\buildsrc\nasm-2.15.05-win64.zip
+    Expand-Archive -Path .\buildsrc\nasm-2.15.05-win64.zip -DestinationPath .\buildsrc
+}
+$env:Path = "$nasm_bin;$env:Path"
+nasm -v
+
+# Build libs
+Invoke-Expression -Command "$build_script jpeg-turbo $ARCH $INSTALL_ROOT $BUILDWARE_ROOT"
+Invoke-Expression -Command "$build_script openssl $ARCH $INSTALL_ROOT $BUILDWARE_ROOT"
 
 # Export INSTALL_ROOT for uploading
 Write-Output "INSTALL_ROOT=$INSTALL_ROOT" >> ${env:GITHUB_ENV}
