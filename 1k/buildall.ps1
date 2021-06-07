@@ -1,8 +1,9 @@
-$ARCH = $args[0]
+$BUILD_TARGET = 'windows'
+$BUILD_ARCH = $args[0]
 
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
 $build_script = "$BUILDWARE_ROOT\1k\build.ps1"
-$INSTALL_ROOT="install_windows_${ARCH}"
+$INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 
 # Create buildsrc tmp dir for build libs
 if(!(Test-Path buildsrc -PathType Container)) {
@@ -21,8 +22,8 @@ nasm -v
 Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 
 # Build libs
-Invoke-Expression -Command "$build_script jpeg-turbo $ARCH $INSTALL_ROOT $BUILDWARE_ROOT"
-Invoke-Expression -Command "$build_script openssl $ARCH $INSTALL_ROOT $BUILDWARE_ROOT"
+Invoke-Expression -Command "$build_script jpeg-turbo $ARCH $INSTALL_ROOT"
+Invoke-Expression -Command "$build_script openssl $ARCH $INSTALL_ROOT"
 
 # Export INSTALL_ROOT for uploading
 Write-Output "INSTALL_ROOT=$INSTALL_ROOT" >> ${env:GITHUB_ENV}

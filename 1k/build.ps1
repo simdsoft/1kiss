@@ -1,12 +1,15 @@
 #
 # Copyright (c) 2021 Bytedance Inc.
 #
-# params: LIB_NAME ARCH INSTALL_ROOT BUILDWARE_ROOT
+# params: LIB_NAME BUILD_ARCH INSTALL_ROOT
+
+
 
 $LIB_NAME = $args[0]
-$ARCH = $args[1]
+$BUILD_ARCH = $args[1]
 $INSTALL_ROOT = $args[2]
-$BUILDWARE_ROOT = $args[3]
+
+$BUILDWARE_ROOT=(Resolve-Path .\).Path
 
 $PROPS_FILE="src\${LIB_NAME}\build.yml"
 if(!(Test-Path $PROPS_FILE -PathType Leaf)) {
@@ -37,13 +40,13 @@ $CONFIG_ALL_OPTIONS=@()
 
 # Determine build target & config options
 if ($cb_tool -eq 'cmake') {
-    if($ARCH -eq "x86") {
+    if($BUILD_ARCH -eq "x86") {
         $CONFIG_ALL_OPTIONS += '-A', 'Win32'
     }
     # only support vs2019+, default is Win64
 }
 else { # opnel openssl use perl
-    if($ARCH -eq "x86") {
+    if($BUILD_ARCH -eq "x86") {
         $CONFIG_ALL_OPTIONS += 'VC-WIN32'
     }
     else {
@@ -80,13 +83,16 @@ if(!(Test-Path $install_dir -PathType Container)) {
     mkdir "$install_dir"
 }
 if ($cb_tool -eq 'cmake') {
-    if(!$cmake_target) {
-        $cmake_target = 'INSTALL'
-    }
     $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$install_dir"
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
-    cmake -S . -B build_$ARCH $CONFIG_ALL_OPTIONS
-    cmake --build build_$ARCH --config Release --target $cmake_target
+    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    if ($cmake_target) {
+        cmake --build build_$BUILD_ARCH --config Release --target $cmake_target
+    }
+    else {
+        cmake --build build_$BUILD_ARCH --config Release
+    }
+    cmake --install build_$BUILD_ARCH
 }
 else { # only openssl use perl
     $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
