@@ -13,6 +13,8 @@ on:
       - .github/workflows/build2-ci.yml
       - 1k/build.sh
       - 1k/build.ps1
+      - 1k/buildall.sh
+      - 1k/buildall.ps1
       - build.properties
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
