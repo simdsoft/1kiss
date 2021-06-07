@@ -1,0 +1,155 @@
+#
+# Copyright (c) 2021 Bytedance Inc.
+#
+
+name: build2-ci
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+    paths:
+      - .github/workflows/build2-ci.yml
+      - 1k/build.sh
+      - 1k/build.ps1
+      - build.properties
+  pull_request:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  linux:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    env:
+      BUILD_TARGET: linux
+      BUILD_ARCH: x86_64
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: source ./1k/buildall.sh ${BUILD_TARGET} ${BUILD_ARCH}
+
+      - name: Upload prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
+
+  osx:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    
+    env:
+      BUILD_TARGET: osx
+      BUILD_ARCH: x86_64
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: source ./1k/buildall.sh ${BUILD_TARGET} ${BUILD_ARCH}
+
+      - name: Upload prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
+
+  ios:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    
+    strategy:
+      matrix:
+        arch:
+          - arm
+          - arm64
+          - x86_64
+    
+    env:
+      BUILD_TARGET: ios
+      BUILD_ARCH: ${{ matrix.arch }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: source ./1k/buildall.sh ${BUILD_TARGET} ${BUILD_ARCH}
+
+      - name: Upload prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
+
+  android:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        arch:
+          - arm
+          - arm64
+          - x86
+    
+    env:
+      BUILD_TARGET: android
+      BUILD_ARCH: ${{ matrix.arch }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: source ./1k/buildall.sh ${BUILD_TARGET} ${BUILD_ARCH}
+
+      - name: Upload prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
+
+  windows:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    
+    # Run a job for each of the specified target architectures:
+    strategy:
+      matrix:
+        arch:
+          - x86
+          - x86_64
+    env:
+      BUILD_TARGET: windows
+      BUILD_ARCH: ${{ matrix.arch }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - uses: ilammy/msvc-dev-cmd@v1.9.0
+        with:
+          arch: ${{ env.BUILD_ARCH }}
+
+      - name: Build
+        run: .\1k\buildall.ps1 ${BUILD_TARGET} ${BUILD_ARCH}
+
+      - name: Upload prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}

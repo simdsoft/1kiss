@@ -34,6 +34,4 @@ source 1k/build.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 if [ -n "$GITHUB_ENV" ] ; then
     echo "INSTALL_ROOT=$INSTALL_ROOT"
     echo "INSTALL_ROOT=$INSTALL_ROOT" >> ${GITHUB_ENV}
-else
-    echo "GITHUB_ENV not defined"
 fi
