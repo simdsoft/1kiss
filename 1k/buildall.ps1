@@ -5,7 +5,9 @@ $build_script = "$BUILDWARE_ROOT\1k\build.ps1"
 $INSTALL_ROOT="install_windows_${ARCH}"
 
 # Create buildsrc tmp dir for build libs
-mkdir "buildsrc"
+if(!(Test-Path buildsrc -PathType Container)) {
+    mkdir "buildsrc"
+}
 
 # Install nasm
 $nasm_bin = "$BUILDWARE_ROOT\buildsrc\nasm-2.15.05"

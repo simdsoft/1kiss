@@ -8,14 +8,14 @@ $ARCH = $args[1]
 $INSTALL_ROOT = $args[2]
 $BUILDWARE_ROOT = $args[3]
 
-$PROPS_FILE="src\${LIB_NAME}\build.properties"
+$PROPS_FILE="src\${LIB_NAME}\build.yml"
 if(!(Test-Path $PROPS_FILE -PathType Leaf)) {
     Write-Output "repo config for lib not exists!"
     return -1
 }
 
 # Parse openssl checkout tag, such as OpenSSL_1_1_1k
-$PROPS = ConvertFrom-StringData (Get-Content $PROPS_FILE -raw)
+$PROPS = ConvertFrom-Yaml -Yaml (Get-Content $PROPS_FILE -raw)
 $repo = $PROPS.'repo'
 $ver = $PROPS.'ver'
 $tag_prefix = $PROPS.'tag_prefix'

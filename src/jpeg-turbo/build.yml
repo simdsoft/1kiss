@@ -1,0 +1,5 @@
+repo: https://github.com/libjpeg-turbo/libjpeg-turbo.git
+ver: 5135c2e25d923b3737a92a686b124759883dd209
+cb_tool: cmake
+config_options_1: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF -DWITH_CRT_DLL=ON
+config_options_msw: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF -DWITH_CRT_DLL=ON
