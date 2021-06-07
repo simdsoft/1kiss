@@ -144,7 +144,7 @@ jobs:
           arch: ${{ env.BUILD_ARCH }}
 
       - name: Build
-        run: .\1k\buildall.ps1 $BUILD_TARGET $BUILD_ARCH
+        run: .\1k\buildall.ps1 ${BUILD_TARGET} ${BUILD_ARCH}
 
       - name: Upload prebuilt files
         uses: actions/upload-artifact@v2
