@@ -22,8 +22,8 @@ nasm -v
 Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 
 # Build libs
-Invoke-Expression -Command "$build_script jpeg-turbo $ARCH $INSTALL_ROOT"
-Invoke-Expression -Command "$build_script openssl $ARCH $INSTALL_ROOT"
+Invoke-Expression -Command "$build_script jpeg-turbo $BUILD_ARCH $INSTALL_ROOT"
+Invoke-Expression -Command "$build_script openssl $BUILD_ARCH $INSTALL_ROOT"
 
 # Export INSTALL_ROOT for uploading
 Write-Output "INSTALL_ROOT=$INSTALL_ROOT" >> ${env:GITHUB_ENV}
