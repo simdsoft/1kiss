@@ -10,7 +10,7 @@ if(-not (Test-Path 'buildsrc' -PathType Container)) {
 $LIB_NAME = $args[0]
 $ARCH = $args[1]
 
-$PROPS_FILE="sources\${LIB_NAME}.properties"
+$PROPS_FILE="sources\${LIB_NAME}\build.properties"
 if(-not (Test-Path $PROPS_FILE -PathType Leaf)) {
     Write-Output "repo config for lib not exists!"
     return -1
@@ -103,16 +103,14 @@ if ($cb_tool -eq 'cmake') {
 else { # only openssl use perl
     perl Configure $CONFIG_ALL_OPTIONS
     nmake install
-
-    # Delete files what we don't want
-    Remove-Item "$install_dir\html" -recurse
-    Remove-Item "$install_dir\lib\engines-1_1" -recurse
-    Remove-Item "$install_dir\bin\*.pl"
-    Remove-Item "$install_dir\bin\*.pdb"
-    Remove-Item "$install_dir\bin\*.exe"
 }
 
 Set-Location ..\..\
+
+$clean_script = "sources\${LIB_NAME}\clean.ps1"
+if(Test-Path $clean_script -PathType Leaf) {
+    invoke-expression -Command "$clean_script $install_dir"
+}
 
 # Export INSTALL_NAME for uploading
 # Write-Output "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}
