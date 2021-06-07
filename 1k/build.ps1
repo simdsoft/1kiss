@@ -1,17 +1,18 @@
 #
 # Copyright (c) 2021 Bytedance Inc.
 #
-# params: arch libname
+# params: LIB_NAME ARCH
 
 if(-not (Test-Path 'buildsrc' -PathType Container)) {
     mkdir buildsrc
 }
 
-$libname=$args[1]
-echo "libname=$libname"
-$PROPS_FILE="sources\${libname}.properties"
+$LIB_NAME = $args[0]
+$ARCH = $args[1]
+
+$PROPS_FILE="sources\${LIB_NAME}.properties"
 if(-not (Test-Path $PROPS_FILE -PathType Leaf)) {
-    echo "repo config for lib not exists!"
+    Write-Output "repo config for lib not exists!"
     return -1
 }
 
@@ -37,14 +38,14 @@ if($tag_dot2ul -eq 'true') {
 }
 $release_tag="${tag_prefix}${ver}"
 
-echo $config_options_msw
+Write-Output $config_options_msw
 $CONFIG_OPTIONS=($config_options_msw -split ' ')
 
 # CONFIG_ALL_OPTIONS
 $CONFIG_ALL_OPTIONS=@()
 
 # Determine build target & config options
-if($env:BUILD_ARCH -eq "x86_64") {
+if($ARCH -eq "x86_64") {
     $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
 }
 else {
@@ -54,12 +55,12 @@ else {
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
 # Checkout repo
-cd buildsrc
-if(-not (Test-Path $libname -PathType Container)) {
+Set-Location buildsrc
+if(-not (Test-Path $LIB_NAME -PathType Container)) {
     if ($repo.EndsWith('.git')) {
-        echo "Checking out $repo, please wait..."
-        git clone -q $repo $libname
-        cd $libname
+        Write-Output "Checking out $repo, please wait..."
+        git clone -q $repo $LIB_NAME
+        Write-Output $LIB_NAME
         git checkout $release_tag
     }
     #else {
@@ -67,32 +68,32 @@ if(-not (Test-Path $libname -PathType Container)) {
     #    echo "Downloading $repo ---> $outputFile"
     #    curl $repo -o .\$outputFile
     #    Expand-Archive -Path $outputFile -DestinationPath .\
-    #    cd $libname
+    #    cd $LIB_NAME
     #}
 }
 else {
-    cd $libname
+    Set-Location $LIB_NAME
 }
 
 # Config & Build
 $src_root=(Resolve-Path .\).Path
-$INSTALL_NAME="windows_${env:BUILD_ARCH}"
+$INSTALL_NAME="windows_${ARCH}"
 $install_dir="$src_root\$INSTALL_NAME"
 $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
 mkdir "$install_dir"
-echo ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
+Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 perl Configure $CONFIG_ALL_OPTIONS
 nmake
 nmake install
 
 # Delete files what we don't want
-del "$install_dir\html" -recurse
-del "$install_dir\lib\engines-1_1" -recurse
-del "$install_dir\bin\*.pl"
-del "$install_dir\bin\*.pdb"
-del "$install_dir\bin\*.exe"
+Remove-Item "$install_dir\html" -recurse
+Remove-Item "$install_dir\lib\engines-1_1" -recurse
+Remove-Item "$install_dir\bin\*.pl"
+Remove-Item "$install_dir\bin\*.pdb"
+Remove-Item "$install_dir\bin\*.exe"
 
-cd ..\..\
+Set-Location ..\..\
 
 # Export INSTALL_NAME for uploading
-echo "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}
+Write-Output "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}
