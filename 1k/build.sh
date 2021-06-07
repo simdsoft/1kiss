@@ -142,11 +142,9 @@ else
     fi
     make VERBOSE=1
     make install
-    echo "done"
 fi
 
 cd ../../
-
 
 clean_script="src/${LIB_NAME}/clean.sh"
 if [ -f "$clean_script" ] ; then
