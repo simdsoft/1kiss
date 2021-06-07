@@ -1,5 +1,5 @@
 $install_dir = $args[0]
-Write-Output "Cleaning ${install_dir}..."
+
 if ((Test-Path $install_dir -PathType Container)) {
     Write-Output "Cleaning ${install_dir}..."
     # Delete files what we don't want

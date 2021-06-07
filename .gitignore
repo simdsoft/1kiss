@@ -355,3 +355,5 @@ MigrationBackup/
 .vs
 
 /buildsrc
+
+/install*
