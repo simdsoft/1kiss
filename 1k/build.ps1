@@ -53,7 +53,6 @@ else { # opnel openssl use perl
 
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
-
 # Checkout repo
 Set-Location buildsrc
 if(!(Test-Path $LIB_NAME -PathType Container)) {
@@ -75,9 +74,11 @@ else {
     Set-Location $LIB_NAME
 }
 
- # Config & Build
- $install_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\${LIB_NAME}"
- mkdir "$install_dir"
+# Config & Build
+$install_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\${LIB_NAME}"
+if(!(Test-Path $install_dir -PathType Container)) {
+    mkdir "$install_dir"
+}
 if ($cb_tool -eq 'cmake') {
     if(!$cmake_target) {
         $cmake_target = 'INSTALL'
@@ -88,10 +89,9 @@ if ($cb_tool -eq 'cmake') {
     cmake --build build_$ARCH --config Release --target $cmake_target
 }
 else { # only openssl use perl
-    CONFIG_ALL_OPTIONS += "--prefix=$openssl_install_dir", "--openssldir=$openssl_install_dir"
+    $CONFIG_ALL_OPTIONS += "--prefix=$openssl_install_dir", "--openssldir=$openssl_install_dir"
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
-    nmake clean
     nmake install
 }
 
