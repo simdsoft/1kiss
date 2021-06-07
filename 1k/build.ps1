@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2021 Bytedance Inc.
 #
-# params: LIB_NAME ARCH
+# params: LIB_NAME ARCH $INSTALL_ROOT
 
 if(!(Test-Path 'buildsrc' -PathType Container)) {
     mkdir buildsrc
@@ -9,6 +9,7 @@ if(!(Test-Path 'buildsrc' -PathType Container)) {
 
 $LIB_NAME = $args[0]
 $ARCH = $args[1]
+$INSTALL_ROOT = $args[2]
 
 $PROPS_FILE="src\${LIB_NAME}\build.properties"
 if(!(Test-Path $PROPS_FILE -PathType Leaf)) {
@@ -65,8 +66,7 @@ else { # opnel openssl use perl
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
 $buildware_root=(Resolve-Path .\).Path
-$INSTALL_NAME="install_windows_${ARCH}"
-$install_dir="${buildware_root}\${INSTALL_NAME}\${LIB_NAME}"
+$install_dir="${buildware_root}\${INSTALL_ROOT}\${LIB_NAME}"
 
 # Checkout repo
 Set-Location buildsrc
@@ -113,8 +113,5 @@ Set-Location ..\..\
 return
 $clean_script = "src\${LIB_NAME}\clean.ps1"
 if(Test-Path $clean_script -PathType Leaf) {
-    invoke-expression -Command "$clean_script $install_dir"
+    Invoke-Expression -Command "$clean_script $install_dir"
 }
-
-# Export INSTALL_NAME for uploading
-# Write-Output "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}

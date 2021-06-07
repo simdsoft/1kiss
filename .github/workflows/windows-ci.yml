@@ -1,0 +1,48 @@
+#
+# Copyright (c) 2021 Bytedance Inc.
+#
+
+name: windows-ci
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ dev ]
+    paths:
+      - .github/workflows/windows-ci.yml
+      - 1k/build.ps1
+      - 1k/buildall.ps1
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  windows:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    
+    # Run a job for each of the specified target architectures:
+    strategy:
+      matrix:
+        arch:
+          - x86
+          - x86_64
+    env:
+      BUILD_ARCH: ${{ matrix.arch }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - uses: ilammy/msvc-dev-cmd@v1.9.0
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Build
+        run: .\1k\buildall.ps1 ${{ matrix.arch }}
+
+      - name: Upload prebuilt files
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
