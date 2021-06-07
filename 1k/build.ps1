@@ -89,7 +89,7 @@ if ($cb_tool -eq 'cmake') {
     cmake --build build_$ARCH --config Release --target $cmake_target
 }
 else { # only openssl use perl
-    $CONFIG_ALL_OPTIONS += "--prefix=$openssl_install_dir", "--openssldir=$openssl_install_dir"
+    $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
     nmake install
