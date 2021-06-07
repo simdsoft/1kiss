@@ -2,90 +2,154 @@
 # Copyright (c) 2021 Bytedance Inc.
 #
 
-# Prepare env
-openssl_ver=$(cat build.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
-openssl_ver=${openssl_ver//./_}
-openssl_release_tag=OpenSSL_$openssl_ver
-ndk_ver=$(cat build.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d ' \n')
-openssl_config_options_1=$(cat build.properties | grep -w 'openssl_config_options_1' | cut -d '=' -f 2 | tr -d '\n')
-openssl_config_options_2=$(cat build.properties | grep -w 'openssl_config_options_2' | cut -d '=' -f 2 | tr -d '\n')
-android_api_level=$(cat build.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
-android_api_level_arm64=$(cat build.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d ' \n')
+BUILDWARE_ROOT=`pwd`
 
-echo "RUNNER_OS=$RUNNER_OS"
+LIB_NAME=$1
+BUILD_TARGET=$2
+BUILD_ARCH=$3
+INSTALL_ROOT=$4
+
+echo "LIB_NAME=$LIB_NAME"
+echo "BUILD_TARGET=$BUILD_TARGET"
+echo "BUILD_ARCH=$BUILD_ARCH"
+echo "INSTALL_ROOT=$INSTALL_ROOT"
+
+# Parse android toolchain
+android_api_level=$(cat toolchain.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
+android_api_level_arm64=$(cat toolchain.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d '\n')
+
+function parse_yaml {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) > 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
+
+# Prepare env
+PROPS_FILE="src/${LIB_NAME}/build.yml"
+
+eval $(parse_yaml $PROPS_FILE)
+
+echo "repo=$repo"
+
+echo "cb_tool=$cb_tool"
+
+if [ "$tag_dot2ul" = "true" ]; then
+    ver=${ver//./_}
+fi 
+release_tag="${tag_prefix}${ver}"
+
 echo "BUILD_TARGET=$BUILD_TARGET"
 echo "BUILD_ARCH=$BUILD_ARCH"
 
 # Determine build target & config options
-OPENSSL_CONFIG_OPTIONS=$openssl_config_options_1
-if [ "$BUILD_TARGET" = "linux" ]; then
-    OPENSSL_CONFIG_TARGET=
-elif [ "$BUILD_TARGET" = "osx" ]; then
-    OPENSSL_CONFIG_TARGET=darwin64-x86_64-cc
-elif [ "$BUILD_TARGET" = "ios" ]; then
-    IOS_PLATFORM=OS
-    if [ "$BUILD_ARCH" = "arm" ] ; then
-        OPENSSL_CONFIG_TARGET=ios-cross
-    elif [ "$BUILD_ARCH" = 'arm64' ] ; then
-        OPENSSL_CONFIG_TARGET=ios64-cross
-    elif [ "$BUILD_ARCH" = "x86_64" ] ; then
-        OPENSSL_CONFIG_TARGET=ios-sim-cross-x86_64
-        IOS_PLATFORM=Simulator
-    fi
-    OPENSSL_CONFIG_OPTIONS="$OPENSSL_CONFIG_OPTIONS $openssl_config_options_2"
-    export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
-    export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
-elif [ "$BUILD_TARGET" = "android" ] ; then
-    if [ "$BUILD_ARCH" = "arm64" ] ; then
-        OPENSSL_CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
+CONFIG_OPTIONS=$config_options_1
+if [ "$BUILD_TARGET" = "linux" ] ; then
+    CONFIG_TARGET=
+elif [ "$BUILD_TARGET" = "osx" ] ; then
+    if [ "$cb_tool" = "cmake" ] ; then
+        CONFIG_TARGET=-GXcode
     else
-        OPENSSL_CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
+        CONFIG_TARGET=darwin64-x86_64-cc
     fi
-    OPENSSL_CONFIG_OPTIONS="$OPENSSL_CONFIG_OPTIONS $openssl_config_options_2"
+elif [ "$BUILD_TARGET" = "ios" ] ; then
+    if [ "$cb_tool" = "cmake" ] ; then
+        CONFIG_TARGET="-DCMAKE_TOOL_CHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${BUILD_ARCH}"
+    else
+       # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
+       export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
+
+        IOS_PLATFORM=OS
+        if [ "$BUILD_ARCH" = "arm" ] ; then
+            CONFIG_TARGET=ios-cross
+        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
+            CONFIG_TARGET=ios64-cross
+        elif [ "$BUILD_ARCH" = "x86_64" ] ; then
+            CONFIG_TARGET=ios-sim-cross-x86_64
+            IOS_PLATFORM=Simulator
+        fi
+        
+        export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
+        export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
+    fi
+
+    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
+elif [ "$BUILD_TARGET" = "android" ] ; then
+    if [ "$cb_tool" = "cmake" ] ; then
+        if [ "$BUILD_ARCH" = 'arm' ] ; then
+            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
+        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
+            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_NATIVE_API_LEVEL=${android_api_level_arm64}"
+        elif [ "$BUILD_ARCH" = "x86" ] ; then
+            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
+        else
+            return 1
+        fi
+    else
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
+        else
+            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
+        fi
+    fi
+
+    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
 else
-  return 0
+  return 2
 fi
 
-echo OPENSSL_CONFIG_TARGET=${OPENSSL_CONFIG_TARGET}
-echo OPENSSL_CONFIG_OPTIONS=${OPENSSL_CONFIG_OPTIONS}
+echo CONFIG_TARGET=${CONFIG_TARGET}
+echo CONFIG_OPTIONS=${CONFIG_OPTIONS}
 
-# Install NDK for android
-if [ "$BUILD_TARGET" = "android" ] ; then
-    wget -q https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
-    unzip -q android-ndk-${ndk_ver}-linux-x86_64.zip
-    export ANDROID_NDK_HOME=`pwd`/android-ndk-${ndk_ver}
-    export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
-    echo PATH=$PATH
-fi
+mkdir -p "buildsrc"
+cd buildsrc
 
-# Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-export OPENSSL_LOCAL_CONFIG_DIR="`pwd`/1k" 
-
-# Checkout openssl
-git clone -q https://github.com/openssl/openssl.git
+# Checkout lib
+echo "Checking out $repo, please wait..."
+git clone -q $repo $LIB_NAME
 pwd
-cd openssl 
-git checkout $openssl_release_tag
+cd $LIB_NAME 
+git checkout $release_tag
 git submodule update --init --recursive
 
 # Config & Build
-openssl_src_root=`pwd`
-INSTALL_NAME=openssl_${BUILD_TARGET}_${BUILD_ARCH}
-openssl_install_dir=$openssl_src_root/$INSTALL_NAME
-mkdir $openssl_install_dir
-echo $OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
-OPENSSL_CONFIG_ALL_OPTIONS="$OPENSSL_CONFIG_TARGET $OPENSSL_CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir"
-echo OPENSSL_CONFIG_ALL_OPTIONS=${OPENSSL_CONFIG_ALL_OPTIONS}
-if [ "$BUILD_TARGET" = "linux" ] ; then
-    ./config $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
-else
-    ./Configure $OPENSSL_CONFIG_ALL_OPTIONS && perl configdata.pm --dump
-fi
-make VERBOSE=1
-make install
-rm -rf $openssl_install_dir/bin
-rm -rf $openssl_install_dir/misc
-rm -rf $openssl_install_dir/share
+install_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/${LIB_NAME}"
+mkdir -p $install_dir
 
-# Export INSTALL_NAME for uploading
-echo "INSTALL_NAME=$INSTALL_NAME" >> $GITHUB_ENV
+if [ "$cb_tool" = "cmake" ] ; then
+    CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS -DCMAKE_INSTALL_PREFIX=$install_dir"
+    echo CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS -DCMAKE_INSTALL_PREFIX=$install_dir"
+    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    cmake --build build_$BUILD_ARCH --config Release --target $cmake_target
+    cmake --install build_$BUILD_ARCH --component $cmake_target
+else
+    echo $CONFIG_TARGET $CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
+    CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS --prefix=$install_dir --openssldir=$install_dir"
+    echo CONFIG_ALL_OPTIONS=${CONFIG_ALL_OPTIONS}
+    if [ "$BUILD_TARGET" = "linux" ] ; then
+        ./config $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
+    else
+        ./Configure $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
+    fi
+    make VERBOSE=1
+    make install
+    echo "done"
+fi
+
+cd ../../
+
+
+clean_script="src/${LIB_NAME}/clean.sh"
+if [ -f "$clean_script" ] ; then
+    source $clean_script $install_dir
+fi

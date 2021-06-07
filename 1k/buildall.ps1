@@ -1,5 +1,5 @@
-$BUILD_TARGET = 'windows'
-$BUILD_ARCH = $args[0]
+$BUILD_TARGET = $args[0]
+$BUILD_ARCH = $args[1]
 
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
 $build_script = "$BUILDWARE_ROOT\1k\build.ps1"
