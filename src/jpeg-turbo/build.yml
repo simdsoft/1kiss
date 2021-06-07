@@ -1,6 +1,9 @@
 repo: https://github.com/libjpeg-turbo/libjpeg-turbo.git
 ver: 5135c2e25d923b3737a92a686b124759883dd209
+tag_prefix: ''
+tag_dot2ul: false
 cb_tool: cmake
 config_options_1: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF
+config_options_2: ''
 config_options_msw: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF -DWITH_CRT_DLL=ON
 cmake_target: jpeg-static

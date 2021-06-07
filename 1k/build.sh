@@ -28,7 +28,7 @@ function parse_yaml {
       indent = length($1)/2;
       vname[indent] = $2;
       for (i in vname) {if (i > indent) {delete vname[i]}}
-      if (length($3) > 0) {
+      if (length($3) >= 0) {
          vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
          printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
       }
@@ -41,7 +41,7 @@ PROPS_FILE="src/${LIB_NAME}/build.yml"
 eval $(parse_yaml $PROPS_FILE)
 
 echo "repo=$repo"
-
+echo "config_options_2=$config_options_2"
 echo "cb_tool=$cb_tool"
 
 if [ "$tag_dot2ul" = "true" ]; then
@@ -128,12 +128,11 @@ mkdir -p $install_dir
 
 if [ "$cb_tool" = "cmake" ] ; then
     CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS -DCMAKE_INSTALL_PREFIX=$install_dir"
-    echo CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS -DCMAKE_INSTALL_PREFIX=$install_dir"
+    echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
     cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
-    cmake --build build_$BUILD_ARCH --config Release --target $cmake_target
-    cmake --install build_$BUILD_ARCH --component $cmake_target
+    cmake --build build_$BUILD_ARCH --config Release
+    cmake --install build_$BUILD_ARCH
 else
-    echo $CONFIG_TARGET $CONFIG_OPTIONS --prefix=$openssl_install_dir --openssldir=$openssl_install_dir
     CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS --prefix=$install_dir --openssldir=$install_dir"
     echo CONFIG_ALL_OPTIONS=${CONFIG_ALL_OPTIONS}
     if [ "$BUILD_TARGET" = "linux" ] ; then

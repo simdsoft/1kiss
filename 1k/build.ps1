@@ -86,12 +86,7 @@ if ($cb_tool -eq 'cmake') {
     $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$install_dir"
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
-    if ($cmake_target) {
-        cmake --build build_$BUILD_ARCH --config Release --target $cmake_target
-    }
-    else {
-        cmake --build build_$BUILD_ARCH --config Release
-    }
+    cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 }
 else { # only openssl use perl
