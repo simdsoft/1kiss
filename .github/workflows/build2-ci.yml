@@ -8,14 +8,12 @@ name: build2-ci
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [ dev ]
     paths:
       - .github/workflows/build2-ci.yml
       - 1k/build.sh
       - 1k/build.ps1
       - build.properties
-  pull_request:
-    branches: [ main ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
