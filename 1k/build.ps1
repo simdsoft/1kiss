@@ -32,6 +32,8 @@ $ver = $PROPS.'ver'
 $tag_prefix = $PROPS.'tag_prefix'
 $tag_dot2ul = $PROPS.'tag_dot2ul'
 $config_options_msw=$PROPS.'config_options_msw'
+$cb_tool = $PROPS.'cb_tool'
+$cmake_target = $PROPS.'cmake_target'
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))
@@ -45,11 +47,19 @@ $CONFIG_OPTIONS=($config_options_msw -split ' ')
 $CONFIG_ALL_OPTIONS=@()
 
 # Determine build target & config options
-if($ARCH -eq "x86_64") {
-    $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
+if ($cb_tool -eq 'cmake') {
+    if($ARCH -eq "x86") {
+        $CONFIG_ALL_OPTIONS += '-A', 'Win32'
+    }
+    # only support vs2019+, default is Win64
 }
-else {
-    $CONFIG_ALL_OPTIONS += 'VC-WIN32'
+else { # opnel openssl use perl
+    if($ARCH -eq "x86") {
+        $CONFIG_ALL_OPTIONS += 'VC-WIN32'
+    }
+    else {
+        $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
+    }
 }
 
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
@@ -75,25 +85,34 @@ else {
     Set-Location $LIB_NAME
 }
 
-# Config & Build
-$src_root=(Resolve-Path .\).Path
-$INSTALL_NAME="windows_${ARCH}"
-$install_dir="$src_root\$INSTALL_NAME"
-$CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
-mkdir "$install_dir"
-Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
-perl Configure $CONFIG_ALL_OPTIONS
-nmake
-nmake install
+ # Config & Build
+ $src_root=(Resolve-Path .\).Path
+ $INSTALL_NAME="windows_${ARCH}"
+ $install_dir="$src_root\$INSTALL_NAME"
+ $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$install_dir"
+ mkdir "$install_dir"
+ Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
-# Delete files what we don't want
-Remove-Item "$install_dir\html" -recurse
-Remove-Item "$install_dir\lib\engines-1_1" -recurse
-Remove-Item "$install_dir\bin\*.pl"
-Remove-Item "$install_dir\bin\*.pdb"
-Remove-Item "$install_dir\bin\*.exe"
+if ($cb_tool -eq 'cmake') {
+    if($cmake_target -eq '') {
+        $cmake_target = 'INSTALL'
+    }
+    cmake -S . -B build_$ARCH $CONFIG_ALL_OPTIONS
+    cmake --build build_$ARCH --config Release --target $cmake_target
+}
+else { # only openssl use perl
+    perl Configure $CONFIG_ALL_OPTIONS
+    nmake install
+
+    # Delete files what we don't want
+    Remove-Item "$install_dir\html" -recurse
+    Remove-Item "$install_dir\lib\engines-1_1" -recurse
+    Remove-Item "$install_dir\bin\*.pl"
+    Remove-Item "$install_dir\bin\*.pdb"
+    Remove-Item "$install_dir\bin\*.exe"
+}
 
 Set-Location ..\..\
 
 # Export INSTALL_NAME for uploading
-Write-Output "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}
+# Write-Output "INSTALL_NAME=$INSTALL_NAME" >> ${env:GITHUB_ENV}
