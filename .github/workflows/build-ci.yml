@@ -15,7 +15,8 @@ on:
       - 1k/build.ps1
       - 1k/build.sh
       - 1k/build.ps1
-      - build.properties
+      - buildware/src
+      - toolchain.properties
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
