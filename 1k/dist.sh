@@ -77,7 +77,7 @@ source src/openssl/dist1.sh $DIST_ROOT
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip
-zip -q -r ${DIST_PACKAGE} ${DIST_ROOT}
+zip -q -r ${DIST_PACKAGE} ${DIST_NAME}
 
 # Export DIST_NAME & DIST_PACKAGE for uploading
 if [ ! "$GITHUB_ENV" = "" ] ; then
