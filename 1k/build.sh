@@ -64,6 +64,10 @@ elif [ "$BUILD_TARGET" = "osx" ] ; then
     fi
 elif [ "$BUILD_TARGET" = "ios" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
+        IOS_ARCH=${BUILD_ARCH}
+        if [ "$IOS_ARCH" = "x64" ] ; then
+            IOS_ARCH="x86_64"
+        fi
         CONFIG_TARGET="-DCMAKE_TOOL_CHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${BUILD_ARCH}"
     else
        # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
@@ -74,7 +78,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
             CONFIG_TARGET=ios-cross
         elif [ "$BUILD_ARCH" = 'arm64' ] ; then
             CONFIG_TARGET=ios64-cross
-        elif [ "$BUILD_ARCH" = "x86_64" ] ; then
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
             CONFIG_TARGET=ios-sim-cross-x86_64
             IOS_PLATFORM=Simulator
         fi
