@@ -7,7 +7,7 @@ Building opensources for multi-platforms with github actions.
 
 ## opensources
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-1.1.1k-green.svg)](https://github.com/openssl/openssl/releases)
-- [![libjpeg-turbo](https://img.shields.io/badge/libjpeg%2Dturbo-2.1.1-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/commit/5135c2e)
+- [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.1-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/commit/5135c2e)
 
 ## Build Targets:
 - macos: x86_64
