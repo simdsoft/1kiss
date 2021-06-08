@@ -68,7 +68,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         if [ "$IOS_ARCH" = "x64" ] ; then
             IOS_ARCH="x86_64"
         fi
-        CONFIG_TARGET="-DCMAKE_TOOL_CHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${BUILD_ARCH}"
+        CONFIG_TARGET="-DCMAKE_TOOL_CHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
     else
        # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
        export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
