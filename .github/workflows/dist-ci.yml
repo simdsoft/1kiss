@@ -7,9 +7,6 @@ name: dist-ci
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  push:
-    tags:
-      - '*.*.*'
   workflow_run:
     workflows: ["build-ci"]
     types: [completed]
@@ -107,7 +104,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG_NAME }}
-        name: ${{ env.DIST_NAME }}_${{ env.RELEASE_TAG_NAME }}
+        name: ${{ env.DIST_NAME }}
         files: ${{ env.DIST_PACKAGE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
