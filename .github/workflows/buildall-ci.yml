@@ -2,7 +2,7 @@
 # Copyright (c) 2021 Bytedance Inc. @1
 #
 
-name: build2-ci
+name: buildall-ci
 
 # Controls when the action will run. 
 on:
@@ -10,7 +10,7 @@ on:
   push:
     branches: [ dev ]
     paths:
-      - .github/workflows/build2-ci.yml
+      - .github/workflows/buildall-ci.yml
       - 1k/build.sh
       - 1k/build.ps1
       - 1k/buildall.sh
