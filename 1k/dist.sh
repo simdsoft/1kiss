@@ -13,22 +13,27 @@ function copy_inc_and_libs {
     LIB_NAME=$1
     DIST_DIR=$2
     CONF_HEADER=$3
+    CONF_TEMPLATE=$4
     # [optional] INC_DIR=openssl/
-    INC_DIR=$4
+    INC_DIR=$5
 
     # mkdir for commen
     mkdir -p ${DIST_DIR}/include
 
-    # mkdir for opensslconf.h
+    # mkdir for platform spec config header file
     mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/linux/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
-    mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
+    if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
+        mkdir -p ${DIST_DIR}/include/linux/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
+    else
+        mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
+    fi
 
     # mkdir for libs
     mkdir -p ${DIST_DIR}/prebuilt/win32
@@ -43,23 +48,27 @@ function copy_inc_and_libs {
     cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
     rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-    CONF_CONTENT=$(cat 1k/config.h.in)
+    CONF_CONTENT=$(cat 1k/$CONF_TEMPLATE)
     STYLED_LIB_NAME=${LIB_NAME//-/_}
     CONF_CONTENT=${CONF_CONTENT//@LIB_NAME@/$STYLED_LIB_NAME}
     CONF_CONTENT=${CONF_CONTENT//@INC_DIR@/$INC_DIR}
     CONF_CONTENT=${CONF_CONTENT//@CONF_HEADER@/$CONF_HEADER}
     echo "$CONF_CONTENT" >> ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-    # copy platform spec opensslconf.h
+    # copy platform spec config header file
     cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
-    cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
-    cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
-    cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
-    cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
-    cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
-    cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
-    cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
-    cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
+    if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
+        cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
+        cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
+        cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
+        cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+        cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
+        cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
+        cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
+        cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
+    else
+        cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
+    fi
 
     # copy libs
     cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/win32/

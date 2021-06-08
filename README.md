@@ -1,7 +1,7 @@
 # buildware
 Building opensources for multi-platforms with github actions.
   
-[![Releaee](https://img.shields.io/badge/release-1.0.0-blue.svg)](https://github.com/adxeproject/openssl-build/releases)
+[![Releaee](https://img.shields.io/badge/release-1.0.1-blue.svg)](https://github.com/adxeproject/openssl-build/releases)
 [![build-ci](https://github.com/adxeproject/openssl-build/actions/workflows/build-ci.yml/badge.svg)](https://github.com/adxeproject/openssl-build/actions/workflows/build-ci.yml)
 [![dist-ci](https://github.com/adxeproject/openssl-build/actions/workflows/dist-ci.yml/badge.svg)](https://github.com/adxeproject/openssl-build/actions/workflows/dist-ci.yml)
 
