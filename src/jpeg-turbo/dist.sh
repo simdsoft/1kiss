@@ -9,4 +9,3 @@ lipo -create install_ios_arm/${LIB_NAME}/lib/libjpeg.a install_ios_arm64/${LIB_N
 
 # check the flat lib
 lipo -info ${DIST_DIR}/prebuilt/ios/libjpeg.a
-

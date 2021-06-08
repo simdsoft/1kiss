@@ -1,6 +1,11 @@
 DIST_REVISION=$1
 
-DIST_NAME=buildware_dist_${DIST_REVISION}
+DIST_NAME=buildware_dist
+
+if [! "${DIST_REVISION}" = "" ]; then
+    DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
+fi
+
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
@@ -33,12 +38,16 @@ function copy_inc_and_libs {
     mkdir -p ${DIST_DIR}/prebuilt/android/armeabi-v7a
     mkdir -p ${DIST_DIR}/prebuilt/android/arm64-v8a
     mkdir -p ${DIST_DIR}/prebuilt/android/x86
-    ls -R ${DIST_DIR}
 
     # copy common headers
     cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/
     rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
-    cp "1k/${CONF_HEADER}.in" ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
+
+    CONF_CONTENT=(cat 1k/config.h.in)
+    CONF_CONTENT=${CONF_CONTENT//@LIB_NAME@/$LIB_NAME}
+    CONF_CONTENT=${CONF_CONTENT//@INC_DIR@/$INC_DIR}
+    CONF_CONTENT=${CONF_CONTENT//@CONF_HEADER@/$CONF_HEADER}
+    echo "$CONF_CONTENT" >> ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
     # copy platform spec opensslconf.h
     cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
@@ -67,8 +76,6 @@ source src/openssl/dist.sh $DIST_ROOT
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip
 zip -q -r ${DIST_PACKAGE} ${DIST_ROOT}
-
-ls -R ${DIST_ROOT}
 
 # Export DIST_NAME & DIST_PACKAGE for uploading
 echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
