@@ -92,12 +92,6 @@ jobs:
         echo "Checking download structure"
         ls
         source 1k/dist.sh $RELEASE_TAG_NAME
-        
-    - name: Upload dist package to artifact page
-      uses: actions/upload-artifact@v2
-      with:
-        path: ./${{ env.DIST_PACKAGE }}
-        name: ${{ env.DIST_NAME }}
 
     - name: Upload dist package to release page
       if: ${{ env.RELEASE_TAG_NAME != '' }}
@@ -109,3 +103,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: adxeproject/buildware
+        
+    - name: Upload dist package to artifact page
+      uses: actions/upload-artifact@v2
+      with:
+        path: ./${{ env.DIST_NAME }}
+        name: ${{ env.DIST_NAME }}
+
