@@ -7,8 +7,6 @@ name: distall-ci
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  push:
-    branches: [ dev ]
   # push:
   #   tags:
   #     - 'v*.*.*'
@@ -81,25 +79,29 @@ jobs:
         # Optional, defaults to current repo
         # repo: ${{github.repository}}
 
-    - name: Prepare dist package
-      run: |
-        echo "Checking download structure"
-        ls -R
-    # - name: Upload dist package to artifact page
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     path: ./${{ env.DIST_PACKAGE }}
-    #     name: ${{ env.DIST_NAME }}
-
     - name: Parse release tag name
       if: startsWith(github.ref, 'refs/tags/')
       run: echo "RELEASE_TAG_NAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      
     - name: Determine release tag name from input
       run: |
         if [ "$RELEASE_TAG_NAME" = "" ]; then
           RELEASE_TAG_NAME=${{github.event.inputs.release_tag}}
           echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME" >> $GITHUB_ENV
         fi
+        
+    - name: Prepare dist package
+      run: |
+        echo "Checking download structure"
+        ls -R
+        source 1k/distall.sh $RELEASE_TAG_NAME
+        
+    - name: Upload dist package to artifact page
+      uses: actions/upload-artifact@v2
+      with:
+        path: ./${{ env.DIST_PACKAGE }}
+        name: ${{ env.DIST_NAME }}
+
     - name: Upload dist package to release page
       if: ${{ env.RELEASE_TAG_NAME != '' }}
       uses: softprops/action-gh-release@v1
