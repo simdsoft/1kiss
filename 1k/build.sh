@@ -15,7 +15,14 @@ if [ "$RUNNER_OS" = "macOS" ] ; then
 else
     sudo apt-get install nasm
 fi
-nasm -v
+
+# Check whether nasm install succeed
+nasm_bin=$(which nasm)
+echo "nasm_bin=$nasm_bin"
+if [ "$nasm_bin" = "" ] ; then
+    echo Install basm failed.
+    return -1
+fi
 
 # Install android ndk
 if [ "$BUILD_TARGET" = "android" ] ; then
