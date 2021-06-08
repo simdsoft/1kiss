@@ -357,3 +357,7 @@ MigrationBackup/
 /buildsrc
 
 /install*
+
+.vscode
+
+.DS_Store
