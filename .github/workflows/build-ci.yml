@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Bytedance Inc.
+# Copyright (c) 2021 Bytedance Inc. @1
 #
 
 name: build-ci
@@ -13,9 +13,9 @@ on:
       - .github/workflows/build-ci.yml
       - 1k/build.sh
       - 1k/build.ps1
+      - 1k/build.sh
+      - 1k/build.ps1
       - build.properties
-  pull_request:
-    branches: [ main ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -26,21 +26,21 @@ jobs:
     
     env:
       BUILD_TARGET: linux
-      BUILD_ARCH: x86_64
+      BUILD_ARCH: x64
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build openssl
-        run: source 1k/build.sh
+      - name: Build
+        run: source 1k/build.sh $BUILD_TARGET $BUILD_ARCH
 
-      - name: Upload openssl prebuilt files
+      - name: Upload prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
 
   osx:
     # The type of runner that the job will run on
@@ -48,21 +48,21 @@ jobs:
     
     env:
       BUILD_TARGET: osx
-      BUILD_ARCH: x86_64
+      BUILD_ARCH: x64
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build openssl
-        run: source 1k/build.sh
+      - name: Build
+        run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
 
-      - name: Upload openssl prebuilt files
+      - name: Upload prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
 
   ios:
     # The type of runner that the job will run on
@@ -73,7 +73,7 @@ jobs:
         arch:
           - arm
           - arm64
-          - x86_64
+          - x64
     
     env:
       BUILD_TARGET: ios
@@ -84,14 +84,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build openssl
-        run: source 1k/build.sh
+      - name: Build
+        run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
 
-      - name: Upload openssl prebuilt files
+      - name: Upload prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
 
   android:
     # The type of runner that the job will run on
@@ -113,14 +113,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build openssl
-        run: source 1k/build.sh
+      - name: Build
+        run: source 1k/build.sh $BUILD_TARGET $BUILD_ARCH
 
-      - name: Upload openssl prebuilt files
+      - name: Upload prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}
 
   windows:
     # The type of runner that the job will run on
@@ -131,8 +131,9 @@ jobs:
       matrix:
         arch:
           - x86
-          - x86_64
+          - x64
     env:
+      BUILD_TARGET: windows
       BUILD_ARCH: ${{ matrix.arch }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -142,13 +143,13 @@ jobs:
 
       - uses: ilammy/msvc-dev-cmd@v1.9.0
         with:
-          arch: ${{ matrix.arch }}
+          arch: ${{ env.BUILD_ARCH }}
 
-      - name: Build openssl
-        run: .\1k\build.ps1
+      - name: Build
+        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH
 
-      - name: Upload openssl prebuilt files
+      - name: Upload prebuilt files
         uses: actions/upload-artifact@v2
         with:
-          path: ./openssl/${{ env.INSTALL_NAME }}/**/*
-          name: ${{ env.INSTALL_NAME }}
+          path: ./${{ env.INSTALL_ROOT }}/**
+          name: ${{ env.INSTALL_ROOT }}

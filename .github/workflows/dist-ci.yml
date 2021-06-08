@@ -9,7 +9,7 @@ name: dist-ci
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - '*.*.*'
   workflow_run:
     workflows: ["build-ci"]
     types: [completed]
@@ -18,14 +18,14 @@ on:
     inputs:
       run_id:
         # actions run ID
-        description: 'Please specific build-c run id to dist'
+        description: 'Please specific build-ci run id to dist'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
         required: false
       release_tag:
         # actions run ID
-        description: 'Please specific a exists release tag name£¬such as v1.0.0'
+        description: 'Please specific a exists release tag name, such as 1.0.0'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
@@ -79,31 +79,36 @@ jobs:
         # Optional, defaults to current repo
         # repo: ${{github.repository}}
 
-    - name: Prepare openssl dist package
-      run: source 1k/dist.sh
-      
-    - name: Upload openssl dist package to artifact page
-      uses: actions/upload-artifact@v2
-      with:
-        path: ./${{ env.OPENSSL_DIST_PACKAGE }}
-        name: ${{ env.OPENSSL_DIST_NAME }}
-
     - name: Parse release tag name
       if: startsWith(github.ref, 'refs/tags/')
       run: echo "RELEASE_TAG_NAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      
     - name: Determine release tag name from input
       run: |
         if [ "$RELEASE_TAG_NAME" = "" ]; then
           RELEASE_TAG_NAME=${{github.event.inputs.release_tag}}
           echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME" >> $GITHUB_ENV
         fi
-    - name: Upload openssl dist package to release page
+        
+    - name: Prepare dist package
+      run: |
+        echo "Checking download structure"
+        ls -R
+        source 1k/dist.sh $RELEASE_TAG_NAME
+        
+    - name: Upload dist package to artifact page
+      uses: actions/upload-artifact@v2
+      with:
+        path: ./${{ env.DIST_PACKAGE }}
+        name: ${{ env.DIST_NAME }}
+
+    - name: Upload dist package to release page
       if: ${{ env.RELEASE_TAG_NAME != '' }}
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG_NAME }}
-        name: ${{ env.RELEASE_TAG_NAME }}-${{ env.OPENSSL_DIST_NAME }}
-        files: ${{ env.OPENSSL_DIST_PACKAGE }}
+        name: ${{ env.DIST_NAME }}_${{ env.RELEASE_TAG_NAME }}
+        files: ${{ env.DIST_PACKAGE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPOSITORY: adxeproject/openssl-build
+        GITHUB_REPOSITORY: adxeproject/buildware

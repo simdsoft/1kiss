@@ -1,160 +1,43 @@
-#
-# Copyright (c) 2021 Bytedance Inc.
-#
+BUILD_TARGET=$1
+BUILD_ARCH=$2
+
+echo "RUNNER_OS=$RUNNER_OS"
 
 BUILDWARE_ROOT=`pwd`
+INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 
-LIB_NAME=$1
-BUILD_TARGET=$2
-BUILD_ARCH=$3
-INSTALL_ROOT=$4
-
-echo "LIB_NAME=$LIB_NAME"
-echo "BUILD_TARGET=$BUILD_TARGET"
-echo "BUILD_ARCH=$BUILD_ARCH"
-echo "INSTALL_ROOT=$INSTALL_ROOT"
-
-# Parse android toolchain
-android_api_level=$(cat toolchain.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
-android_api_level_arm64=$(cat toolchain.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d '\n')
-
-function parse_yaml {
-   local prefix=$2
-   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
-   sed -ne "s|^\($s\):|\1|" \
-        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
-        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
-   awk -F$fs '{
-      indent = length($1)/2;
-      vname[indent] = $2;
-      for (i in vname) {if (i > indent) {delete vname[i]}}
-      if (length($3) >= 0) {
-         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
-         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
-      }
-   }'
-}
-
-# Prepare env
-PROPS_FILE="src/${LIB_NAME}/build.yml"
-
-eval $(parse_yaml $PROPS_FILE)
-
-echo "repo=$repo"
-echo "config_options_2=$config_options_2"
-echo "cb_tool=$cb_tool"
-
-if [ "$tag_dot2ul" = "true" ]; then
-    ver=${ver//./_}
-fi 
-release_tag="${tag_prefix}${ver}"
-
-echo "BUILD_TARGET=$BUILD_TARGET"
-echo "BUILD_ARCH=$BUILD_ARCH"
-
-# Determine build target & config options
-CONFIG_OPTIONS=$config_options_1
-if [ "$BUILD_TARGET" = "linux" ] ; then
-    CONFIG_TARGET=
-elif [ "$BUILD_TARGET" = "osx" ] ; then
-    if [ "$cb_tool" = "cmake" ] ; then
-        CONFIG_TARGET=-GXcode
-    else
-        CONFIG_TARGET=darwin64-x86_64-cc
-    fi
-elif [ "$BUILD_TARGET" = "ios" ] ; then
-    if [ "$cb_tool" = "cmake" ] ; then
-        IOS_ARCH=""
-        if [ "$BUILD_ARCH" = "arm" ] ; then
-            IOS_ARCH=armv7
-        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
-            IOS_ARCH=arm64
-        elif [ "$BUILD_ARCH" = "x64" ] ; then
-            IOS_ARCH=x86_64
-        fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
-    else
-       # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-       export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
-
-        IOS_PLATFORM=OS
-        if [ "$BUILD_ARCH" = "arm" ] ; then
-            CONFIG_TARGET=ios-cross
-        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
-            CONFIG_TARGET=ios64-cross
-        elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET=ios-sim-cross-x86_64
-            IOS_PLATFORM=Simulator
-        fi
-        
-        export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
-        export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
-    fi
-
-    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
-elif [ "$BUILD_TARGET" = "android" ] ; then
-    if [ "$cb_tool" = "cmake" ] ; then
-        if [ "$BUILD_ARCH" = 'arm' ] ; then
-            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
-        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
-            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_NATIVE_API_LEVEL=${android_api_level_arm64}"
-        elif [ "$BUILD_ARCH" = "x86" ] ; then
-            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
-        else
-            return 1
-        fi
-    else
-        if [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
-        else
-            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
-        fi
-    fi
-
-    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
-else
-  return 2
-fi
-
-echo CONFIG_TARGET=${CONFIG_TARGET}
-echo CONFIG_OPTIONS=${CONFIG_OPTIONS}
-
+# Create buildsrc tmp dir for build libs
 mkdir -p "buildsrc"
-cd buildsrc
 
-# Checkout lib
-echo "Checking out $repo, please wait..."
-git clone -q $repo $LIB_NAME
-pwd
-cd $LIB_NAME 
-git checkout $release_tag
-git submodule update --init --recursive
-
-# Config & Build
-install_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/${LIB_NAME}"
-mkdir -p $install_dir
-
-if [ "$cb_tool" = "cmake" ] ; then
-    CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS -DCMAKE_INSTALL_PREFIX=$install_dir"
-    echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
-    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
-    cmake --build build_$BUILD_ARCH --config Release
-    cmake --install build_$BUILD_ARCH
+# Install nasm
+if [ "$RUNNER_OS" = "macOS" ] ; then
+    brew install nasm
 else
-    CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS --prefix=$install_dir --openssldir=$install_dir"
-    echo CONFIG_ALL_OPTIONS=${CONFIG_ALL_OPTIONS}
-    if [ "$BUILD_TARGET" = "linux" ] ; then
-        ./config $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
+    sudo apt-get install nasm
+fi
+nasm -v
+
+# Install android ndk
+if [ "$BUILD_TARGET" = "android" ] ; then
+    ndk_ver=$(cat toolchain.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d '\n')
+    if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
+        echo "Downloading https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip..."
+        wget -q -O buildsrc/android-ndk-${ndk_ver}-linux-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
+        unzip -q buildsrc/android-ndk-${ndk_ver}-linux-x86_64.zip -d buildsrc/
     else
-        ./Configure $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
+        echo "The directory buildsrc/android-ndk-${ndk_ver} exists"
     fi
-    make VERBOSE=1
-    make install
+    export ANDROID_NDK_HOME=`pwd`/buildsrc/android-ndk-${ndk_ver}
+    export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
+    echo PATH=$PATH
 fi
 
-cd ../../
+# Build libs
+source 1k/build1.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build1.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 
-clean_script="src/${LIB_NAME}/clean.sh"
-if [ -f "$clean_script" ] ; then
-    source $clean_script $install_dir
+# Export INSTALL_ROOT for uploading
+if [ -n "$GITHUB_ENV" ] ; then
+    echo "INSTALL_ROOT=$INSTALL_ROOT"
+    echo "INSTALL_ROOT=$INSTALL_ROOT" >> ${GITHUB_ENV}
 fi

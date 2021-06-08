@@ -70,8 +70,8 @@ function copy_inc_and_libs {
     cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
 }
 
-# source src/jpeg-turbo/dist.sh $DIST_ROOT
-source src/openssl/dist.sh $DIST_ROOT
+source src/jpeg-turbo/dist1.sh $DIST_ROOT
+source src/openssl/dist1.sh $DIST_ROOT
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip

@@ -596,10 +596,10 @@ if(ENABLE_SHARED)
 endif()
 
 if(ENABLE_STATIC)
-  add_library(jpeg STATIC ${JPEG_SOURCES} $<TARGET_OBJECTS:simd>
+  add_library(jpeg-static STATIC ${JPEG_SOURCES} $<TARGET_OBJECTS:simd>
     ${SIMD_OBJS})
   if(NOT MSVC)
-    set_target_properties(jpeg PROPERTIES OUTPUT_NAME jpeg)
+    set_target_properties(jpeg-static PROPERTIES OUTPUT_NAME jpeg)
   endif()
 endif()
 
@@ -1474,17 +1474,19 @@ if(ENABLE_STATIC)
     else()
       set(DIR ${CMAKE_CURRENT_BINARY_DIR})
     endif()
+    if(WITH_TOOLS)
     install(PROGRAMS ${DIR}/cjpeg-static${EXE}
       DESTINATION ${CMAKE_INSTALL_BINDIR} RENAME cjpeg${EXE})
     install(PROGRAMS ${DIR}/djpeg-static${EXE}
       DESTINATION ${CMAKE_INSTALL_BINDIR} RENAME djpeg${EXE})
     install(PROGRAMS ${DIR}/jpegtran-static${EXE}
       DESTINATION ${CMAKE_INSTALL_BINDIR} RENAME jpegtran${EXE})
+    endif()
   endif()
 endif()
-
+if(WITH_TOOLS)
 install(TARGETS rdjpgcom wrjpgcom RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-
+endif()
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/README.ijg
   ${CMAKE_CURRENT_SOURCE_DIR}/README.md ${CMAKE_CURRENT_SOURCE_DIR}/example.txt
   ${CMAKE_CURRENT_SOURCE_DIR}/tjexample.c
