@@ -64,9 +64,13 @@ elif [ "$BUILD_TARGET" = "osx" ] ; then
     fi
 elif [ "$BUILD_TARGET" = "ios" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        IOS_ARCH=${BUILD_ARCH}
-        if [ "$IOS_ARCH" = "x64" ] ; then
-            IOS_ARCH="x86_64"
+        IOS_ARCH=""
+        if [ "$BUILD_ARCH" = "arm" ] ; then
+            IOS_ARCH=armv7
+        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
+            IOS_ARCH=arm64
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            IOS_ARCH=x86_64
         fi
         CONFIG_TARGET="-DCMAKE_TOOL_CHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
     else

@@ -1,7 +1,7 @@
 DIST_REVISION=$1
 
 DIST_NAME=buildware_dist_${DIST_REVISION}
-$DIST_ROOT=`pwd`/${DIST_NAME}
+DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
 function copy_inc_and_libs {
