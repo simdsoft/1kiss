@@ -89,9 +89,9 @@ jobs:
         
     - name: Prepare dist package
       run: |
-        echo "Checking download structure"
         ls
         source 1k/dist.sh $RELEASE_TAG_NAME
+        ls
 
     - name: Upload dist package to release page
       if: ${{ env.RELEASE_TAG_NAME != '' }}
