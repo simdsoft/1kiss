@@ -1,77 +1,82 @@
-ls -R
+DIST_REVISION=$1
 
-openssl_ver=$(cat build.properties | grep -w 'openssl_ver' | cut -d '=' -f 2 | tr -d ' \n')
-openssl_ver=${openssl_ver//./_}
+DIST_NAME=buildware_dist
 
-OPENSSL_DIST_NAME="openssl_${openssl_ver}"
-OPENSSL_DIST_DIR="openssl-dist/${OPENSSL_DIST_NAME}"
+if [ ! "${DIST_REVISION}" = "" ]; then
+    DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
+fi
 
-# mkdir for commen
-mkdir -p ${OPENSSL_DIST_DIR}/include
+DIST_ROOT=`pwd`/${DIST_NAME}
+mkdir -p $DIST_ROOT
 
-# mkdir for opensslconf.h
-mkdir -p ${OPENSSL_DIST_DIR}/include/win32/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/linux/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/mac/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/ios-arm/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/ios-arm64/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/ios-x64/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/android-arm/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/android-arm64/openssl
-mkdir -p ${OPENSSL_DIST_DIR}/include/android-x86/openssl
+function copy_inc_and_libs {
+    LIB_NAME=$1
+    DIST_DIR=$2
+    CONF_HEADER=$3
+    # [optional] INC_DIR=openssl/
+    INC_DIR=$4
+    
+    # mkdir for commen
+    mkdir -p ${DIST_DIR}/include
 
-# mkdir for libs
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/win32
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/linux/64-bit
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/mac
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/ios
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/android/armeabi-v7a
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/android/arm64-v8a
-mkdir -p ${OPENSSL_DIST_DIR}/prebuilt/android/x86
-ls -R ${OPENSSL_DIST_DIR}
+    # mkdir for opensslconf.h
+    mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/linux/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
+    mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
 
-# copy the adxe cmake for openssl
-cp "1k/CMakeLists.txt.in" ${OPENSSL_DIST_DIR}/CMakeLists.txt
+    # mkdir for libs
+    mkdir -p ${DIST_DIR}/prebuilt/win32
+    mkdir -p ${DIST_DIR}/prebuilt/linux/x64
+    mkdir -p ${DIST_DIR}/prebuilt/mac
+    mkdir -p ${DIST_DIR}/prebuilt/ios
+    mkdir -p ${DIST_DIR}/prebuilt/android/armeabi-v7a
+    mkdir -p ${DIST_DIR}/prebuilt/android/arm64-v8a
+    mkdir -p ${DIST_DIR}/prebuilt/android/x86
 
-# copy common headers
-cp -rf openssl_linux_x86_64/include/openssl ${OPENSSL_DIST_DIR}/include/
-rm -rf ${OPENSSL_DIST_DIR}/include/openssl/opensslconf.h
-cp "1k/opensslconf.h.in" ${OPENSSL_DIST_DIR}/include/openssl/opensslconf.h
+    # copy common headers
+    cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/
+    rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-# copy platform spec opensslconf.h
-cp openssl_windows_x86/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/win32/openssl/opensslconf.h
-cp openssl_linux_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/linux/openssl/
-cp openssl_osx_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/mac/openssl/
-cp openssl_ios_arm/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/ios-arm/openssl/
-cp openssl_ios_arm64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/ios-arm64/openssl/
-cp openssl_ios_x86_64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/ios-x64/openssl/
-cp openssl_android_arm/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/android-arm/openssl/
-cp openssl_android_arm64/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/android-arm64/openssl/
-cp openssl_android_x86/include/openssl/opensslconf.h ${OPENSSL_DIST_DIR}/include/android-x86/openssl/
+    CONF_CONTENT=(cat 1k/config.h.in)
+    CONF_CONTENT=${CONF_CONTENT//@LIB_NAME@/$LIB_NAME}
+    CONF_CONTENT=${CONF_CONTENT//@INC_DIR@/$INC_DIR}
+    CONF_CONTENT=${CONF_CONTENT//@CONF_HEADER@/$CONF_HEADER}
+    echo "$CONF_CONTENT" >> ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-# copy libs
-cp openssl_windows_x86/lib/*.lib ${OPENSSL_DIST_DIR}/prebuilt/win32/
-cp openssl_windows_x86/bin/*.dll ${OPENSSL_DIST_DIR}/prebuilt/win32/
-cp openssl_linux_x86_64/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/linux/64-bit/
-cp openssl_osx_x86_64/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/mac/
-cp openssl_android_arm/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/android/armeabi-v7a/
-cp openssl_android_arm64/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/android/arm64-v8a/
-cp openssl_android_x86/lib/*.a ${OPENSSL_DIST_DIR}/prebuilt/android/x86/
+    # copy platform spec opensslconf.h
+    cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+    cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
+    cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
+    cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
+    cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+    cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
+    cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
+    cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
+    cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
 
-# create flat lib for ios
-lipo -create openssl_ios_arm/lib/libssl.a openssl_ios_arm64/lib/libssl.a openssl_ios_x86_64/lib/libssl.a -output ${OPENSSL_DIST_DIR}/prebuilt/ios/libssl.a
-lipo -create openssl_ios_arm/lib/libcrypto.a openssl_ios_arm64/lib/libcrypto.a openssl_ios_x86_64/lib/libcrypto.a -output ${OPENSSL_DIST_DIR}/prebuilt/ios/libcrypto.a
+    # copy libs
+    cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/win32/
+    cp install_windows_x86/${LIB_NAME}/bin/*.dll ${DIST_DIR}/prebuilt/win32/
+    cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
+    cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/
+    cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
+    cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/arm64-v8a/
+    cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
+}
 
-# check the flat lib
-lipo -info ${OPENSSL_DIST_DIR}/prebuilt/ios/libssl.a
-lipo -info ${OPENSSL_DIST_DIR}/prebuilt/ios/libcrypto.a
+source src/jpeg-turbo/dist1.sh $DIST_ROOT
+source src/openssl/dist1.sh $DIST_ROOT
 
 # create dist package
-OPENSSL_DIST_PACKAGE=${OPENSSL_DIST_NAME}.zip
-zip -q -r ${OPENSSL_DIST_PACKAGE} ${OPENSSL_DIST_DIR}
+DIST_PACKAGE=${DIST_NAME}.zip
+zip -q -r ${DIST_PACKAGE} ${DIST_ROOT}
 
-ls -R ${OPENSSL_DIST_DIR}
-
-# Export OPENSSL_DIST_NAME and OPENSSL_DIST_PACKAGE for uploading
-echo "OPENSSL_DIST_NAME=$OPENSSL_DIST_NAME" >> $GITHUB_ENV
-echo "OPENSSL_DIST_PACKAGE=${OPENSSL_DIST_PACKAGE}" >> $GITHUB_ENV
+# Export DIST_NAME & DIST_PACKAGE for uploading
+echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
+echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV

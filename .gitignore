@@ -354,4 +354,6 @@ MigrationBackup/
 
 .vs
 
-/openssl
+/buildsrc
+
+/install*
