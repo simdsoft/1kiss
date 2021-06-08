@@ -20,7 +20,7 @@ fi
 nasm_bin=$(which nasm)
 echo "nasm_bin=$nasm_bin"
 if [ "$nasm_bin" = "" ] ; then
-    echo Install basm failed.
+    echo "Install nasm failed!"
     return -1
 fi
 
