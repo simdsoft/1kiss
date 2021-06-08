@@ -1,5 +1,5 @@
-# openssl-build
-Building openssl for multi-platforms with github actions.
+# buildware
+Building opensources for multi-platforms with github actions.
   
 [![Releaee](https://img.shields.io/badge/release-0.0.3-blue.svg)](https://github.com/adxeproject/openssl-build/releases)
 [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-1.1.1k-green.svg)](https://github.com/openssl/openssl/releases)
