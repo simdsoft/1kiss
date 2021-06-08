@@ -2,7 +2,7 @@ DIST_REVISION=$1
 
 DIST_NAME=buildware_dist
 
-if [! "${DIST_REVISION}" = "" ]; then
+if [ ! "${DIST_REVISION}" = "" ]; then
     DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
 fi
 
@@ -70,7 +70,7 @@ function copy_inc_and_libs {
     cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
 }
 
-source src/jpeg-turbo/dist.sh $DIST_ROOT
+# source src/jpeg-turbo/dist.sh $DIST_ROOT
 source src/openssl/dist.sh $DIST_ROOT
 
 # create dist package
