@@ -93,7 +93,7 @@ jobs:
     - name: Prepare dist package
       run: |
         echo "Checking download structure"
-        ls -R
+        ls
         source 1k/dist.sh $RELEASE_TAG_NAME
         
     - name: Upload dist package to artifact page

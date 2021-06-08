@@ -15,7 +15,7 @@ function copy_inc_and_libs {
     CONF_HEADER=$3
     # [optional] INC_DIR=openssl/
     INC_DIR=$4
-    
+
     # mkdir for commen
     mkdir -p ${DIST_DIR}/include
 
@@ -40,10 +40,10 @@ function copy_inc_and_libs {
     mkdir -p ${DIST_DIR}/prebuilt/android/x86
 
     # copy common headers
-    cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/
+    cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
     rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-    CONF_CONTENT=(cat 1k/config.h.in)
+    CONF_CONTENT=$(cat 1k/config.h.in)
     CONF_CONTENT=${CONF_CONTENT//@LIB_NAME@/$LIB_NAME}
     CONF_CONTENT=${CONF_CONTENT//@INC_DIR@/$INC_DIR}
     CONF_CONTENT=${CONF_CONTENT//@CONF_HEADER@/$CONF_HEADER}
@@ -62,7 +62,9 @@ function copy_inc_and_libs {
 
     # copy libs
     cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/win32/
-    cp install_windows_x86/${LIB_NAME}/bin/*.dll ${DIST_DIR}/prebuilt/win32/
+    if [ -d "install_windows_x86/${LIB_NAME}/bin" ] ; then
+        cp "install_windows_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/ 2>/dev/null | true
+    fi
     cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
     cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/
     cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
@@ -78,5 +80,7 @@ DIST_PACKAGE=${DIST_NAME}.zip
 zip -q -r ${DIST_PACKAGE} ${DIST_ROOT}
 
 # Export DIST_NAME & DIST_PACKAGE for uploading
-echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
-echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
+if [ ! "$GITHUB_ENV" = "" ] ; then
+    echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
+    echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
+fi
