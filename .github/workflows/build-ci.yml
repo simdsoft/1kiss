@@ -11,10 +11,7 @@ on:
     branches: [ main ]
     paths:
       - .github/workflows/build-ci.yml
-      - 1k/build.sh
-      - 1k/build.ps1
-      - 1k/build.sh
-      - 1k/build.ps1
+      - 1k/*
       - src/**/*
       - toolchain.properties
 
