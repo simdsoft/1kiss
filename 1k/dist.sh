@@ -2,7 +2,7 @@ DIST_REVISION=$1
 
 DIST_NAME=buildware_dist
 
-if [ ! "${DIST_REVISION}" = "" ]; then
+if [ "${DIST_REVISION}" != "" ]; then
     DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
 fi
 
@@ -62,8 +62,9 @@ function copy_inc_and_libs {
 
     # copy libs
     cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/win32/
-    if [ -d "install_windows_x86/${LIB_NAME}/bin" ] ; then
-        cp "install_windows_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/ 2>/dev/null | true
+    bindir=install_windows_x86/${LIB_NAME}/bin
+    if [ "`ls -A $bindir`" != "" ]; then
+        cp install_windows_x86/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/win32/
     fi
     cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
     cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/
@@ -80,7 +81,7 @@ DIST_PACKAGE=${DIST_NAME}.zip
 zip -q -r ${DIST_PACKAGE} ${DIST_NAME}
 
 # Export DIST_NAME & DIST_PACKAGE for uploading
-if [ ! "$GITHUB_ENV" = "" ] ; then
+if [ "$GITHUB_ENV" != "" ] ; then
     echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
     echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
 fi
