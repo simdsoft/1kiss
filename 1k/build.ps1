@@ -19,7 +19,7 @@ if(!(Test-Path "$nasm_bin" -PathType Container)) {
 $env:Path = "$nasm_bin;$env:Path"
 nasm -v
 
-# Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
+Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 
 # Build libs
 Invoke-Expression -Command "$build_script jpeg-turbo $BUILD_ARCH $INSTALL_ROOT"
