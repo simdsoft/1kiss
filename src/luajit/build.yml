@@ -1,0 +1,9 @@
+repo: https://github.com/LuaJIT/LuaJIT.git
+ver: v2.1
+tag_prefix: 
+tag_dot2ul: false
+cb_tool: msvcbuild.bat
+cb_tool_cd: .\src\
+config_options_1: no-shared no-threads no-async no-unit-test
+config_options_2: no-dso no-hw no-engine
+config_options_msw: 

@@ -24,6 +24,7 @@ $tag_dot2ul = $PROPS.'tag_dot2ul'
 $config_options_msw=$PROPS.'config_options_msw'
 $cb_tool = $PROPS.'cb_tool'
 $cmake_target = $PROPS.'cmake_target'
+$cb_tool_cd = $PROPS.'cb_tool_cd'
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))
@@ -85,22 +86,30 @@ if ($cb_tool -eq 'cmake') {
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     $CMAKE_PATCH="${BUILDWARE_ROOT}\src\${LIB_NAME}\CMakeLists.txt"
     if(Test-Path $CMAKE_PATCH -PathType Leaf) {
-        cp $CMAKE_PATCH .\CMakeLists.txt
+        Copy-Item $CMAKE_PATCH .\CMakeLists.txt
     }
     cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 }
-else { # only openssl use perl
+elseif($cb_tool -eq 'perl') { # only openssl use perl
     $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
     nmake install
+}
+else { # regard a buildscript .bat provide by the library
+    if(Test-Path "${cb_tool_cd}\${cb_tool}" -PathType Leaf) {
+        Push-Location $cb_tool_cd
+        Write-Output "Execute build script $cb_tool provided by library builtin...";
+        Invoke-Expression -Command ".\$cb_tool"
+        Pop-Location
+    }
 }
 
 Set-Location ..\..\
 
 $clean_script = "src\${LIB_NAME}\clean1.ps1"
 if(Test-Path $clean_script -PathType Leaf) {
-    Invoke-Expression -Command "$clean_script $install_dir"
+    Invoke-Expression -Command "$clean_script $install_dir ${BUILDWARE_ROOT}\buildsrc\${LIB_NAME}"
 }
