@@ -88,7 +88,13 @@ if ($cb_tool -eq 'cmake') {
     if(Test-Path $CMAKE_PATCH -PathType Leaf) {
         Copy-Item $CMAKE_PATCH .\CMakeLists.txt
     }
-    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    if($LIB_NAME -eq 'curl') {
+        openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl\"
+        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_SSL_LIBRARY=${openssl_dir}lib\libssl.lib -DOPENSSL_CRYPTO_LIBRARY=${openssl_dir}lib\libcrypto.lib
+    }
+    else {
+        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    }
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 }

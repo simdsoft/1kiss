@@ -141,7 +141,12 @@ if [ "$cb_tool" = "cmake" ] ; then
     if [ -f "${CMAKE_PATCH}" ] ; then
         cp -f ${CMAKE_PATCH} ./
     fi
-    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    if [ "$LIB_NAME" = "curl" ]; then
+        openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl/"
+        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_SSL_LIBRARY=${openssl_dir}lib/libssl.a -DOPENSSL_CRYPTO_LIBRARY=${openssl_dir}lib/libcrypto.a
+    else
+        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    fi
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 else

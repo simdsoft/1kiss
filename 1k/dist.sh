@@ -21,8 +21,8 @@ function copy_inc_and_libs {
     mkdir -p ${DIST_DIR}/include
 
     # mkdir for platform spec config header file
-    mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
     if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
+        mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/linux/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
@@ -31,7 +31,8 @@ function copy_inc_and_libs {
         mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
-    else
+    elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
+        mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
     fi
 
@@ -46,28 +47,32 @@ function copy_inc_and_libs {
 
     # copy common headers
     cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
-    rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-    CONF_CONTENT=$(cat 1k/$CONF_TEMPLATE)
-    STYLED_LIB_NAME=${LIB_NAME//-/_}
-    CONF_CONTENT=${CONF_CONTENT//@LIB_NAME@/$STYLED_LIB_NAME}
-    CONF_CONTENT=${CONF_CONTENT//@INC_DIR@/$INC_DIR}
-    CONF_CONTENT=${CONF_CONTENT//@CONF_HEADER@/$CONF_HEADER}
-    echo "$CONF_CONTENT" >> ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
+    if [ "$CONF_HEADER" != "" ] ; then
+        rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
 
-    # copy platform spec config header file
-    cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
-    if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
-        cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
-        cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
-        cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
-        cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
-        cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
-        cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
-        cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
-        cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
-    else
-        cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
+        CONF_CONTENT=$(cat 1k/$CONF_TEMPLATE)
+        STYLED_LIB_NAME=${LIB_NAME//-/_}
+        CONF_CONTENT=${CONF_CONTENT//@LIB_NAME@/$STYLED_LIB_NAME}
+        CONF_CONTENT=${CONF_CONTENT//@INC_DIR@/$INC_DIR}
+        CONF_CONTENT=${CONF_CONTENT//@CONF_HEADER@/$CONF_HEADER}
+        echo "$CONF_CONTENT" >> ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
+
+        # copy platform spec config header file
+        if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
+            cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+            cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
+            cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
+            cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
+            cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+            cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
+            cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
+            cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
+            cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
+        elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
+            cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+            cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
+        fi
     fi
 
     # copy libs
