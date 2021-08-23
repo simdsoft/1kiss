@@ -5,4 +5,6 @@ if [ -d "$install_dir" ] ; then
     # Delete files what we don't want
     # rm -rf "$install_dir/bin"
     rm -rf "$install_dir/share"
+    rm -rf "$install_dir/lib/cmake"
+    rm -rf "$install_dir/lib/pkgconfig"
 fi

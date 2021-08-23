@@ -5,4 +5,6 @@ if ((Test-Path $install_dir -PathType Container)) {
     # Delete files what we don't want
     # Remove-Item "$install_dir\bin" -recurse
     Remove-Item "$install_dir\share" -recurse
+    Remove-Item "$install_dir\lib\cmake" -recurse
+    Remove-Item "$install_dir\lib\pkgconfig" -recurse
 }

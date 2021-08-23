@@ -4,6 +4,6 @@ if ((Test-Path $install_dir -PathType Container)) {
     Write-Output "Cleaning ${install_dir}..."
     # Delete files what we don't want
     Remove-Item "$install_dir\bin\curl-config"
+    Remove-Item "$install_dir\lib\cmake" -recurse
     Remove-Item "$install_dir\lib\pkgconfig" -recurse
-    Remove-Item "$install_dir\cmake" -recurse
 }
