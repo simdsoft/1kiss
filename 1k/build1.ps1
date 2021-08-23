@@ -89,8 +89,10 @@ if ($cb_tool -eq 'cmake') {
         Copy-Item $CMAKE_PATCH .\CMakeLists.txt
     }
     if($LIB_NAME -eq 'curl') {
-        openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl\"
-        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_LIB_DIR=${openssl_dir}lib
+        $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl\"
+        $CONFIG_ALL_OPTIONS += "-DOPENSSL_INCLUDE_DIR=${openssl_dir}\include"
+        $CONFIG_ALL_OPTIONS += "-DOPENSSL_LIB_DIR=${openssl_dir}\lib"
+        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     }
     else {
         cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
