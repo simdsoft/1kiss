@@ -1,5 +1,5 @@
 repo: https://github.com/openssl/openssl.git
-ver: 1.1.1k
+ver: 1.1.1l
 tag_prefix: OpenSSL_
 tag_dot2ul: true
 cb_tool: perl
