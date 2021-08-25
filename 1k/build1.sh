@@ -146,6 +146,8 @@ if [ ! -d $LIB_SRC ] ; then
         unzip -q ./$outputFile -d ./
         cd $LIB_SRC
     fi
+else
+    cd $LIB_SRC
 fi
 
 # Config & Build
