@@ -122,13 +122,31 @@ echo CONFIG_OPTIONS=${CONFIG_OPTIONS}
 mkdir -p "buildsrc"
 cd buildsrc
 
-# Checkout lib
-echo "Checking out $repo, please wait..."
-git clone -q $repo $LIB_NAME
-pwd
-cd $LIB_NAME 
-git checkout $release_tag
-git submodule update --init --recursive
+# Determine LIB_SRC
+if [[ $repo == *".git" ]] ; then
+    LIB_SRC=$LIB_NAME
+else
+    LIB_SRC=$(basename "{repo%.*}")
+fi
+
+# Checking out...
+if [ ! -d $LIB_SRC ] ; then
+    if [[ $repo == *".git" ]] ; then
+        # Checkout lib
+        echo "Checking out $repo, please wait..."
+        git clone -q $repo $LIB_SRC
+        pwd
+        cd $LIB_SRC
+        git checkout $release_tag
+        git submodule update --init --recursive
+    else
+        outputFile="${LIB_SRC}.zip"
+        echo "Downloading $repo ---> $outputFile"
+        curl $repo -o .\$outputFile
+        unzip -q ./$outputFile -d ./
+        cd $LIB_SRC
+    fi
+fi
 
 # Config & Build
 install_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/${LIB_NAME}"

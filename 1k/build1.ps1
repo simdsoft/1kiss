@@ -128,5 +128,5 @@ Set-Location ..\..\
 
 $clean_script = "src\${LIB_NAME}\clean1.ps1"
 if(Test-Path $clean_script -PathType Leaf) {
-    Invoke-Expression -Command "$clean_script $install_dir ${BUILDWARE_ROOT}\buildsrc\${LIB_SRC}"
+    Invoke-Expression -Command "$clean_script $install_dir"
 }
