@@ -1,0 +1,15 @@
+language: c
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode10.1
+      env: 
+        - BUILD_TARGET=ios
+        - BUILD_ARCH=arm
+        - TRAVIS_CI=true
+
+install:
+  - echo "Nothing to install"
+
+script:
+  - ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
