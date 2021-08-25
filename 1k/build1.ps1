@@ -55,10 +55,9 @@ else { # opnel openssl use perl
 
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
-# Checkout repo
 Set-Location buildsrc
 
-# determin lib src root dir
+# Determin lib src root dir
 $LIB_SRC = ''
 if ($repo.EndsWith('.git')) {
     $LIB_SRC = $LIB_NAME
@@ -66,6 +65,8 @@ if ($repo.EndsWith('.git')) {
 else {
     $LIB_SRC = (Split-Path $repo -leafbase)
 }
+
+# Checking out...
 if(!(Test-Path $LIB_SRC -PathType Container)) {
     if ($repo.EndsWith('.git')) {
         Write-Output "Checking out $repo, please wait..."
