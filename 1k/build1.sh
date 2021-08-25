@@ -126,7 +126,7 @@ cd buildsrc
 if [[ $repo == *".git" ]] ; then
     LIB_SRC=$LIB_NAME
 else
-    LIB_SRC=$(basename "{repo%.*}")
+    LIB_SRC=$(basename "${repo%.*}")
 fi
 
 # Checking out...
@@ -142,7 +142,7 @@ if [ ! -d $LIB_SRC ] ; then
     else
         outputFile="${LIB_SRC}.zip"
         echo "Downloading $repo ---> $outputFile"
-        curl $repo -o .\$outputFile
+        curl $repo -o ./$outputFile
         unzip -q ./$outputFile -d ./
         cd $LIB_SRC
     fi

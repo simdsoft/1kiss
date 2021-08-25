@@ -1,4 +1,4 @@
-repo: https://github.com/curl/curl.git
+repo: https://curl.se/download/curl-7.78.0.zip
 ver: 7.78.0
 tag_prefix: 'curl-'
 tag_dot2ul: true
