@@ -156,17 +156,16 @@ mkdir -p $install_dir
 
 if [ "$cb_tool" = "cmake" ] ; then
     CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS -DCMAKE_INSTALL_PREFIX=$install_dir"
-    echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
     CMAKE_PATCH="${BUILDWARE_ROOT}/src/${LIB_NAME}/CMakeLists.txt"
     if [ -f "${CMAKE_PATCH}" ] ; then
         cp -f ${CMAKE_PATCH} ./
     fi
     if [ "$LIB_NAME" = "curl" ]; then
         openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl/"
-        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_LIB_DIR=${openssl_dir}lib
-    else
-        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+        CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_LIB_DIR=${openssl_dir}lib"
     fi
+    echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
+    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 else

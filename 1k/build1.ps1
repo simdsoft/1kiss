@@ -93,7 +93,6 @@ if(!(Test-Path $install_dir -PathType Container)) {
 }
 if ($cb_tool -eq 'cmake') {
     $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$install_dir"
-    Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     $CMAKE_PATCH="${BUILDWARE_ROOT}\src\${LIB_NAME}\CMakeLists.txt"
     if(Test-Path $CMAKE_PATCH -PathType Leaf) {
         Copy-Item $CMAKE_PATCH .\CMakeLists.txt
@@ -102,11 +101,9 @@ if ($cb_tool -eq 'cmake') {
         $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl\"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_INCLUDE_DIR=${openssl_dir}\include"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_LIB_DIR=${openssl_dir}\lib"
-        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     }
-    else {
-        cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
-    }
+    
+    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 }
@@ -126,6 +123,11 @@ else { # regard a buildscript .bat provide by the library
 }
 
 Set-Location ..\..\
+
+$install_script = "src\${LIB_NAME}\install1.ps1"
+if(Test-Path $install_script -PathType Leaf) {
+    Invoke-Expression -Command "$install_script $install_dir ${BUILDWARE_ROOT}\buildsrc\${LIB_SRC}"
+}
 
 $clean_script = "src\${LIB_NAME}\clean1.ps1"
 if(Test-Path $clean_script -PathType Leaf) {
