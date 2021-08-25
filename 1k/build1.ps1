@@ -57,23 +57,32 @@ $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
 # Checkout repo
 Set-Location buildsrc
-if(!(Test-Path $LIB_NAME -PathType Container)) {
+
+# determin lib src root dir
+$LIB_SRC = ''
+if ($repo.EndsWith('.git')) {
+    $LIB_SRC = $LIB_NAME
+}
+else {
+    $LIB_SRC = (Split-Path $repo -leafbase)
+}
+if(!(Test-Path $LIB_SRC -PathType Container)) {
     if ($repo.EndsWith('.git')) {
         Write-Output "Checking out $repo, please wait..."
         git clone -q $repo $LIB_NAME
-        Set-Location $LIB_NAME
+        Set-Location $LIB_SRC
         git checkout $release_tag
     }
-    #else {
-    #    $outputFile = "${libname}.zip" # Split-Path https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1k.zip -leaf
-    #    echo "Downloading $repo ---> $outputFile"
-    #    curl $repo -o .\$outputFile
-    #    Expand-Archive -Path $outputFile -DestinationPath .\
-    #    cd $LIB_NAME
-    #}
+    else {
+       $outputFile="${LIB_SRC}.zip"
+       Write-Output "Downloading $repo ---> $outputFile"
+       Invoke-WebRequest $repo -o .\$outputFile
+       Expand-Archive -Path $outputFile -DestinationPath .\
+       Set-Location $LIB_SRC
+    }
 }
 else {
-    Set-Location $LIB_NAME
+    Set-Location $LIB_SRC
 }
 
 # Config & Build
@@ -119,5 +128,5 @@ Set-Location ..\..\
 
 $clean_script = "src\${LIB_NAME}\clean1.ps1"
 if(Test-Path $clean_script -PathType Leaf) {
-    Invoke-Expression -Command "$clean_script $install_dir ${BUILDWARE_ROOT}\buildsrc\${LIB_NAME}"
+    Invoke-Expression -Command "$clean_script $install_dir ${BUILDWARE_ROOT}\buildsrc\${LIB_SRC}"
 }
