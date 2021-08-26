@@ -225,7 +225,7 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
         CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
         
-        if [ ! -z $CONFIG_ALL_OPTIONS ] ; then
+        if [ ! -z "${CONFIG_ALL_OPTIONS// }" ] ; then
           echo "$CONFIG_ALL_OPTIONS" | xargs make
         else
           make
