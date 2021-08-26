@@ -226,7 +226,7 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
         echo "${CONFIG_ALL_OPTIONS}" | xargs make
         if [ -f "../../src/${LIB_NAME}/install1.sh" ] ; then # have custom install_script?
-            $install_script = "src/${LIB_NAME}/install1.sh"
+            install_script="src/${LIB_NAME}/install1.sh"
         else
             make install PREFIX=$install_dir
         fi
