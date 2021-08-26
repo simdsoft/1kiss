@@ -94,7 +94,7 @@ if [ "$TRAVIS_ARTIFACTS_REL" = "" ]; then
 fi
 TRAVIS_ARTIFACTS_URL="https://github.com/halx99/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
 echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
-curl -o install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
+wget -O install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
 if [ "$?" = "0" ]; then
     unzip -q install_ios_arm.zip -d ./
 fi
