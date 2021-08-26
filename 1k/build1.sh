@@ -225,7 +225,11 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
         CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
         echo "${CONFIG_ALL_OPTIONS}" | xargs make
-        make install PREFIX=$install_dir
+        if [ -f "../../src/${LIB_NAME}/install1.sh" ] ; then # have custom install_script?
+            $install_script = "src/${LIB_NAME}/install1.sh"
+        else
+            make install PREFIX=$install_dir
+        fi
     else
         echo "Skip build luajit ios-armv7 on xcode-10.3 or later!"
     fi
@@ -236,6 +240,12 @@ else
 fi
 
 cd ../../
+
+if [ ! "$install_script" = "" ] ; then
+    if [ -f "$install_script" ] ; then
+        source $install_script $install_dir "${BUILDWARE_ROOT}/buildsrc/${LIB_SRC}"
+    fi
+fi
 
 clean_script="src/${LIB_NAME}/clean1.sh"
 if [ -f "$clean_script" ] ; then
