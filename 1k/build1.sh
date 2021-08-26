@@ -224,7 +224,13 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
     if [ ! "$SKIP_CI" = "true" ] ; then
         CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
-        echo "${CONFIG_ALL_OPTIONS}" | xargs make
+        
+        if [ "${CONFIG_ALL_OPTIONS}" = "" ] ; then
+          make
+        else
+          echo "${CONFIG_ALL_OPTIONS}" | xargs make
+        fi
+        
         if [ -f "../../src/${LIB_NAME}/install1.sh" ] ; then # have custom install_script?
             install_script="src/${LIB_NAME}/install1.sh"
         else
