@@ -78,7 +78,7 @@ function copy_inc_and_libs {
     # copy libs
     cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/win32/
     bindir=install_windows_x86/${LIB_NAME}/bin
-    if [ "`ls -A $bindir`" != "" ]; then
+    if [ -d "$bindir" ] && [ "`ls -A $bindir`" != "" ]; then
         cp install_windows_x86/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/win32/
     fi
     cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/

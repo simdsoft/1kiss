@@ -241,10 +241,8 @@ fi
 
 cd ../../
 
-if [ ! "$install_script" = "" ] ; then
-    if [ -f "$install_script" ] ; then
-        source $install_script $install_dir "${BUILDWARE_ROOT}/buildsrc/${LIB_SRC}"
-    fi
+if [ ! "$install_script" = "" ] && [ -f "$install_script" ] ; then
+    source $install_script $install_dir "${BUILDWARE_ROOT}/buildsrc/${LIB_SRC}"
 fi
 
 clean_script="src/${LIB_NAME}/clean1.sh"
