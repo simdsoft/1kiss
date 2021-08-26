@@ -59,28 +59,31 @@ if [ "$BUILD_TARGET" = "linux" ] ; then
 elif [ "$BUILD_TARGET" = "osx" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
         CONFIG_TARGET=-GXcode
-    else
+    elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         CONFIG_TARGET=darwin64-x86_64-cc
+    else # luajit TODO: move to custom config.sh
+        CONFIG_TARGET=
+        export MACOSX_DEPLOYMENT_TARGET=10.12
     fi
 elif [ "$BUILD_TARGET" = "ios" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
         IOS_ARCH=""
         if [ "$BUILD_ARCH" = "arm" ] ; then
             IOS_ARCH=armv7
-        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
+        elif [ "$BUILD_ARCH" = "arm64" ] ; then
             IOS_ARCH=arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             IOS_ARCH=x86_64
         fi
         CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
-    else
-       # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-       export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
+    elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
+        # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
+        export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm" ] ; then
             CONFIG_TARGET=ios-cross
-        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
+        elif [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET=ios64-cross
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             CONFIG_TARGET=ios-sim-cross-x86_64
@@ -89,31 +92,70 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         
         export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
         export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
+    else # luajit TODO: move to custom config.sh
+        SDK_NAME=iphoneos
+        HOST_CC="gcc -std=c99"
+        XCFLAGS=" -DLJ_NO_SYSTEM=1 "
+        if [ "$BUILD_ARCH" = "arm" ] ; then
+            ARCH_NAME=armv7
+            HOST_CC="gcc -m32 -std=c99"
+            XCFLAGS=" -DLJ_NO_SYSTEM=1 -Wno-ignored-optimization-argument "
+            XCODEVER=`xcodebuild -version|head -n 1|sed 's/Xcode \([0-9]*\)/\1/g'`
+            ISOLD_XCODEVER=`echo "$XCODEVER <= 10.1" | bc`
+            echo "ISOLD_XCODEVER=$ISOLD_XCODEVER, XCODEVER=$XCODEVER"
+            if [ "$ISOLD_XCODEVER" = "0" ] ; then
+                echo "Build luajit ios-armv7 require Xcode version <= 10.1, but $XCODEVER provided!"
+                SKIP_CI=true
+            fi
+        elif [ "$BUILD_ARCH" = "arm64" ] ; then
+            ARCH_NAME=arm64
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            SDK_NAME=iphonesimulator
+            ARCH_NAME=x86_64
+        fi
+        ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
+        ICC=$(xcrun --sdk $SDK_NAME --find clang)
+        ISDKF="-arch $ARCH_NAME -isysroot $ISDKP"
+        CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=iOS XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
     fi
 
     CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
 elif [ "$BUILD_TARGET" = "android" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        if [ "$BUILD_ARCH" = 'arm' ] ; then
+        if [ "$BUILD_ARCH" = "arm" ] ; then
             CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=armeabi-v7a -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
-        elif [ "$BUILD_ARCH" = 'arm64' ] ; then
+        elif [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_NATIVE_API_LEVEL=${android_api_level_arm64}"
         elif [ "$BUILD_ARCH" = "x86" ] ; then
             CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
-        else
-            return 1
         fi
-    else
+    elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
         else
             CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
         fi
+    else # luajit TODO: move to custom config.sh
+        NDKBIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            NDKCROSS=$NDKBIN/aarch64-linux-android-
+            NDKCC=$NDKBIN/aarch64-linux-android$android_api_level_arm64-clang
+            CONFIG_TARGET="HOST_CC=\"gcc\" CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+        elif [ "$BUILD_ARCH" = "arm" ] ; then
+            NDKCROSS=$NDKBIN/arm-linux-androideabi-
+            NDKCC=$NDKBIN/armv7a-linux-androideabi$android_api_level-clang
+            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+        else
+            NDKCROSS=$NDKBIN/i686-linux-android-
+            NDKCC=$NDKBIN/i686-linux-android$android_api_level-clang
+            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+        fi
+        echo NDKCC=$NDKCC
     fi
 
     CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
 else
-  return 2
+  return 1
 fi
 
 echo CONFIG_TARGET=${CONFIG_TARGET}
@@ -168,7 +210,7 @@ if [ "$cb_tool" = "cmake" ] ; then
     cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
-else
+elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom build.sh
     CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS --prefix=$install_dir --openssldir=$install_dir"
     echo CONFIG_ALL_OPTIONS=${CONFIG_ALL_OPTIONS}
     if [ "$BUILD_TARGET" = "linux" ] ; then
@@ -178,6 +220,19 @@ else
     fi
     make VERBOSE=1
     make install
+elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
+    if [ ! "$SKIP_CI" = "true" ] ; then
+        CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"
+        echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
+        echo "${CONFIG_ALL_OPTIONS}" | xargs make
+        make install PREFIX=$install_dir
+    else
+        echo "Skip build luajit ios-armv7 on xcode-10.3 or later!"
+    fi
+else 
+    echo "unknown cross build tool provided!"
+    cd ../../
+    return 2
 fi
 
 cd ../../

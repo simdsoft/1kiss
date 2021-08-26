@@ -13,7 +13,7 @@ mkdir -p "buildsrc"
 if [ "$RUNNER_OS" = "macOS" ] ; then
     brew install nasm
 else
-    sudo apt-get install nasm
+    sudo apt-get install nasm gcc-multilib
 fi
 
 # Check whether nasm install succeed
@@ -43,6 +43,7 @@ fi
 source 1k/build1.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 source 1k/build1.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 source 1k/build1.sh curl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build1.sh luajit $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 
 # Export INSTALL_ROOT for uploading
 if [ -n "$GITHUB_ENV" ] ; then

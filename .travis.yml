@@ -2,7 +2,7 @@ language: c
 matrix:
   include:
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode9.4
       env: 
         - BUILD_TARGET=ios
         - BUILD_ARCH=arm
@@ -12,4 +12,17 @@ install:
   - echo "Nothing to install"
 
 script:
-  - ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
+  - BUILDWARE_ROOT=`pwd`
+  - INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
+  - mkdir -p "buildsrc"
+  - source 1k/build1.sh luajit $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+  - export INSTALL_ROOT=$INSTALL_ROOT
+  - zip -q -r ${INSTALL_ROOT}.zip ${INSTALL_ROOT}
+
+deploy:
+  provider: releases
+  api_key: $GH_TOKEN
+  file: "install_ios_arm.zip"
+  skip_cleanup: true
+  on:
+    tags: false

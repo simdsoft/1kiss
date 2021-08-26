@@ -22,9 +22,10 @@ $ver = $PROPS.'ver'
 $tag_prefix = $PROPS.'tag_prefix'
 $tag_dot2ul = $PROPS.'tag_dot2ul'
 $config_options_msw=$PROPS.'config_options_msw'
+$cb_script = $PROPS.'cb_script'
 $cb_tool = $PROPS.'cb_tool'
-$cmake_target = $PROPS.'cmake_target'
-$cb_tool_cd = $PROPS.'cb_tool_cd'
+# $cmake_target = $PROPS.'cmake_target'
+$cb_dir = $PROPS.'cb_dir'
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))
@@ -114,10 +115,10 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
     nmake install
 }
 else { # regard a buildscript .bat provide by the library
-    if(Test-Path "${cb_tool_cd}\${cb_tool}" -PathType Leaf) {
-        Push-Location $cb_tool_cd
-        Write-Output "Execute build script $cb_tool provided by library builtin...";
-        Invoke-Expression -Command ".\$cb_tool"
+    if(Test-Path "${cb_dir}\${cb_script}" -PathType Leaf) {
+        Push-Location $cb_dir
+        Write-Output "Execute build script $cb_script provided by library builtin...";
+        Invoke-Expression -Command ".\$cb_script"
         Pop-Location
     }
 }
