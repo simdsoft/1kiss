@@ -22,7 +22,7 @@ script:
 
 before_deploy:
   # Set up git user name and tag this commit
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - export TRAVIS_TAG=$(git log --format=%h -1)
   - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
   - git config --local user.name "release-bot"
   - git config --local user.email "release-bot@users.noreply.github.com"
