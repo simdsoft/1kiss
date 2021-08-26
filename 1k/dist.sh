@@ -88,9 +88,21 @@ function copy_inc_and_libs {
     cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
 }
 
+# try downlaod
+if [ "$TRAVIS_ARTIFACTS_REL" = "" ]; then
+    TRAVIS_ARTIFACTS_REL=artifacts-$(git log --format=%h -1)
+fi
+TRAVIS_ARTIFACTS_URL="https://github.com/halx99/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
+echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
+curl -o install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
+if [ "$?" = "0" ]; then
+    unzip -q install_ios_arm.zip -d ./
+fi
+
 source src/jpeg-turbo/dist1.sh $DIST_ROOT
 source src/openssl/dist1.sh $DIST_ROOT
 source src/curl/dist1.sh $DIST_ROOT
+source src/luajit/dist1.sh $DIST_ROOT
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip

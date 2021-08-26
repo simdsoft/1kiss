@@ -20,6 +20,13 @@ on:
         default: ''
         # Input has to be provided for the workflow to run
         required: false
+      travis_artifacts_tag:
+        # actions run ID
+        description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-6fa748c'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: false
       run_id:
         # actions run ID
         description: 'Please specific build-ci run id to dist'
@@ -86,10 +93,11 @@ jobs:
           RELEASE_TAG_NAME=${{github.event.inputs.release_tag}}
           echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME" >> $GITHUB_ENV
         fi
-        
+
     - name: Prepare dist package
       run: |
         ls
+        TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
         source 1k/dist.sh $RELEASE_TAG_NAME
         ls
 
