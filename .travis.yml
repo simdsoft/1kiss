@@ -21,17 +21,28 @@ script:
 
 before_deploy:
   # Set up git user name and tag this commit
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
   - git config --local user.name "release-bot"
   - git config --local user.email "release-bot@users.noreply.github.com"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
+  - git tag "$TRAVIS_TAG" "$TRAVIS_COMMIT"
 
 deploy:
   provider: releases
-  api_key: $GITHUB_TOKEN
-  file: "install_ios_arm.zip"
-  skip_cleanup: true
-  draft: true
   tag_name: $TRAVIS_TAG
+  target_commitish: $TRAVIS_COMMIT
   name: $TRAVIS_TAG
   overwrite: true
+  skip_cleanup: true
+  api_key: $GITHUB_TOKEN
+  file_glob: true
+  file:
+    - install_ios_arm.zip
+  on:
+    branch: main
+    repo: halx99/buildware
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
