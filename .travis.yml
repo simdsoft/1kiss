@@ -3,7 +3,7 @@ matrix:
   include:
     - os: osx
       osx_image: xcode9.4
-      if: branch = master
+      if: branch = main
       env: 
         - BUILD_TARGET=ios
         - BUILD_ARCH=arm
@@ -40,7 +40,7 @@ deploy:
   file:
     - install_ios_arm.zip
   on:
-    branch: master
+    branch: main
     repo: adxeproject/buildware
 
 notifications:

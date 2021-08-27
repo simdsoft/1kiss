@@ -6,9 +6,9 @@ name: build-ci
 
 # Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - .github/workflows/build-ci.yml
       - 1k/build*
