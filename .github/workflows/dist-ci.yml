@@ -24,7 +24,7 @@ on:
         # actions run ID
         description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-6fa748c'
         # Default value if no value is explicitly provided
-        default: ''
+        default: 'artifacts-ff2c34b'
         # Input has to be provided for the workflow to run
         required: false
       run_id:
