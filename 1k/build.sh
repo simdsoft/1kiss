@@ -26,7 +26,7 @@ fi
 
 # Install android ndk
 if [ "$BUILD_TARGET" = "android" ] ; then
-    ndk_ver=$(cat toolchain.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d '\n')
+    ndk_ver=$(cat ndk.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d '\n')
     if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
         echo "Downloading https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip..."
         wget -q -O buildsrc/android-ndk-${ndk_ver}-linux-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip

@@ -14,9 +14,9 @@ echo "BUILD_TARGET=$BUILD_TARGET"
 echo "BUILD_ARCH=$BUILD_ARCH"
 echo "INSTALL_ROOT=$INSTALL_ROOT"
 
-# Parse android toolchain
-android_api_level=$(cat toolchain.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
-android_api_level_arm64=$(cat toolchain.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d '\n')
+# Parse android ndk
+android_api_level=$(cat ndk.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
+android_api_level_arm64=$(cat ndk.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d '\n')
 
 function parse_yaml {
    local prefix=$2

@@ -23,6 +23,7 @@ function copy_inc_and_libs {
     # mkdir for platform spec config header file
     if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
         mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/win64/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/linux/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
@@ -37,7 +38,8 @@ function copy_inc_and_libs {
     fi
 
     # mkdir for libs
-    mkdir -p ${DIST_DIR}/prebuilt/win32
+    mkdir -p ${DIST_DIR}/prebuilt/windows/x86
+    mkdir -p ${DIST_DIR}/prebuilt/windows/x64
     mkdir -p ${DIST_DIR}/prebuilt/linux/x64
     mkdir -p ${DIST_DIR}/prebuilt/mac
     mkdir -p ${DIST_DIR}/prebuilt/ios
@@ -61,6 +63,7 @@ function copy_inc_and_libs {
         # copy platform spec config header file
         if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
             cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+            cp install_windows_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
             cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
             cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
             cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
@@ -76,11 +79,17 @@ function copy_inc_and_libs {
     fi
 
     # copy libs
-    cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/win32/
+    cp install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/windows/x86/
     bindir=install_windows_x86/${LIB_NAME}/bin
     if [ -d "$bindir" ] && [ "`ls -A $bindir`" != "" ]; then
-        cp -r install_windows_x86/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/win32/
+        cp -r install_windows_x86/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/windows/x86/
     fi
+    cp install_windows_x64/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/windows/x64/
+    bindir=install_windows_x64/${LIB_NAME}/bin
+    if [ -d "$bindir" ] && [ "`ls -A $bindir`" != "" ]; then
+        cp -r install_windows_x64/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/windows/x64/
+    fi
+    
     cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
     cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/
     cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
