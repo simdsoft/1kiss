@@ -99,7 +99,8 @@ function copy_inc_and_libs {
 
 # try downlaod
 if [ "$TRAVIS_ARTIFACTS_REL" = "" ]; then
-    TRAVIS_ARTIFACTS_REL=artifacts-$(git log --format=%h -1)
+    TRAVIS_ARTIFACTS_REL=$(git tag | grep artifacts)
+    # TRAVIS_ARTIFACTS_REL=artifacts-$(git log --format=%h -1)
 fi
 TRAVIS_ARTIFACTS_URL="https://github.com/adxeproject/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
 echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
