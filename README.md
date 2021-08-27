@@ -1,9 +1,9 @@
 # buildware
 Building opensources for multi-platforms with github actions.
   
-[![Releaee](https://img.shields.io/badge/release-1.0.7-blue.svg)](https://github.com/halx99/buildware/releases)
-[![build-ci](https://github.com/halx99/buildware/actions/workflows/build-ci.yml/badge.svg)](https://github.com/halx99/buildware/actions/workflows/build-ci.yml)
-[![dist-ci](https://github.com/halx99/buildware/actions/workflows/dist-ci.yml/badge.svg)](https://github.com/halx99/buildware/actions/workflows/dist-ci.yml)
+[![Releaee](https://img.shields.io/badge/release-1.1.0-blue.svg)](https://github.com/adxeproject/buildware/releases)
+[![build-ci](https://github.com/adxeproject/buildware/actions/workflows/build-ci.yml/badge.svg)](https://github.com/adxeproject/buildware/actions/workflows/build-ci.yml)
+[![dist-ci](https://github.com/adxeproject/buildware/actions/workflows/dist-ci.yml/badge.svg)](https://github.com/adxeproject/buildware/actions/workflows/dist-ci.yml)
 
 ## opensources
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-1.1.1l-green.svg)](https://github.com/openssl/openssl/releases)
