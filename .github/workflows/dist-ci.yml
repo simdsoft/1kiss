@@ -29,7 +29,7 @@ on:
         required: false
       test:
         # test only
-        description: 'whether test only'
+        description: 'Whether test only'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
