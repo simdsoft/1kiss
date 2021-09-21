@@ -7,7 +7,9 @@ if ((Test-Path $install_dir -PathType Container)) {
 
     # Delete files what we don't want
     del "$install_dir\html" -recurse
-    del "$install_dir\lib\engines-1_1" -recurse
+    del "$install_dir\lib\engines-3" -recurse
+    # since openssl-3.0.0
+    del "$install_dir\lib\ossl-modules" -recurse
     del "$install_dir\bin\*.pl"
     del "$install_dir\bin\*.pdb"
     del "$install_dir\bin\*.exe"
