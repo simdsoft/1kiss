@@ -22,9 +22,16 @@ on:
         required: false
       travis_artifacts_tag:
         # actions run ID
-        description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-6fa748c'
+        description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-ff2c34b'
         # Default value if no value is explicitly provided
         default: 'artifacts-ff2c34b'
+        # Input has to be provided for the workflow to run
+        required: false
+      test:
+        # test only
+        description: 'whether test only'
+        # Default value if no value is explicitly provided
+        default: ''
         # Input has to be provided for the workflow to run
         required: false
       run_id:
@@ -41,7 +48,7 @@ jobs:
   dist:
     # The type of runner that the job will run on
     runs-on: macos-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.release_tag != ''}}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.release_tag != '' || github.event.inputs.test != '' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
@@ -83,10 +90,6 @@ jobs:
         # Optional, defaults to current repo
         # repo: ${{github.repository}}
 
-    - name: Parse release tag name
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo "RELEASE_TAG_NAME=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-      
     - name: Determine release tag name from input
       run: |
         if [ "$RELEASE_TAG_NAME" = "" ]; then
