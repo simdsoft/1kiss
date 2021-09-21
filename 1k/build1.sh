@@ -78,7 +78,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-        # export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
+        export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm" ] ; then
@@ -86,7 +86,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET=ios64-cross
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET=iphoneos-cross
+            CONFIG_TARGET=ios-sim64-corss
             IOS_PLATFORM=Simulator
         fi
         
