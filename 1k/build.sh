@@ -9,11 +9,20 @@ INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 # Create buildsrc tmp dir for build libs
 mkdir -p "buildsrc"
 
+if [ "$RUNNER_OS" = "Linux" ] ; then
+    sudo apt-get install gcc-multilib
+fi
+
 # Install nasm
-if [ "$RUNNER_OS" = "macOS" ] ; then
-    brew install nasm
+nasm_bin=$(which nasm)
+if [ -f "$nasm_bin" ] ; then
+    echo "The nasm installed at $nasm_bin"
 else
-    sudo apt-get install nasm gcc-multilib
+    if [ "$RUNNER_OS" = "Linux" ] ; then
+        sudo apt-get install nasm
+    elif [ "$RUNNER_OS" = "macOS" ] ; then
+        brew install nasm
+    fi
 fi
 
 # Check whether nasm install succeed
@@ -26,16 +35,24 @@ fi
 
 # Install android ndk
 if [ "$BUILD_TARGET" = "android" ] ; then
+    if [ "$RUNNER_OS" = "Linux" ] ; then
+        NDK_PLAT=linux
+    elif [ "$RUNNER_OS" = "macOS" ] ; then
+        NDK_PLAT=darwin
+    fi
     ndk_ver=$(cat ndk.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d '\n')
     if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
-        echo "Downloading https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip..."
-        wget -q -O buildsrc/android-ndk-${ndk_ver}-linux-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-linux-x86_64.zip
-        unzip -q buildsrc/android-ndk-${ndk_ver}-linux-x86_64.zip -d buildsrc/
+        NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip"
+        echo "Downloading ${NDK_URL}..."
+        wget -q -O buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip
+        unzip -q buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip -d buildsrc/
     else
         echo "The directory buildsrc/android-ndk-${ndk_ver} exists"
     fi
-    export ANDROID_NDK_HOME=`pwd`/buildsrc/android-ndk-${ndk_ver}
-    export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PATH
+    export ANDROID_NDK=`pwd`/buildsrc/android-ndk-${ndk_ver}
+    export ANDROID_NDK_HOME=$ANDROID_NDK
+    export ANDROID_NDK_ROOT=$ANDROID_NDK
+    export PATH=$ANDROID_NDK/toolchains/llvm/prebuilt/${NDK_PLAT}-x86_64/bin:$ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/${NDK_PLAT}-x86_64/bin:$PATH
     echo PATH=$PATH
 fi
 
