@@ -3,6 +3,7 @@ $install_dir = $args[0]
 if ((Test-Path $install_dir -PathType Container)) {
     echo "[windows] Before cleaning ${install_dir}..."
     ls -R "$install_dir\bin"
+    ls -R "$install_dir\lib"
 
     # Delete files what we don't want
     del "$install_dir\html" -recurse
