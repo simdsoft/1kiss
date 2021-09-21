@@ -97,14 +97,17 @@ function copy_inc_and_libs {
     cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
 }
 
-# try downlaod
-if [ "$TRAVIS_ARTIFACTS_REL" = "" ]; then
-    TRAVIS_ARTIFACTS_REL=$(git tag | grep artifacts) || true
-    # TRAVIS_ARTIFACTS_REL=artifacts-$(git log --format=%h -1)
+# try download something can't build from github action
+if [ "$TRAVIS_ARTIFACTS_REL" != "" ] ; then
+    set -e
+    TRAVIS_ARTIFACTS_URL="https://github.com/adxeproject/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
+    echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
+    wget -O install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
+    if [ "$?" = "0" ]; then
+        unzip -q install_ios_arm.zip -d ./
+    fi
+    set +e
 fi
-TRAVIS_ARTIFACTS_URL="https://github.com/adxeproject/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
-echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
-wget -O install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL" && unzip -q install_ios_arm.zip -d ./ || true
 
 source src/jpeg-turbo/dist1.sh $DIST_ROOT
 source src/openssl/dist1.sh $DIST_ROOT
