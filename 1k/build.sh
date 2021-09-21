@@ -14,7 +14,7 @@ if [ "$RUNNER_OS" = "Linux" ] ; then
 fi
 
 # Install nasm
-nasm_bin=$(which nasm)
+nasm_bin=$(which nasm) || true
 if [ -f "$nasm_bin" ] ; then
     echo "The nasm installed at $nasm_bin"
 else
@@ -26,7 +26,7 @@ else
 fi
 
 # Check whether nasm install succeed
-nasm_bin=$(which nasm)
+nasm_bin=$(which nasm) || true
 echo "nasm_bin=$nasm_bin"
 if [ "$nasm_bin" = "" ] ; then
     echo "Install nasm failed!"
