@@ -127,7 +127,7 @@ jobs:
 
   windows:
     # The type of runner that the job will run on
-    runs-on: windows-latest
+    runs-on: windows-2019
     
     # Run a job for each of the specified target architectures:
     strategy:
