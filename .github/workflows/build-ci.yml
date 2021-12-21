@@ -144,7 +144,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: ilammy/msvc-dev-cmd@v1.9.0
+      - uses: ilammy/msvc-dev-cmd@v1.10.0
         with:
           arch: ${{ env.BUILD_ARCH }}
 
