@@ -42,6 +42,10 @@ if(NOT DEFINED CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET)
     set(CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${CMAKE_OSX_DEPLOYMENT_TARGET} CACHE STRING "Minimum iphoneos deployment version")
 endif()
 
+# -GXcode will generate c/cxx flags with "-fembed-bitcode" by follow settings
+set(CMAKE_XCODE_ATTRIBUTE_BITCODE_GENERATION_MODE "bitcode")
+set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE "YES")
+
 # Regard x86_64 as iphonesimulator
 if("${CMAKE_OSX_ARCHITECTURES}" MATCHES "x86_64")
     set(CMAKE_OSX_SYSROOT "iphonesimulator" CACHE STRING "")

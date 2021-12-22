@@ -82,9 +82,9 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm" ] ; then
-            CONFIG_TARGET=ios-cross
+            CONFIG_TARGET=ios-cross-bitcode
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET=ios64-cross
+            CONFIG_TARGET=ios64-cross-bitcode
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             CONFIG_TARGET=ios-sim64-corss
             IOS_PLATFORM=Simulator
@@ -115,7 +115,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         fi
         ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
         ICC=$(xcrun --sdk $SDK_NAME --find clang)
-        ISDKF="-arch $ARCH_NAME -isysroot $ISDKP"
+        ISDKF="-fembed-bitcode -arch $ARCH_NAME -isysroot $ISDKP"
         CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=iOS XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
     fi
 
