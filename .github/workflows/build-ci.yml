@@ -1,14 +1,13 @@
 #
-# Copyright (c) 2021 Bytedance Inc. @1
+# Copyright (c) 2021-2022 Bytedance Inc. @2022_1
 #
 
 name: build-ci
 
 # Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Triggers the workflow on push or pull request events
   push:
-    branches: [ main ]
     paths:
       - .github/workflows/build-ci.yml
       - 1k/build*

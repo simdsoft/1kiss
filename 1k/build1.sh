@@ -219,7 +219,7 @@ if [ "$cb_tool" = "cmake" ] ; then
         CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_LIB_DIR=${openssl_dir}lib"
     fi
     echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
-    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    cmake "-DCMAKE_C_FLAGS=-fPIC" -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     cmake --build build_$BUILD_ARCH --config Release
     cmake --install build_$BUILD_ARCH
 elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom build.sh
