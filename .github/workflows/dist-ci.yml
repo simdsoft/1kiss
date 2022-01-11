@@ -108,7 +108,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ env.RELEASE_TAG_NAME }}
-        name: ${{ env.DIST_NAME }}
+        name: buildware-${{ env.RELEASE_TAG_NAME }}
         files: ${{ env.DIST_PACKAGE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
