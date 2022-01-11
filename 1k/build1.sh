@@ -41,7 +41,7 @@ PROPS_FILE="src/${LIB_NAME}/build.yml"
 eval $(parse_yaml $PROPS_FILE)
 
 echo "repo=$repo"
-echo "config_options_2=$config_options_2"
+echo "config_options_embed=$config_options_embed"
 echo "cb_tool=$cb_tool"
 
 if [ "$tag_dot2ul" = "true" ]; then
@@ -53,7 +53,7 @@ echo "BUILD_TARGET=$BUILD_TARGET"
 echo "BUILD_ARCH=$BUILD_ARCH"
 
 # Determine build target & config options
-CONFIG_OPTIONS=$config_options_1
+CONFIG_OPTIONS=$config_options_unix
 if [ "$BUILD_TARGET" = "linux" ] ; then
     CONFIG_TARGET=
 elif [ "$BUILD_TARGET" = "osx" ] ; then
@@ -119,7 +119,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=iOS XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
     fi
 
-    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
+    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
 elif [ "$BUILD_TARGET" = "android" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
         if [ "$BUILD_ARCH" = "arm" ] ; then
@@ -153,7 +153,7 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
         echo NDKCC=$NDKCC
     fi
 
-    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_2"
+    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
 else
   return 1
 fi

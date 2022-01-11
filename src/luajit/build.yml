@@ -5,6 +5,6 @@ tag_dot2ul: false
 cb_script: msvcbuild.bat
 cb_tool: make
 cb_dir: .\src
-config_options_1:
-config_options_2:
+config_options_unix:
+config_options_embed:
 config_options_msw:
