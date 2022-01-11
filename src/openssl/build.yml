@@ -1,8 +1,8 @@
-repo: https://github.com/openssl/openssl.git
+repo: https://www.openssl.org/source/openssl-3.0.1.tar.gz
 ver: 3.0.1
 tag_prefix: openssl-
 tag_dot2ul: false
 cb_tool: perl
-config_options_1: no-shared no-threads no-async no-unit-test
+config_options_1: no-shared no-threads no-async no-unit-test no-comp
 config_options_2: no-dso no-hw no-engine
 config_options_msw: no-unit-test

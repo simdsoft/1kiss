@@ -169,6 +169,9 @@ if [[ $repo == *".git" ]] ; then
     LIB_SRC=$LIB_NAME
 else
     LIB_SRC=$(basename "${repo%.*}")
+    if [[ $LIB_SRC == *".tar" ]] ; then
+        LIB_SRC=$(basename "${LIB_SRC%.*}")
+    fi
 fi
 
 # Checking out...
@@ -182,10 +185,19 @@ if [ ! -d $LIB_SRC ] ; then
         git checkout $release_tag
         git submodule update --init --recursive
     else
-        outputFile="${LIB_SRC}.zip"
+        if [[ $repo == *".tar.gz" ]] ; then
+            outputFile="${LIB_SRC}.tar.gz"
+        else
+            outputFile="${LIB_SRC}.zip"
+        fi
         echo "Downloading $repo ---> $outputFile"
         curl $repo -o ./$outputFile
-        unzip -q ./$outputFile -d ./
+
+        if [[ $repo == *".tar.gz" ]] ; then
+            tar -xvzf ./$outputFile
+        else
+            unzip -q ./$outputFile -d ./
+        fi
         cd $LIB_SRC
     fi
 else

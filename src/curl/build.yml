@@ -1,9 +1,8 @@
-repo: https://curl.se/download/curl-7.80.0.zip
-ver: 7.80.0
+repo: https://curl.se/download/curl-7.81.0.zip
+ver: 7.81.0
 tag_prefix: 'curl-'
 tag_dot2ul: true
 cb_tool: cmake
 config_options_1: -DCMAKE_USE_LIBSSH2=FALSE -DBUILD_CURL_EXE=FALSE -DCURL_DISABLE_TESTS=TRUE -DCMAKE_USE_OPENSSL=TRUE -DBUILD_SHARED_LIBS=OFF
 config_options_2: ''
 config_options_msw: -DCMAKE_USE_LIBSSH2=FALSE -DBUILD_CURL_EXE=FALSE -DCURL_DISABLE_TESTS=TRUE -DCMAKE_USE_OPENSSL=TRUE -DBUILD_SHARED_LIBS=ON
-cmake_target: libcurl

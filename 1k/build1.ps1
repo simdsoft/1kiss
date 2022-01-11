@@ -65,6 +65,9 @@ if ($repo.EndsWith('.git')) {
 }
 else {
     $LIB_SRC = (Split-Path $repo -leafbase)
+    if ($LIB_SRC.EndsWith('.tar')) {
+        $LIB_SRC = $LIB_SRC.Substring(0, $LIB_SRC.length - 4)
+    }
 }
 
 # Checking out...
@@ -76,14 +79,26 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
         git checkout $release_tag
     }
     else {
-       $outputFile="${LIB_SRC}.zip"
+       if ($repo.EndsWith('.tar.gz')) {
+            $outputFile="${LIB_SRC}.tar.gz"
+       }
+       else {
+            $outputFile="${LIB_SRC}.zip"
+       }
        Write-Output "Downloading $repo ---> $outputFile"
        Invoke-WebRequest $repo -o .\$outputFile
-       Expand-Archive -Path $outputFile -DestinationPath .\
+       if ($repo.EndsWith('.tar.gz')) {
+            tar -xvzf .\$outputFile
+       } else {
+            Expand-Archive -Path $outputFile -DestinationPath .\
+       }
+
+       Write-Output "Entering $LIB_SRC ..."
        Set-Location $LIB_SRC
     }
 }
 else {
+    Write-Output "Entering $LIB_SRC ..."
     Set-Location $LIB_SRC
 }
 
@@ -102,6 +117,10 @@ if ($cb_tool -eq 'cmake') {
         $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl\"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_INCLUDE_DIR=${openssl_dir}\include"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_LIB_DIR=${openssl_dir}\lib"
+
+        # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib\"
+        # $CONFIG_ALL_OPTIONS += "-DZLIB_INCLUDE_DIR=${zlib_dir}\include"
+        # $CONFIG_ALL_OPTIONS += "-DZLIB_LIBRARY=${zlib_dir}\lib\zlib.lib" # dyn link zlib, for static use zlibstatic.lib
     }
     
     cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
@@ -110,6 +129,8 @@ if ($cb_tool -eq 'cmake') {
 }
 elseif($cb_tool -eq 'perl') { # only openssl use perl
     $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
+    # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib\"
+    # $CONFIG_ALL_OPTIONS += "--with-zlib-include=$zlib_dir\include", "--with-zlib-lib=${zlib_dir}\lib\zlib.lib"
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
     nmake install

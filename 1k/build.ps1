@@ -22,9 +22,10 @@ nasm -v
 Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 
 # Build libs
-Invoke-Expression -Command "$build_script jpeg-turbo $BUILD_ARCH $INSTALL_ROOT"
+# Invoke-Expression -Command "$build_script zlib $BUILD_ARCH $INSTALL_ROOT"
 Invoke-Expression -Command "$build_script openssl $BUILD_ARCH $INSTALL_ROOT"
 Invoke-Expression -Command "$build_script curl $BUILD_ARCH $INSTALL_ROOT"
+Invoke-Expression -Command "$build_script jpeg-turbo $BUILD_ARCH $INSTALL_ROOT"
 Invoke-Expression -Command "$build_script luajit $BUILD_ARCH $INSTALL_ROOT"
 
 # Export INSTALL_ROOT for uploading
