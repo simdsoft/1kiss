@@ -1,9 +1,14 @@
 DIST_REVISION=$1
+DIST_SUFFIX=$2
 
 DIST_NAME=buildware_dist
 
 if [ "${DIST_REVISION}" != "" ]; then
     DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
+fi
+
+if [ "${DIST_SUFFIX}" != "" ]; then
+    DIST_NAME="${DIST_NAME}${DIST_SUFFIX}"
 fi
 
 DIST_ROOT=`pwd`/${DIST_NAME}

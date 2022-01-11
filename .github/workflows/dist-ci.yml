@@ -34,9 +34,8 @@ on:
         default: ''
         # Input has to be provided for the workflow to run
         required: false
-      run_id:
-        # actions run ID
-        description: 'Please specific build-ci run id to dist'
+      package_suffix:
+        description: 'Please specific dist package suffix'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
@@ -101,7 +100,7 @@ jobs:
       run: |
         ls
         TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
-        source 1k/dist.sh $RELEASE_TAG_NAME
+        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}}
         ls
 
     - name: Upload dist package to release page
