@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Bytedance Inc.
+# Copyright (c) 2021-2022 Bytedance Inc.
 #
 
 name: dist-ci
@@ -7,9 +7,6 @@ name: dist-ci
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  workflow_run:
-    workflows: ["build-ci"]
-    types: [completed]
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
