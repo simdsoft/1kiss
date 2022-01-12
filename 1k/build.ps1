@@ -1,6 +1,8 @@
 $BUILD_TARGET = $args[0]
 $BUILD_ARCH = $args[1]
 
+echo "env:NO_DLL=$env:NO_DLL"
+
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
 $build_script = "$BUILDWARE_ROOT\1k\build1.ps1"
 $INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
