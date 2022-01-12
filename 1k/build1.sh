@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Bytedance Inc.
+# Copyright (c) 2021-2022 Bytedance Inc.
 #
 
 BUILDWARE_ROOT=`pwd`
@@ -133,7 +133,10 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
         else
-            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
+            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level "
+            if [ "$BUILD_ARCH" = "x86" ] ; then
+                CONFIG_TARGET="$CONFIG_TARGET -latomic"
+            fi
         fi
     else # luajit TODO: move to custom config.sh
         NDKBIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
