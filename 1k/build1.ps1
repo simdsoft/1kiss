@@ -134,15 +134,16 @@ if ($cb_tool -eq 'cmake') {
     cmake --install build_$BUILD_ARCH
 }
 elseif($cb_tool -eq 'perl') { # only openssl use perl
+    if ($env:NO_DLL -eq 'true') {
+        $CONFIG_ALL_OPTIONS += "no-shared"
+    }
     $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
     # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib\"
     # $CONFIG_ALL_OPTIONS += "--with-zlib-include=$zlib_dir\include", "--with-zlib-lib=${zlib_dir}\lib\zlib.lib"
     
-    if ($env:NO_DLL -eq 'true') {
-        $CONFIG_ALL_OPTIONS += "no-shared"
-    }
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
+    perl configdata.pm --dump
     nmake install
 }
 else { # regard a buildscript .bat provide by the library
