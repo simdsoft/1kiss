@@ -35,21 +35,30 @@ fi
 
 # Install android ndk
 if [ "$BUILD_TARGET" = "android" ] ; then
+    # Determine builder host OS
     if [ "$RUNNER_OS" = "Linux" ] ; then
         NDK_PLAT=linux
     elif [ "$RUNNER_OS" = "macOS" ] ; then
         NDK_PLAT=darwin
     fi
     ndk_ver=$(cat ndk.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d '\n')
-    if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
-        NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip"
-        echo "Downloading ${NDK_URL}..."
-        wget -q -O buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip
-        unzip -q buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip -d buildsrc/
+    
+    # Check exist ndk
+    if [ -d "$ANDROID_NDK" ] ; then
+        echo "Using exist android ndk: $ANDROID_NDK"
     else
-        echo "The directory buildsrc/android-ndk-${ndk_ver} exists"
+        if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
+            NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip"
+            echo "Downloading ${NDK_URL}..."
+            wget -q -O buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip
+            unzip -q buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip -d buildsrc/
+        else
+            echo "The directory buildsrc/android-ndk-${ndk_ver} exists"
+        fi
+        export ANDROID_NDK=`pwd`/buildsrc/android-ndk-${ndk_ver}
     fi
-    export ANDROID_NDK=`pwd`/buildsrc/android-ndk-${ndk_ver}
+    
+    # Export alias ENVs
     export ANDROID_NDK_HOME=$ANDROID_NDK
     export ANDROID_NDK_ROOT=$ANDROID_NDK
     export PATH=$ANDROID_NDK/toolchains/llvm/prebuilt/${NDK_PLAT}-x86_64/bin:$ANDROID_NDK/toolchains/arm-linux-androideabi-4.9/prebuilt/${NDK_PLAT}-x86_64/bin:$PATH
