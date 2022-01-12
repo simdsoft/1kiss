@@ -18,12 +18,12 @@ on:
     # Inputs the workflow accepts.
     inputs:
       no_dll:
-       # actions run ID
-        description: 'Don't build windows lib as dll'
-        # Default value if no value is explicitly provided
-        default: 'false'
-        # Input has to be provided for the workflow to run
-        required: false
+         # actions run ID
+         description: 'Don't build windows lib as dll'
+         # Default value if no value is explicitly provided
+         default: 'false'
+         # Input has to be provided for the workflow to run
+         required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
