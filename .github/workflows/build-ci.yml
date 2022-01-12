@@ -21,7 +21,7 @@ on:
          # actions run ID
          description: 'Do not build windows lib as dll'
          # Default value if no value is explicitly provided
-         default: 'false'
+         default: 'true'
          # Input has to be provided for the workflow to run
          required: false
 
