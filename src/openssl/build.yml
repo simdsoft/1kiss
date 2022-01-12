@@ -4,5 +4,5 @@ tag_prefix: openssl-
 tag_dot2ul: false
 cb_tool: perl
 config_options_unix: no-shared no-async no-unit-test no-comp
-config_options_embed: no-dso no-stdio no-hw no-engine
+config_options_embed: no-dso no-hw no-engine
 config_options_msw: no-unit-test no-comp

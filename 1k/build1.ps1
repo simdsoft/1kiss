@@ -123,7 +123,7 @@ if ($cb_tool -eq 'cmake') {
         # $CONFIG_ALL_OPTIONS += "-DZLIB_LIBRARY=${zlib_dir}\lib\zlib.lib" # dyn link zlib, for static use zlibstatic.lib
     }
     
-    if ($env:NO_DLL) {
+    if ($env:NO_DLL -eq 'true') {
         $CONFIG_ALL_OPTIONS += "-DBUILD_SHARED_LIBS=OFF"
         $CONFIG_ALL_OPTIONS = [System.Collections.ArrayList]$CONFIG_ALL_OPTIONS
         $CONFIG_ALL_OPTIONS.Remove("-DBUILD_SHARED_LIBS=ON")
@@ -138,7 +138,7 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
     # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib\"
     # $CONFIG_ALL_OPTIONS += "--with-zlib-include=$zlib_dir\include", "--with-zlib-lib=${zlib_dir}\lib\zlib.lib"
     
-    if ($env:NO_DLL) {
+    if ($env:NO_DLL -eq 'true') {
         $CONFIG_ALL_OPTIONS += "no-shared"
     }
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
