@@ -3,6 +3,6 @@ ver: 3.0.1
 tag_prefix: openssl-
 tag_dot2ul: false
 cb_tool: perl
-config_options_unix: no-tests no-comp no-shared
-config_options_embed: 
+config_options_unix: no-tests no-comp no-async no-shared
+config_options_embed: no-dso no-engine no-hw
 config_options_msw: no-tests no-comp
