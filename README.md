@@ -8,8 +8,8 @@ Building opensources for multi-platforms with github actions.
 ## opensources
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-3.0.1-green.svg)](https://github.com/openssl/openssl/releases)
 - [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.3-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
-- [![curl](https://img.shields.io/badge/curl-7.81.0-green.svg)](https://github.com/curl/curl/releases)
-- [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d1d7b502-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/1d7b502)
+- [![curl](https://img.shields.io/badge/curl-7.82.0-green.svg)](https://github.com/curl/curl/releases)
+- [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2df004a51-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/f004a51)
 
 ## Build Targets:
 - macos: x86_64
