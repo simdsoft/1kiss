@@ -10,7 +10,8 @@ INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 mkdir -p "buildsrc"
 
 if [ "$RUNNER_OS" = "Linux" ] ; then
-    sudo apt-get install gcc-multilib
+    sudo apt-get update
+    sudo apt-get install gcc-multilib --fix-missing
 fi
 
 # Install nasm
