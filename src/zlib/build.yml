@@ -3,6 +3,6 @@ ver: v1.2.12
 tag_prefix: 
 tag_dot2ul: false
 cb_tool: cmake
-config_options_unix: -DBUILD_SHARED_LIBS=OFF
+config_options_unix: -DZLIB_BUILD_EXAMPLES=OFF -DZLIB_BUILD_SHARED=OFF
 config_options_embed: ''
-config_options_msw: -DBUILD_SHARED_LIBS=ON
+config_options_msw: -DZLIB_BUILD_EXAMPLES=OFF -DZLIB_BUILD_STATIC=OFF
