@@ -1,5 +1,5 @@
 repo: https://github.com/madler/zlib.git
-ver: v1.2.11
+ver: v1.2.12
 tag_prefix: 
 tag_dot2ul: false
 cb_tool: cmake
