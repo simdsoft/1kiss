@@ -68,10 +68,10 @@ fi
 
 # Build libs
 source 1k/build1.sh zlib $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-# source 1k/build1.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-# source 1k/build1.sh curl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-# source 1k/build1.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-# source 1k/build1.sh luajit $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build1.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build1.sh curl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build1.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+source 1k/build1.sh luajit $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 
 # Export INSTALL_ROOT for uploading
 if [ -n "$GITHUB_ENV" ] ; then
