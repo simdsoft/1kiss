@@ -21,6 +21,47 @@ if(!(Test-Path "$nasm_bin" -PathType Container)) {
 $env:Path = "$nasm_bin;$env:Path"
 nasm -v
 
+# winbuild only
+
+function FindVSPath {
+    $vs_versions = "2022", "2019"
+    $vs_roots = "$env:ProgramFiles\Microsoft Visual Studio", "$env:ProgramFiles (x86)\Microsoft Visual Studio"
+    $vs_editions = "Enterprise", "Professional", "Community", "Preview"
+
+    Foreach($vs_root in $vs_roots) {  
+        Foreach($vs_version in $vs_versions) {
+            Foreach($vs_edition in $vs_editions) {
+                $vs_path = "$vs_root\$vs_version\$vs_edition"
+                if(Test-Path "$vs_path" -PathType Container) {
+                    return $vs_path
+                }
+            }
+        }
+    }
+    
+    return $null
+}
+
+$use_msvcr14x = $null
+[bool]::TryParse($env:use_msvcr14x, [ref]$use_msvcr14x)
+
+if ($IsWindows -And $use_msvcr14x) {
+   $vs_path = FindVSPath
+   if ($vs_path -ne $null) {
+       # cmd /k ""$vs_path\VC\Auxiliary\Build\vcvarsall.bat" $BUILD_ARCH"
+       Import-Module "$vs_path\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+       
+       Enter-VsDevShell -VsInstanceId a55efc1d -SkipAutomaticLocation -DevCmdArguments "-arch=$BUILD_ARCH -no_logo"
+   
+       $msvcr14x_root = $env:msvcr14x_ROOT
+       
+       $env:Platform = $BUILD_ARCH
+       Invoke-Expression -Command "$msvcr14x_root\msvcr14x_nmake.ps1"
+       
+       echo "LIB=$env:LIB"
+   }
+}
+
 Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 
 # Build libs
