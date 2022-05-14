@@ -9,7 +9,7 @@ Building opensources for multi-platforms with github actions.
 - [![zlib](https://img.shields.io/badge/zlib-1.2.12-green.svg)](https://github.com/madler/zlib)
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-3.0.3-green.svg)](https://github.com/openssl/openssl/releases)
 - [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.3-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
-- [![curl](https://img.shields.io/badge/curl-7.83.0-green.svg)](https://github.com/curl/curl/releases)
+- [![curl](https://img.shields.io/badge/curl-7.83.1-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d91bc6b8-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/91bc6b8)
 
 ## Build Targets:
