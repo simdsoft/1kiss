@@ -1,7 +1,7 @@
 # buildware
 Building opensources for multi-platforms with github actions.
   
-[![Release](https://img.shields.io/badge/dynamic/json.svg?label=release&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fadxeproject%2Fbuildware%2Freleases%2Flatest&query=%24.name&colorB=blue)](../../releases/latest)
+[![Release](https://img.shields.io/github/v/release/adxeproject/buildware?include_prereleases&label=release)](../../releases/latest)
 [![build-ci](https://github.com/adxeproject/buildware/actions/workflows/build-ci.yml/badge.svg)](https://github.com/adxeproject/buildware/actions/workflows/build-ci.yml)
 [![dist-ci](https://github.com/adxeproject/buildware/actions/workflows/dist-ci.yml/badge.svg)](https://github.com/adxeproject/buildware/actions/workflows/dist-ci.yml)
 
