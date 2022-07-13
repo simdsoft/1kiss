@@ -50,7 +50,7 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     else
         ndk_rver=${ndk_ver:0:3}
         ndk_pkg_suffix=-x86_64
-        if [[ $ndk_rver >= 'r23' ]] ; then
+        if [[ $ndk_rver > 'r23' ]] || [[ $ndk_rver == 'r23' ]] ; then
             ndk_pkg_suffix=
         fi
         
