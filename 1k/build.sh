@@ -48,11 +48,17 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     if [ -d "$ANDROID_NDK" ] ; then
         echo "Using exist android ndk: $ANDROID_NDK"
     else
+        ndk_rver=${ndk_ver:0:3}
+        ndk_pkg_suffix=-x86_64
+        if [[ $ndk_rver >= 'r23' ]] ; then
+            ndk_pkg_suffix=
+        fi
+        
         if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
-            NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip"
+            NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip"
             echo "Downloading ${NDK_URL}..."
-            wget -q -O buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip
-            unzip -q buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}-x86_64.zip -d buildsrc/
+            wget -q -O buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip
+            unzip -q buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip -d buildsrc/
         else
             echo "The directory buildsrc/android-ndk-${ndk_ver} exists"
         fi
