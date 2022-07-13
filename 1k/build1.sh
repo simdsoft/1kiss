@@ -139,7 +139,7 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
             fi
         fi
     else # luajit TODO: move to custom config.sh
-        NDKBIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+        NDKBIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$NDK_PLAT-x86_64/bin
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             NDKCROSS=$NDKBIN/aarch64-linux-android-
             NDKCC=$NDKBIN/aarch64-linux-android$android_api_level_arm64-clang
