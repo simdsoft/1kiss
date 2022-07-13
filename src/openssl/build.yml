@@ -1,4 +1,4 @@
-repo: https://www.openssl.org/source/openssl-3.0.3.tar.gz
+repo: https://www.openssl.org/source/openssl-3.0.5.tar.gz
 ver: 3.0.5
 tag_prefix: openssl-
 tag_dot2ul: false
