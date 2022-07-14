@@ -42,28 +42,35 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     elif [ "$RUNNER_OS" = "macOS" ] ; then
         NDK_PLAT=darwin
     fi
-    ndk_ver=$(cat ndk.properties | grep -w 'ndk_ver' | cut -d '=' -f 2 | tr -d '\n')
     
     # Check exist ndk
     if [ -d "$ANDROID_NDK" ] ; then
         echo "Using exist android ndk: $ANDROID_NDK"
+        ndk_rev=$(cat $ANDROID_NDK/source.properties | grep -w 'Pkg.Revision' | cut -d '=' -f 2 | tr -d '\n')
+        ndk_ver=${ndk_rev:0:2}
     else
-        ndk_rver=${ndk_ver:0:3}
+        ndk_rev=$(cat ndk.properties | grep -w 'ndk_rev' | cut -d '=' -f 2 | tr -d '\n')
+        ndk_ver=${ndk_rev:1:2}
         ndk_pkg_suffix=-x86_64
-        if [[ $ndk_rver > 'r23' ]] || [[ $ndk_rver == 'r23' ]] ; then
+        if [[ $ndk_ver > '22' ]] ; then
             ndk_pkg_suffix=
         fi
+
+        echo "ndk_pkg_suffix=$ndk_pkg_suffix"
         
-        if [ ! -d "buildsrc/android-ndk-${ndk_ver}" ] ; then
-            NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip"
+        if [ ! -d "buildsrc/android-ndk-${ndk_rev}" ] ; then
+            NDK_URL="https://dl.google.com/android/repository/android-ndk-${ndk_rev}-${NDK_PLAT}${ndk_pkg_suffix}.zip"
             echo "Downloading ${NDK_URL}..."
-            wget -q -O buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip https://dl.google.com/android/repository/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip
-            unzip -q buildsrc/android-ndk-${ndk_ver}-${NDK_PLAT}${ndk_pkg_suffix}.zip -d buildsrc/
+            wget -q -O buildsrc/android-ndk-${ndk_rev}-${NDK_PLAT}${ndk_pkg_suffix}.zip https://dl.google.com/android/repository/android-ndk-${ndk_rev}-${NDK_PLAT}${ndk_pkg_suffix}.zip
+            unzip -q buildsrc/android-ndk-${ndk_rev}-${NDK_PLAT}${ndk_pkg_suffix}.zip -d buildsrc/
         else
-            echo "The directory buildsrc/android-ndk-${ndk_ver} exists"
+            echo "The directory buildsrc/android-ndk-${ndk_rev} exists"
         fi
-        export ANDROID_NDK=`pwd`/buildsrc/android-ndk-${ndk_ver}
+        export ANDROID_NDK=`pwd`/buildsrc/android-ndk-${ndk_rev}
     fi
+
+    echo "ndk_rev=$ndk_rev"
+    echo "ndk_ver=$ndk_ver"
     
     # Export alias ENVs
     export ANDROID_NDK_HOME=$ANDROID_NDK

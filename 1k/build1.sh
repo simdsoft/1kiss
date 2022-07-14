@@ -140,18 +140,19 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
         fi
     else # luajit TODO: move to custom config.sh
         NDKBIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$NDK_PLAT-x86_64/bin
+        NDKCROSS_LINKER=$NDKBIN/llvm-
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             NDKCROSS=$NDKBIN/aarch64-linux-android-
             NDKCC=$NDKBIN/aarch64-linux-android$android_api_level_arm64-clang
-            CONFIG_TARGET="HOST_CC=\"gcc\" CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+            CONFIG_TARGET="HOST_CC=\"gcc\" CROSS=$NDKCROSS CROSS_LINKER=$NDKCROSS_LINKER STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
         elif [ "$BUILD_ARCH" = "arm" ] ; then
             NDKCROSS=$NDKBIN/arm-linux-androideabi-
             NDKCC=$NDKBIN/armv7a-linux-androideabi$android_api_level-clang
-            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS CROSS_LINKER=$NDKCROSS_LINKER STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
         else
             NDKCROSS=$NDKBIN/i686-linux-android-
             NDKCC=$NDKBIN/i686-linux-android$android_api_level-clang
-            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS CROSS_LINKER=$NDKCROSS_LINKER STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
         fi
         echo NDKCC=$NDKCC
     fi
@@ -237,6 +238,11 @@ elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom build.sh
     make install
 elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
     if [ ! "$SKIP_CI" = "true" ] ; then
+        # have custom patch script?
+        if [ -f "../../src/${LIB_NAME}/patch1.sh" ] ; then
+            source "../../src/${LIB_NAME}/patch1.sh"  "../../src/${LIB_NAME}" `pwd`
+        fi
+
         CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
         
@@ -246,7 +252,8 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
           make
         fi
         
-        if [ -f "../../src/${LIB_NAME}/install1.sh" ] ; then # have custom install_script?
+        # have custom install script?
+        if [ -f "../../src/${LIB_NAME}/install1.sh" ] ; then
             install_script="src/${LIB_NAME}/install1.sh"
         else
             make install PREFIX=$install_dir
