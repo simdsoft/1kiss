@@ -11,7 +11,7 @@ $BUILDWARE_ROOT=(Resolve-Path .\).Path
 
 $PROPS_FILE="src\${LIB_NAME}\build.yml"
 if(!(Test-Path $PROPS_FILE -PathType Leaf)) {
-    Write-Output "repo config for lib not exists!"
+    Write-Output "repo config for lib ${LIB_NAME} not exists!"
     return -1
 }
 
@@ -56,7 +56,9 @@ else { # opnel openssl use perl
 
 $CONFIG_ALL_OPTIONS += $CONFIG_OPTIONS
 
-Set-Location buildsrc
+$BUILD_SRC="buildsrc_$BUILD_ARCH"
+
+Set-Location $BUILD_SRC
 
 # Determin lib src root dir
 $LIB_SRC = ''
@@ -159,7 +161,7 @@ Set-Location ..\..\
 
 $install_script = "src\${LIB_NAME}\install1.ps1"
 if(Test-Path $install_script -PathType Leaf) {
-    Invoke-Expression -Command "$install_script $install_dir ${BUILDWARE_ROOT}\buildsrc\${LIB_SRC}"
+    Invoke-Expression -Command "$install_script $install_dir ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}"
 }
 
 $clean_script = "src\${LIB_NAME}\clean1.ps1"
