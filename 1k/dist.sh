@@ -37,6 +37,7 @@ function copy_inc_and_libs {
         mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/android-x86_64/${INC_DIR}
     elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
         mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
@@ -46,11 +47,13 @@ function copy_inc_and_libs {
     mkdir -p ${DIST_DIR}/prebuilt/windows/x86
     mkdir -p ${DIST_DIR}/prebuilt/windows/x64
     mkdir -p ${DIST_DIR}/prebuilt/linux/x64
-    mkdir -p ${DIST_DIR}/prebuilt/mac
+    mkdir -p ${DIST_DIR}/prebuilt/mac/x64
+    mkdir -p ${DIST_DIR}/prebuilt/mac/arm64
     mkdir -p ${DIST_DIR}/prebuilt/ios
     mkdir -p ${DIST_DIR}/prebuilt/android/armeabi-v7a
     mkdir -p ${DIST_DIR}/prebuilt/android/arm64-v8a
     mkdir -p ${DIST_DIR}/prebuilt/android/x86
+    mkdir -p ${DIST_DIR}/prebuilt/android/x86_64
 
     # copy common headers
     cp -rf install_linux_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
@@ -77,6 +80,8 @@ function copy_inc_and_libs {
             cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
             cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
             cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
+            cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
+
         elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
             cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
             cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
@@ -96,10 +101,13 @@ function copy_inc_and_libs {
     fi
     
     cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
-    cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/
+    cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/x64
+    cp install_osx_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/arm64
     cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
     cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/arm64-v8a/
     cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
+    cp install_android_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86_64/
+
 }
 
 # try download something can't build from github action
