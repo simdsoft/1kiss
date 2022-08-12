@@ -127,6 +127,7 @@ source src/jpeg-turbo/dist1.sh $DIST_ROOT
 source src/openssl/dist1.sh $DIST_ROOT
 source src/curl/dist1.sh $DIST_ROOT
 source src/luajit/dist1.sh $DIST_ROOT
+source src/glsl-optimizer/dist1.sh $DIST_ROOT
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip
