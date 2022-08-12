@@ -109,7 +109,7 @@ jobs:
         files: ${{ env.DIST_PACKAGE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPOSITORY: adxeproject/buildware
+        GITHUB_REPOSITORY: axys1/buildware
         
     - name: Upload dist package to artifact page
       if: ${{ env.RELEASE_TAG_NAME == '' }}
