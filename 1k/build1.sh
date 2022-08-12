@@ -17,6 +17,7 @@ echo "INSTALL_ROOT=$INSTALL_ROOT"
 # Parse android ndk
 android_api_level=$(cat ndk.properties | grep -w 'android_api_level' | cut -d '=' -f 2 | tr -d ' \n')
 android_api_level_arm64=$(cat ndk.properties | grep -w 'android_api_level_arm64' | cut -d '=' -f 2 | tr -d '\n')
+android_api_level_x86_64=$(cat ndk.properties | grep -w 'android_api_level_x86_64' | cut -d '=' -f 2 | tr -d '\n')
 
 function parse_yaml {
    local prefix=$2
@@ -58,12 +59,45 @@ if [ "$BUILD_TARGET" = "linux" ] ; then
     CONFIG_TARGET=
 elif [ "$BUILD_TARGET" = "osx" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        CONFIG_TARGET=-GXcode
+            MAC_ARCH=""
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            MAC_ARCH=arm64
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            MAC_ARCH=x86_64
+        fi
+        CONFIG_TARGET="-GXcode -DCMAKE_OSX_ARCHITECTURES=${MAC_ARCH}"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
-        CONFIG_TARGET=darwin64-x86_64-cc
+        BUILD_MACHINE=`uname -m`
+        if [ ${BUILD_MACHINE} == 'arm64' ]; then    
+            if [ "$BUILD_ARCH" = "x64" ] ; then
+                CONFIG_TARGET=darwin64-x86_64-cc
+            elif [ "$BUILD_ARCH" = "arm64" ] ; then
+                CONFIG_TARGET=darwin64-arm64-cc
+            fi
+        else
+            if [ "$BUILD_ARCH" = "arm64" ] ; then
+                CONFIG_TARGET=darwin64-x86_64-cc
+            elif [ "$BUILD_ARCH" = "x64" ] ; then
+                CONFIG_TARGET=darwin64-arm64-cc
+            fi
+        fi
     else # luajit TODO: move to custom config.sh
         CONFIG_TARGET=
         export MACOSX_DEPLOYMENT_TARGET=10.12
+
+        SDK_NAME=macosx12.3
+        HOST_CC="gcc -std=c99"
+        XCFLAGS=" -DLJ_NO_SYSTEM=1 "
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            ARCH_NAME=arm64
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+             ARCH_NAME=x86_64
+        fi
+        ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
+        ICC=$(xcrun --sdk $SDK_NAME --find clang)
+        ISDKF="-arch $ARCH_NAME -isysroot $ISDKP"
+        CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=Darwin XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
+
     fi
 elif [ "$BUILD_TARGET" = "ios" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
@@ -128,12 +162,16 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
             CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a -DANDROID_NATIVE_API_LEVEL=${android_api_level_arm64}"
         elif [ "$BUILD_ARCH" = "x86" ] ; then
             CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86 -DANDROID_NATIVE_API_LEVEL=${android_api_level}"
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            CONFIG_TARGET="-DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake -DANDROID_ABI=x86_64 -DANDROID_NATIVE_API_LEVEL=${android_api_level_x86_64}"
         fi
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            CONFIG_TARGET="android-x86_64 -D__ANDROID_API__=$android_api_level_x86_64"
         else
-            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level "
+            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
             if [ "$BUILD_ARCH" = "x86" ] ; then
                 CONFIG_TARGET="$CONFIG_TARGET -latomic"
             fi
@@ -247,9 +285,9 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
         
         if [ ! -z "${CONFIG_ALL_OPTIONS// }" ] ; then
-          echo "$CONFIG_ALL_OPTIONS" | xargs make
+          echo "$CONFIG_ALL_OPTIONS" | xargs make V=1
         else
-          make
+          make V=1
         fi
         
         # have custom install script?

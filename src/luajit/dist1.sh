@@ -13,5 +13,10 @@ else
     lipo -create install_ios_arm64/${LIB_NAME}/lib/libluajit.a install_ios_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/ios/libluajit.a
 fi
 
-# check the flat lib
-lipo -info ${DIST_DIR}/prebuilt/ios/libluajit.a
+
+# create fat lib for ios
+lipo -create install_osx_arm64/${LIB_NAME}/lib/libluajit.a install_osx_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/mac/libluajit.a
+
+# check the fat lib
+lipo -info ${DIST_DIR}/prebuilt/mac/libluajit.a
+

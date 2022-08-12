@@ -11,3 +11,11 @@ lipo -create install_ios_arm/${LIB_NAME}/lib/libcrypto.a install_ios_arm64/${LIB
 # check the flat lib
 lipo -info ${DIST_DIR}/prebuilt/ios/libssl.a
 lipo -info ${DIST_DIR}/prebuilt/ios/libcrypto.a
+
+# create fat lib for mac
+lipo -create install_osx_arm64/${LIB_NAME}/lib/libssl.a install_osx_x64/${LIB_NAME}/lib/libssl.a -output ${DIST_DIR}/prebuilt/mac/libssl.a
+lipo -create  install_osx_arm64/${LIB_NAME}/lib/libcrypto.a install_osx_x64/${LIB_NAME}/lib/libcrypto.a -output ${DIST_DIR}/prebuilt/mac/libcrypto.a
+
+# check the fat lib
+lipo -info ${DIST_DIR}/prebuilt/mac/libssl.a
+lipo -info ${DIST_DIR}/prebuilt/mac/libcrypto.a
