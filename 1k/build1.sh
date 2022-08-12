@@ -68,18 +68,10 @@ elif [ "$BUILD_TARGET" = "osx" ] ; then
         CONFIG_TARGET="-GXcode -DCMAKE_OSX_ARCHITECTURES=${MAC_ARCH}"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         BUILD_MACHINE=`uname -m`
-        if [ ${BUILD_MACHINE} == 'arm64' ]; then    
-            if [ "$BUILD_ARCH" = "x64" ] ; then
-                CONFIG_TARGET=darwin64-x86_64-cc
-            elif [ "$BUILD_ARCH" = "arm64" ] ; then
-                CONFIG_TARGET=darwin64-arm64-cc
-            fi
-        else
-            if [ "$BUILD_ARCH" = "arm64" ] ; then
-                CONFIG_TARGET=darwin64-x86_64-cc
-            elif [ "$BUILD_ARCH" = "x64" ] ; then
-                CONFIG_TARGET=darwin64-arm64-cc
-            fi
+        if [ "$BUILD_ARCH" = "x64" ] ; then
+            CONFIG_TARGET=darwin64-x86_64-cc
+        elif [ "$BUILD_ARCH" = "arm64" ] ; then
+            CONFIG_TARGET=darwin64-arm64-cc
         fi
     else # luajit TODO: move to custom config.sh
         CONFIG_TARGET=
