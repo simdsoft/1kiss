@@ -122,6 +122,7 @@ jobs:
           - arm
           - arm64
           - x86
+          - x64
     
     env:
       BUILD_TARGET: android
