@@ -27,7 +27,7 @@ Building opensources for multi-platforms with github actions.
 - android
   - armv7
   - arm64
-  - x86 (**DEPRECATED**, will removed since v37)
+  - x86
   - x86_64
 - windows
   - x86
