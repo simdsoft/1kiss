@@ -10,7 +10,7 @@ Building opensources for multi-platforms with github actions.
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-3.0.5-green.svg)](https://github.com/openssl/openssl/releases)
 - [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.3-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
 - [![curl](https://img.shields.io/badge/curl-7.84.0-green.svg)](https://github.com/curl/curl/releases)
-- [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d50936d7-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/50936d7)
+- [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d633f265-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/50936d7)
 - [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-cdfc9ef-green.svg)](https://github.com/cocos2d/glsl-optimizer/commit/cdfc9ef)
 
 
@@ -21,13 +21,13 @@ Building opensources for multi-platforms with github actions.
   - x86_64
 - linux: x86_64
 - ios:
-  - armv7 (**DEPRECATED**, removed since v37)
+  - armv7 (**DEPRECATED**, will removed since v37)
   - arm64
   - x86_64 simulator
 - android
   - armv7
   - arm64
-  - x86 (**DEPRECATED**)
+  - x86 (**DEPRECATED**, will removed since v37)
   - x86_64
 - windows
   - x86
