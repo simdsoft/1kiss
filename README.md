@@ -21,7 +21,7 @@ Building opensources for multi-platforms with github actions.
   - x86_64
 - linux: x86_64
 - ios:
-  - armv7 (**DEPRECATED**, remove since v37)
+  - armv7 (**DEPRECATED**, removed since v37)
   - arm64
   - x86_64 simulator
 - android
@@ -30,5 +30,5 @@ Building opensources for multi-platforms with github actions.
   - x86 (**DEPRECATED**)
   - x86_64
 - windows
-  - x86 (**DEPRECATED**)
+  - x86
   - x86_64
