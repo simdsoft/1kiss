@@ -112,14 +112,14 @@ function copy_inc_and_libs {
 
 # try download something can't build from github action
 # if [ "$TRAVIS_ARTIFACTS_REL" != "" ] ; then
-#     set -e
+#     set +e
 #     TRAVIS_ARTIFACTS_URL="https://github.com/adxeproject/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
 #     echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
 #     wget -O install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
 #     if [ "$?" = "0" ]; then
 #         unzip -q install_ios_arm.zip -d ./
 #     fi
-#     set +e
+#     set -e
 # fi
 
 source src/zlib/dist1.sh $DIST_ROOT
@@ -127,7 +127,12 @@ source src/jpeg-turbo/dist1.sh $DIST_ROOT
 source src/openssl/dist1.sh $DIST_ROOT
 source src/curl/dist1.sh $DIST_ROOT
 source src/luajit/dist1.sh $DIST_ROOT
+
+# Because glsl-optimizer only build for macos/ios
+# so we disable script abort when copy command fail for other targets
+set +e
 source src/glsl-optimizer/dist1.sh $DIST_ROOT
+set -e
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip
