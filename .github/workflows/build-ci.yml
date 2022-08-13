@@ -85,7 +85,6 @@ jobs:
     strategy:
       matrix:
         arch:
-          - arm
           - arm64
           - x64
     
@@ -121,7 +120,6 @@ jobs:
         arch:
           - arm
           - arm64
-          - x86
           - x64
     
     env:

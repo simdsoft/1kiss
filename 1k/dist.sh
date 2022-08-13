@@ -79,7 +79,7 @@ function copy_inc_and_libs {
             cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
             cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
             cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
-            cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
+            # cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
             cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
 
         elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
@@ -105,22 +105,22 @@ function copy_inc_and_libs {
     cp install_osx_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/arm64
     cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
     cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/arm64-v8a/
-    cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
+    # cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
     cp install_android_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86_64/
 
 }
 
 # try download something can't build from github action
-if [ "$TRAVIS_ARTIFACTS_REL" != "" ] ; then
-    set -e
-    TRAVIS_ARTIFACTS_URL="https://github.com/adxeproject/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
-    echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
-    wget -O install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
-    if [ "$?" = "0" ]; then
-        unzip -q install_ios_arm.zip -d ./
-    fi
-    set +e
-fi
+# if [ "$TRAVIS_ARTIFACTS_REL" != "" ] ; then
+#     set -e
+#     TRAVIS_ARTIFACTS_URL="https://github.com/adxeproject/buildware/releases/download/$TRAVIS_ARTIFACTS_REL/install_ios_arm.zip"
+#     echo "Try download artifacts $TRAVIS_ARTIFACTS_URL"
+#     wget -O install_ios_arm.zip "$TRAVIS_ARTIFACTS_URL"
+#     if [ "$?" = "0" ]; then
+#         unzip -q install_ios_arm.zip -d ./
+#     fi
+#     set +e
+# fi
 
 source src/zlib/dist1.sh $DIST_ROOT
 source src/jpeg-turbo/dist1.sh $DIST_ROOT
