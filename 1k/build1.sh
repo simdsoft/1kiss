@@ -146,6 +146,46 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
     fi
 
     CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
+elif [ "$BUILD_TARGET" = "tvos" ] ; then
+    if [ "$cb_tool" = "cmake" ] ; then
+        IOS_ARCH=""
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            IOS_ARCH=arm64
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            IOS_ARCH=x86_64
+        fi
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
+    elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
+        # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
+        export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
+
+        IOS_PLATFORM=OS
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            CONFIG_TARGET=ios64-cross-bitcode
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            CONFIG_TARGET=ios-sim64-corss
+            IOS_PLATFORM=Simulator
+        fi
+        
+        export CROSS_TOP=$(xcode-select -print-path)/Platforms/AppleTV${IOS_PLATFORM}.platform/Developer
+        export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
+    else # luajit TODO: move to custom config.sh
+        SDK_NAME=iphoneos
+        HOST_CC="gcc -std=c99"
+        XCFLAGS=" -DLJ_NO_SYSTEM=1 "
+        if [ "$BUILD_ARCH" = "arm64" ] ; then
+            ARCH_NAME=arm64
+        elif [ "$BUILD_ARCH" = "x64" ] ; then
+            SDK_NAME=iphonesimulator
+            ARCH_NAME=x86_64
+        fi
+        ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
+        ICC=$(xcrun --sdk $SDK_NAME --find clang)
+        ISDKF="-fembed-bitcode -arch $ARCH_NAME -isysroot $ISDKP"
+        CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=iOS XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
+    fi
+
+    CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
 elif [ "$BUILD_TARGET" = "android" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
         if [ "$BUILD_ARCH" = "arm" ] ; then

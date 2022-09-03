@@ -11,8 +11,18 @@ else
   lipo -create install_ios_arm64/${LIB_NAME}/lib/libz.a install_ios_x64/${LIB_NAME}/lib/libz.a -output ${DIST_DIR}/prebuilt/ios/libz.a
 fi
 
+# create flat lib for tvos
+if [ -f "install_tvos_arm/${LIB_NAME}/lib/libz.a" ] ; then
+  lipo -create install_tvos_arm/${LIB_NAME}/lib/libz.a install_tvos_arm64/${LIB_NAME}/lib/libz.a install_tvos_x64/${LIB_NAME}/lib/libz.a -output ${DIST_DIR}/prebuilt/tvos/libz.a
+else
+  lipo -create install_tvos_arm64/${LIB_NAME}/lib/libz.a install_tvos_x64/${LIB_NAME}/lib/libz.a -output ${DIST_DIR}/prebuilt/tvos/libz.a
+fi
+
 # check the flat lib
 lipo -info ${DIST_DIR}/prebuilt/ios/libz.a
+
+# check the flat lib
+lipo -info ${DIST_DIR}/prebuilt/tvos/libz.a
 
 # create fat lib for mac
 lipo -create install_osx_arm64/${LIB_NAME}/lib/libz.a install_osx_x64/${LIB_NAME}/lib/libz.a -output ${DIST_DIR}/prebuilt/mac/libz.a
