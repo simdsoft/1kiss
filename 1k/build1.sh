@@ -108,11 +108,11 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm" ] ; then
-            CONFIG_TARGET=ios-cross-armv7s
+            CONFIG_TARGET=ios-cross-bitcode
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET=ios-cross-arm64
+            CONFIG_TARGET=ios64-cross-bitcode
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET=ios-sim-cross-x86_64
+            CONFIG_TARGET=ios-sim64-cross
             IOS_PLATFORM=Simulator
         fi
         
@@ -159,16 +159,16 @@ elif [ "$BUILD_TARGET" = "tvos" ] ; then
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
 
-        IOS_PLATFORM=OS
+        TVOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             CONFIG_TARGET=tvos-cross-arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             CONFIG_TARGET=tvos-sim-cross-x86_64
-            IOS_PLATFORM=Simulator
+            TVOS_PLATFORM=Simulator
         fi
         
-        export CROSS_TOP=$(xcode-select -print-path)/Platforms/AppleTV${IOS_PLATFORM}.platform/Developer
-        export CROSS_SDK=AppleTV${IOS_PLATFORM}.sdk
+        export CROSS_TOP=$(xcode-select -print-path)/Platforms/AppleTV${TVOS_PLATFORM}.platform/Developer
+        export CROSS_SDK=AppleTV${TVOS_PLATFORM}.sdk
     else # luajit TODO: move to custom config.sh
         SDK_NAME=appletvos
         HOST_CC="gcc -std=c99"
