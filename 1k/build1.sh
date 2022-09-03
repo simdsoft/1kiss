@@ -149,34 +149,37 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
 elif [ "$BUILD_TARGET" = "tvos" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
         IOS_ARCH=""
+        PLATFORM=""
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             IOS_ARCH=arm64
+            PLATFORM=TVOS
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             IOS_ARCH=x86_64
+            PLATFORM=SIMULATOR_TVOS
         fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} "
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET=ios64-cross-bitcode
+            CONFIG_TARGET=tvos-cross-arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET=ios-sim64-corss
+            CONFIG_TARGET=tvos-sim-cross-x86_64
             IOS_PLATFORM=Simulator
         fi
         
         export CROSS_TOP=$(xcode-select -print-path)/Platforms/AppleTV${IOS_PLATFORM}.platform/Developer
-        export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
+        export CROSS_SDK=AppleTV${IOS_PLATFORM}.sdk
     else # luajit TODO: move to custom config.sh
-        SDK_NAME=iphoneos
+        SDK_NAME=appletvos
         HOST_CC="gcc -std=c99"
         XCFLAGS=" -DLJ_NO_SYSTEM=1 "
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             ARCH_NAME=arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            SDK_NAME=iphonesimulator
+            SDK_NAME=appletvsimulator
             ARCH_NAME=x86_64
         fi
         ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
