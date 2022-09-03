@@ -24,6 +24,9 @@ Building opensources for multi-platforms with github actions.
   - armv7 (**DEPRECATED**, will removed since v37)
   - arm64
   - x86_64 simulator
+- tvos:
+  - arm64
+  - x86_64 simulator
 - android
   - armv7
   - arm64

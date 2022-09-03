@@ -13,6 +13,14 @@ else
     lipo -create install_ios_arm64/${LIB_NAME}/lib/libluajit.a install_ios_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/ios/libluajit.a
 fi
 
+# create flat lib for tvos
+if [ -f "install_tvos_arm/${LIB_NAME}/lib/libluajit.a" ] ; then
+    echo "Creating flat libluajit.a with armv7,arm64,x86_64"
+    lipo -create install_tvos_arm/${LIB_NAME}/lib/libluajit.a install_tvos_arm64/${LIB_NAME}/lib/libluajit.a install_tvos_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/tvos/libluajit.a
+else
+    echo "Creating flat libluajit.a with arm64,x86_64"
+    lipo -create install_tvos_arm64/${LIB_NAME}/lib/libluajit.a install_tvos_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/tvos/libluajit.a
+fi
 
 # create fat lib for ios
 lipo -create install_osx_arm64/${LIB_NAME}/lib/libluajit.a install_osx_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/mac/libluajit.a

@@ -34,6 +34,8 @@ function copy_inc_and_libs {
         mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
+        mkdir -p ${DIST_DIR}/include/tvos-x64/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
         mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
@@ -50,6 +52,7 @@ function copy_inc_and_libs {
     mkdir -p ${DIST_DIR}/prebuilt/mac/x64
     mkdir -p ${DIST_DIR}/prebuilt/mac/arm64
     mkdir -p ${DIST_DIR}/prebuilt/ios
+    mkdir -p ${DIST_DIR}/prebuilt/tvos
     mkdir -p ${DIST_DIR}/prebuilt/android/armeabi-v7a
     mkdir -p ${DIST_DIR}/prebuilt/android/arm64-v8a
     mkdir -p ${DIST_DIR}/prebuilt/android/x86
@@ -77,6 +80,8 @@ function copy_inc_and_libs {
             # cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
             cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
             cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
+            cp install_tvos_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
+            cp install_tvos_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-x64/${INC_DIR}
             cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
             cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
             cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
