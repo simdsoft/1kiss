@@ -462,7 +462,6 @@ if(CURL_USE_OPENSSL)
   endif()
 
   set(CMAKE_REQUIRED_INCLUDES ${OPENSSL_INCLUDE_DIR})
-  message(FATAL_ERROR "------------ ${OPENSSL_INCLUDE_DIR}")
   check_include_file("openssl/crypto.h" HAVE_OPENSSL_CRYPTO_H)
   check_include_file("openssl/err.h"    HAVE_OPENSSL_ERR_H)
   check_include_file("openssl/pem.h"    HAVE_OPENSSL_PEM_H)
