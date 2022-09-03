@@ -93,26 +93,26 @@ elif [ "$BUILD_TARGET" = "osx" ] ; then
     fi
 elif [ "$BUILD_TARGET" = "ios" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        IOS_ARCH=""
+        PLATFORM=""
         if [ "$BUILD_ARCH" = "arm" ] ; then
-            IOS_ARCH=armv7
+            PLATFORM=OS
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
-            IOS_ARCH=arm64
+            PLATFORM=OS64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            IOS_ARCH=x86_64
+            PLATFORM=SIMULATOR64
         fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.mini.cmake -DCMAKE_OSX_ARCHITECTURES=${IOS_ARCH}"
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM}"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm" ] ; then
-            CONFIG_TARGET=ios-cross-bitcode
+            CONFIG_TARGET=ios-cross-armv7s
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET=ios64-cross-bitcode
+            CONFIG_TARGET=ios-cross-arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET=ios-sim64-corss
+            CONFIG_TARGET=ios-sim-cross-x86_64
             IOS_PLATFORM=Simulator
         fi
         
@@ -148,13 +148,10 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
     CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
 elif [ "$BUILD_TARGET" = "tvos" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        IOS_ARCH=""
         PLATFORM=""
         if [ "$BUILD_ARCH" = "arm64" ] ; then
-            IOS_ARCH=arm64
             PLATFORM=TVOS
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            IOS_ARCH=x86_64
             PLATFORM=SIMULATOR_TVOS
         fi
         CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} "

@@ -11,7 +11,7 @@ on:
     paths:
       - .github/workflows/build-ci.yml
       - 1k/build*
-      - 1k/ios.mini.cmake
+      - 1k/ios.toolchain.cmake
       - src/**/*
       - toolchain.properties
   workflow_dispatch:
