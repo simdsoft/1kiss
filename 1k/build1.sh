@@ -108,11 +108,11 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
 
         IOS_PLATFORM=OS
         if [ "$BUILD_ARCH" = "arm" ] ; then
-            CONFIG_TARGET=ios-cross-bitcode
+            CONFIG_TARGET=ios-cross-armv7s
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET=ios64-cross-bitcode
+            CONFIG_TARGET=ios-cross-arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET=ios-sim64-cross
+            CONFIG_TARGET=ios-sim-cross-x86_64
             IOS_PLATFORM=Simulator
         fi
         
@@ -234,6 +234,8 @@ fi
 
 echo CONFIG_TARGET=${CONFIG_TARGET}
 echo CONFIG_OPTIONS=${CONFIG_OPTIONS}
+echo CROSS_TOP=${CROSS_TOP}
+echo CROSS_SDK=${CROSS_SDK}
 
 mkdir -p "buildsrc"
 cd buildsrc
