@@ -234,6 +234,8 @@ fi
 
 echo CONFIG_TARGET=${CONFIG_TARGET}
 echo CONFIG_OPTIONS=${CONFIG_OPTIONS}
+echo CROSS_TOP=${CROSS_TOP}
+echo CROSS_SDK=${CROSS_SDK}
 
 mkdir -p "buildsrc"
 cd buildsrc
