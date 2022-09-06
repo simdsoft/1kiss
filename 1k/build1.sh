@@ -101,7 +101,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             PLATFORM=SIMULATOR64
         fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM}"
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} -DDEPLOYMENT_TARGET=9.0"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
@@ -154,7 +154,7 @@ elif [ "$BUILD_TARGET" = "tvos" ] ; then
         elif [ "$BUILD_ARCH" = "x64" ] ; then
             PLATFORM=SIMULATOR_TVOS
         fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} "
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} -DDEPLOYMENT_TARGET=9.0"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
