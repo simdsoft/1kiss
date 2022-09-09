@@ -92,7 +92,7 @@
 #
 # ENABLE_BITCODE: (ON|OFF) Enables or disables bitcode support. Default ON
 #
-# ENABLE_ARC: (ON|OFF) Enables or disables ARC support. Default ON (ARC enabled by default)
+# ENABLE_ARC: (ON|OFF) Enables or disables ARC support. Default OFF (ARC disabled by default)
 #
 # ENABLE_VISIBILITY: (ON|OFF) Enables or disables symbol visibility support. Default OFF (visibility hidden by default)
 #
@@ -296,7 +296,7 @@ if(PLATFORM_INT STREQUAL "OS")
     set(ARCHS armv7 armv7s arm64)
     set(APPLE_TARGET_TRIPLE_INT arm-apple-ios${DEPLOYMENT_TARGET})
   else()
-    set(APPLE_TARGET_TRIPLE_INT ${ARCHS_SPLIT}-apple-ios${DEPLOYMENT_TARGET})  
+    set(APPLE_TARGET_TRIPLE_INT ${ARCHS_SPLIT}-apple-ios${DEPLOYMENT_TARGET})
   endif()
 elseif(PLATFORM_INT STREQUAL "OS64")
   set(SDK_NAME iphoneos)
@@ -527,8 +527,8 @@ set(ENABLE_BITCODE_INT ${ENABLE_BITCODE} CACHE BOOL
 # Use ARC or not
 if(NOT DEFINED ENABLE_ARC)
   # Unless specified, enable ARC support by default
-  set(ENABLE_ARC ON)
-  message(STATUS "[DEFAULTS] Enabling ARC support by default. ENABLE_ARC not provided!")
+  set(ENABLE_ARC OFF)
+  message(STATUS "[DEFAULTS] Disabling ARC support by default. ENABLE_ARC not provided!")
 endif()
 set(ENABLE_ARC_INT ${ENABLE_ARC} CACHE BOOL "Whether or not to enable ARC" FORCE)
 # Use hidden visibility or not
@@ -920,7 +920,7 @@ set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
 )
 
 if(NAMED_LANGUAGE_SUPPORT_INT)
-  list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES 
+  list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
         CMAKE_OBJC_FLAGS
         CMAKE_OBJC_DEBUG
         CMAKE_OBJC_MINSIZEREL
@@ -956,7 +956,7 @@ endif()
 set(CMAKE_FIND_FRAMEWORK FIRST)
 
 # Set up the default search directories for frameworks.
-if(PLATFORM_INT MATCHES "^MAC_CATALYST") 
+if(PLATFORM_INT MATCHES "^MAC_CATALYST")
   set(CMAKE_FRAMEWORK_PATH
           ${CMAKE_DEVELOPER_ROOT}/Library/PrivateFrameworks
           ${CMAKE_OSX_SYSROOT_INT}/System/Library/Frameworks
