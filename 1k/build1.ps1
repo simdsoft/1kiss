@@ -149,13 +149,22 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
     nmake install
 }
 elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
-    # download dep
-    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    # download depot_tools
+    # git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    if(!(Test-Path "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools" -PathType Container)) {
+        mkdir "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools"
+        Invoke-WebRequest "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -o ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip
+        Expand-Archive -Path ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip -DestinationPath ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    }
+    
     $env:Path = "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools;$env:Path"
+    
     $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
+
     # gclient
+    gclient config $repo
     gclient sync -D
-    gn gen out/release --sln=angle-release --ide=vs2019 "--args target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"
+    gn gen out/release --sln=angle-release --ide=vs2022 "--args target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"
     $VS_CFG = ''
     if ($BUILD_ARCH -eq 'x86') {
         $VS_CFG = 'Win32'
