@@ -162,7 +162,8 @@ elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
 
     # gclient
-    gclient config $repo
+    # gclient config --unmanaged https://chromium.googlesource.com/angle/angle.git
+    python scripts/bootstrap.py
     gclient sync -D
     gn gen out/release --sln=angle-release --ide=vs2022 "--args target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"
     $VS_CFG = ''
