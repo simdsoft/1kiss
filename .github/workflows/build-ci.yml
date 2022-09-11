@@ -176,7 +176,7 @@ jobs:
 
   windows:
     # The type of runner that the job will run on
-    runs-on: windows-2019
+    runs-on: windows-latest
     
     # Run a job for each of the specified target architectures:
     strategy:
@@ -194,7 +194,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: ilammy/msvc-dev-cmd@v1.10.0
+      - uses: ilammy/msvc-dev-cmd@v1.11.0
         with:
           arch: ${{ env.BUILD_ARCH }}
 
