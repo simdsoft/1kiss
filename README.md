@@ -10,7 +10,7 @@ Building opensources for multi-platforms with github actions.
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-3.0.5-green.svg)](https://github.com/openssl/openssl/releases)
 - [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.4-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
 - [![curl](https://img.shields.io/badge/curl-7.84.0-green.svg)](https://github.com/curl/curl/releases)
-- [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d633f265-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/633f265)
+- [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d03080b7-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/03080b7)
 - [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-cdfc9ef-green.svg)](https://github.com/cocos2d/glsl-optimizer/commit/cdfc9ef)
 
 
