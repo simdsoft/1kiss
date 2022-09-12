@@ -4,7 +4,7 @@ Building opensources for multi-platforms with github actions.
 [![Release](https://img.shields.io/github/v/release/axis-project/buildware?include_prereleases&label=release)](../../releases/latest)
 [![build-ci](https://github.com/axis-project/buildware/actions/workflows/build-ci.yml/badge.svg)](https://github.com/axis-project/buildware/actions/workflows/build-ci.yml)
 [![dist-ci](https://github.com/axis-project/buildware/actions/workflows/dist-ci.yml/badge.svg)](https://github.com/axis-project/buildware/actions/workflows/dist-ci.yml)
-chromium/5195
+
 ## opensources
 - [![zlib](https://img.shields.io/badge/zlib-1.2.12-green.svg)](https://github.com/madler/zlib)
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-3.0.5-green.svg)](https://github.com/openssl/openssl/releases)
