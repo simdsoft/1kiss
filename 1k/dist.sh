@@ -49,8 +49,7 @@ function copy_inc_and_libs {
     mkdir -p ${DIST_DIR}/prebuilt/windows/x86
     mkdir -p ${DIST_DIR}/prebuilt/windows/x64
     mkdir -p ${DIST_DIR}/prebuilt/linux/x64
-    mkdir -p ${DIST_DIR}/prebuilt/mac/x64
-    mkdir -p ${DIST_DIR}/prebuilt/mac/arm64
+    mkdir -p ${DIST_DIR}/prebuilt/mac
     mkdir -p ${DIST_DIR}/prebuilt/ios
     mkdir -p ${DIST_DIR}/prebuilt/tvos
     mkdir -p ${DIST_DIR}/prebuilt/android/armeabi-v7a
@@ -106,8 +105,6 @@ function copy_inc_and_libs {
     fi
     
     cp install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
-    cp install_osx_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/x64
-    cp install_osx_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/mac/arm64
     cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
     cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/arm64-v8a/
     cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
