@@ -145,6 +145,7 @@ source src/jpeg-turbo/dist1.sh $DIST_ROOT
 source src/openssl/dist1.sh $DIST_ROOT
 source src/curl/dist1.sh $DIST_ROOT
 source src/luajit/dist1.sh $DIST_ROOT
+source src/angle/dist1.sh $DIST_ROOT
 
 # Because glsl-optimizer only build for macos/ios
 # so we disable script abort when copy command fail for other targets
