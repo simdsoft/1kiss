@@ -12,7 +12,7 @@ chromium/5195
 - [![curl](https://img.shields.io/badge/curl-7.85.0-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d03080b7-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/03080b7)
 - [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-cdfc9ef-green.svg)](https://github.com/cocos2d/glsl-optimizer/commit/cdfc9ef)
-- [![angle](https://img.shields.io/badge/chromium%2F5195-green.svg)](https://github.com/google/angle)
+- [![angle](https://img.shields.io/badge/angle-chromium%2F5195-green.svg)](https://github.com/google/angle)
 
 
 ## Build Targets:
