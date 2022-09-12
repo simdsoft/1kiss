@@ -45,7 +45,7 @@ function copy_inc_and_libs {
         mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
     fi
 
-    # mkdir for libs
+    # create prebuilt dirs
     mkdir -p ${DIST_DIR}/prebuilt/windows/x86
     mkdir -p ${DIST_DIR}/prebuilt/windows/x64
     mkdir -p ${DIST_DIR}/prebuilt/linux/x64
@@ -118,6 +118,11 @@ function copy_inc_and_libs {
 function copy_win_dlls {
     LIB_NAME=$1
     DIST_DIR=$2
+    
+    # create prebuilt dirs
+    mkdir -p ${DIST_DIR}/prebuilt/windows/x86
+    mkdir -p ${DIST_DIR}/prebuilt/windows/x64
+    
     bindir=install_windows_x86/${LIB_NAME}/bin
     if [ -d "$bindir" ] && [ "`ls -A $bindir`" != "" ]; then
         cp -r install_windows_x86/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/windows/x86/
