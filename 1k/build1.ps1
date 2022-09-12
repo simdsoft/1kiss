@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Bytedance Inc.
+# Copyright (c) 2021-2022 Bytedance Inc.
 #
 # params: LIB_NAME BUILD_ARCH INSTALL_ROOT
 
@@ -45,7 +45,7 @@ if ($cb_tool -eq 'cmake') {
     }
     # only support vs2019+, default is Win64
 }
-else { # opnel openssl use perl
+elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
     if($BUILD_ARCH -eq "x86") {
         $CONFIG_ALL_OPTIONS += 'VC-WIN32'
     }
@@ -147,6 +147,47 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
     perl Configure $CONFIG_ALL_OPTIONS
     perl configdata.pm --dump
     nmake install
+}
+elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
+    # download depot_tools
+    # git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    if(!(Test-Path "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools" -PathType Container)) {
+        mkdir "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools"
+        Invoke-WebRequest "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -o ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip
+        Expand-Archive -Path ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip -DestinationPath ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    }
+    
+    $env:Path = "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools;$env:Path"
+    
+    $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
+
+    # sync third_party
+    python scripts/bootstrap.py
+    gclient sync -D
+
+    # patch
+    if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1" -PathType Leaf) {
+        Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\src\${LIB_NAME}"
+    }
+
+    # configure
+    Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
+
+    $cmdStr="gn gen out/release --sln=angle-release --ide=vs2022 ""--args=target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"""
+    Write-Output "Executing command: {$cmdStr}"
+    cmd /c $cmdStr
+
+    # build
+    $BUILD_CFG = $null
+    if ($BUILD_ARCH -eq 'x86') {
+        $BUILD_CFG = "GN|Win32"
+    } else {
+        $BUILD_CFG = "GN|$BUILD_ARCH"
+    }
+
+    $cmdStr="devenv out\release\angle-release.sln /build ""$BUILD_CFG"" /project libEGL"
+    Write-Output "Executing command: {$cmdStr}"
+    cmd /c $cmdStr
 }
 else { # regard a buildscript .bat provide by the library
     if(Test-Path "${cb_dir}\${cb_script}" -PathType Leaf) {
