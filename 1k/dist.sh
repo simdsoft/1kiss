@@ -115,6 +115,19 @@ function copy_inc_and_libs {
 
 }
 
+function copy_win_dlls {
+    LIB_NAME=$1
+    DIST_DIR=$2
+    bindir=install_windows_x86/${LIB_NAME}/bin
+    if [ -d "$bindir" ] && [ "`ls -A $bindir`" != "" ]; then
+        cp -r install_windows_x86/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/windows/x86/
+    fi
+    bindir=install_windows_x64/${LIB_NAME}/bin
+    if [ -d "$bindir" ] && [ "`ls -A $bindir`" != "" ]; then
+        cp -r install_windows_x64/${LIB_NAME}/bin/* ${DIST_DIR}/prebuilt/windows/x64/
+    fi
+}
+
 # try download something can't build from github action
 # if [ "$TRAVIS_ARTIFACTS_REL" != "" ] ; then
 #     set +e

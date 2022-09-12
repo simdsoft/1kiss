@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021 Bytedance Inc.
+# Copyright (c) 2021-2022 Bytedance Inc.
 #
 # params: LIB_NAME BUILD_ARCH INSTALL_ROOT
 
@@ -45,7 +45,7 @@ if ($cb_tool -eq 'cmake') {
     }
     # only support vs2019+, default is Win64
 }
-else { # opnel openssl use perl
+elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
     if($BUILD_ARCH -eq "x86") {
         $CONFIG_ALL_OPTIONS += 'VC-WIN32'
     }
@@ -161,18 +161,33 @@ elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     
     $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
 
-    # gclient
-    # gclient config --unmanaged https://chromium.googlesource.com/angle/angle.git
+    # sync third_party
     python scripts/bootstrap.py
     gclient sync -D
-    gn gen out/release --sln=angle-release --ide=vs2022 "--args target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"
-    $VS_CFG = ''
-    if ($BUILD_ARCH -eq 'x86') {
-        $VS_CFG = 'Win32'
-    } else {
-        $VS_CFG = $BUILD_ARCH
+
+    # patch
+    if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1" -PathType Leaf) {
+        Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\src\${LIB_NAME}"
     }
-    devenv out\release\angle-release.sln /build "GN|$VS_CFG" /Project libEGL
+
+    # configure
+    Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
+
+    $cmdStr="gn gen out/release --sln=angle-release --ide=vs2022 ""--args=target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"""
+    Write-Output "Executing command: {$cmdStr}"
+    cmd /c $cmdStr
+
+    # build
+    $BUILD_CFG = $null
+    if ($BUILD_ARCH -eq 'x86') {
+        $BUILD_CFG = "GN|Win32"
+    } else {
+        $BUILD_CFG = "GN|$BUILD_ARCH"
+    }
+
+    $cmdStr="devenv out\release\angle-release.sln /build ""$BUILD_CFG"" /project libEGL"
+    Write-Output "Executing command: {$cmdStr}"
+    cmd /c $cmdStr
 }
 else { # regard a buildscript .bat provide by the library
     if(Test-Path "${cb_dir}\${cb_script}" -PathType Leaf) {
