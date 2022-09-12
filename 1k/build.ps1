@@ -73,7 +73,7 @@ if ((Get-Module -ListAvailable -Name powershell-yaml) -eq $null) {
 }
 
 if ("$BUILD_LIBS" -eq "") {
-    $BUILD_LIBS = "angle"
+    $BUILD_LIBS = "zlib;openssl;curl;jpeg-turbo;luajit;angle"
 }
 
 $BUILD_LIBS = $BUILD_LIBS -split ";"
