@@ -1,6 +1,7 @@
 // copy1.cpp : This file contains the 'main' function. Program execution begins and ends there.
 // g++ -std=c++17 1k/copy1.cpp -o build/copy1
 
+#include <stdio.h>
 #include <filesystem>
 
 namespace stdfs = std::filesystem;
@@ -20,14 +21,16 @@ int main(int argc, char** argv)
             auto extension = filename.extension();
             for (const auto& entry : stdfs::directory_iterator(srcparent))
             {
-                const auto isDir = entry.is_directory();
                 if (entry.is_regular_file())
                 {
-                    auto ext = entry.path().extension();
+                    auto filepath = entry.path();
+                    auto ext = filepath.extension();
 
                     if (ext == extension) {
                         std::error_code ec;
-                        stdfs::copy(entry, dest, stdfs::copy_options::overwrite_existing, ec);
+                        stdfs::copy(filepath, dest, stdfs::copy_options::overwrite_existing, ec);
+                        if (!ec) printf("==> copy file %s to %s succeed.\n", filepath.c_str(), dest.c_str());
+                        else printf("==> copy file %s to %s failed, ec=%d\n", filepath.c_str(), dest.c_str(), ec.value());
                     }
                 }
             }
