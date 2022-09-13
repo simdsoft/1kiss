@@ -280,6 +280,11 @@ else
     cd $LIB_SRC
 fi
 
+# Apply custom patch
+if [ -f "../../src/${LIB_NAME}/patch1.sh" ] ; then
+    source "../../src/${LIB_NAME}/patch1.sh"  "../../src/${LIB_NAME}" `pwd`
+fi
+
 # Config & Build
 install_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/${LIB_NAME}"
 mkdir -p $install_dir
@@ -310,11 +315,6 @@ elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom build.sh
     make install
 elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
     if [ ! "$SKIP_CI" = "true" ] ; then
-        # have custom patch script?
-        if [ -f "../../src/${LIB_NAME}/patch1.sh" ] ; then
-            source "../../src/${LIB_NAME}/patch1.sh"  "../../src/${LIB_NAME}" `pwd`
-        fi
-
         CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"
         echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
         
@@ -328,7 +328,7 @@ elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
         if [ -f "../../src/${LIB_NAME}/install1.sh" ] ; then
             install_script="src/${LIB_NAME}/install1.sh"
         else
-            make install PREFIX=$install_dir
+            make install PREFIX=$install_dir 
         fi
     else
         echo "Skip build luajit ios-armv7 on xcode-10.3 or later!"

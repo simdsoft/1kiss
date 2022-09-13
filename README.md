@@ -11,8 +11,8 @@ Building opensources for multi-platforms with github actions.
 - [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.4-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
 - [![curl](https://img.shields.io/badge/curl-7.85.0-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d03080b7-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/03080b7)
-- [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-cdfc9ef-green.svg)](https://github.com/cocos2d/glsl-optimizer/commit/cdfc9ef)
-- [![angle](https://img.shields.io/badge/angle-chromium%2F5195-green.svg)](https://github.com/google/angle)
+- [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-cdfc9ef-green.svg)](https://github.com/cocos2d/glsl-optimizer/commit/cdfc9ef)  - Apple Only
+- [![angle](https://img.shields.io/badge/angle-chromium%2F5195-green.svg)](https://github.com/google/angle) - Windows Only
 
 
 ## Build Targets:

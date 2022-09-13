@@ -6,6 +6,28 @@ echo "RUNNER_OS=$RUNNER_OS"
 BUILDWARE_ROOT=`pwd`
 INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 
+# Determine target platform
+PLAT_WIN=1
+PLAT_LINUX=2
+PLAT_ANDROID=4
+PLAT_APPL=8
+
+if [ "$BUILD_TARGET" = "windows" ] ; then
+    TARGET_PLAT=$PLAT_WIN
+elif [ "$BUILD_TARGET" = "linux" ] ; then
+    TARGET_PLAT=$PLAT_LINUX
+elif [ "$BUILD_TARGET" = "android" ] ; then
+    TARGET_PLAT=$PLAT_ANDROID
+elif [ "$BUILD_TARGET" = "ios" ] ; then
+    TARGET_PLAT=$PLAT_APPL
+elif [ "$BUILD_TARGET" = "tvos" ] ; then
+    TARGET_PLAT=$PLAT_APPL
+elif [ "$BUILD_TARGET" = "mac" ] ; then
+    TARGET_PLAT=$PLAT_APPL
+else
+    TARGET_PLAT=0
+fi
+
 # Create buildsrc tmp dir for build libs
 mkdir -p "buildsrc"
 
@@ -84,7 +106,9 @@ source 1k/build1.sh zlib $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 source 1k/build1.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 source 1k/build1.sh curl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 source 1k/build1.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-source 1k/build1.sh glsl-optimizer $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+if [ ! $(($TARGET_PLAT & $PLAT_APPL)) = 0 ] ; then
+    source 1k/build1.sh glsl-optimizer $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+fi
 source 1k/build1.sh luajit $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 
 # Export INSTALL_ROOT for uploading

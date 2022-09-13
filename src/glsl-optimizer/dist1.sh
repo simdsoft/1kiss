@@ -2,7 +2,7 @@ DIST_ROOT=$1
 LIB_NAME=glsl-optimizer
 DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
-dist_lib ${LIB_NAME} ${DIST_DIR}
+dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_APPL
 
 # create fat lib for ios
 if [ -f "install_ios_arm/${LIB_NAME}/lib/libglsl_optimizer.a" ] ; then

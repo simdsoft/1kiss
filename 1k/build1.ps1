@@ -104,6 +104,30 @@ else {
     Set-Location $LIB_SRC
 }
 
+# Prepare source when use google gn build system
+if ($cb_tool -eq 'gn') {
+    # download depot_tools
+    # git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    if(!(Test-Path "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools" -PathType Container)) {
+        mkdir "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools"
+        Invoke-WebRequest "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -o ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip
+        Expand-Archive -Path ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip -DestinationPath ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    }
+    
+    $env:Path = "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools;$env:Path"
+    
+    $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
+
+    # sync third_party
+    python scripts/bootstrap.py
+    gclient sync -D
+}
+
+# Apply custom patch
+if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1" -PathType Leaf) {
+    Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\src\${LIB_NAME}"
+}
+
 # Config & Build
 $install_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\${LIB_NAME}"
 if(!(Test-Path $install_dir -PathType Container)) {
@@ -149,27 +173,6 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
     nmake install
 }
 elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
-    # download depot_tools
-    # git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
-    if(!(Test-Path "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools" -PathType Container)) {
-        mkdir "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools"
-        Invoke-WebRequest "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -o ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip
-        Expand-Archive -Path ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip -DestinationPath ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
-    }
-    
-    $env:Path = "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools;$env:Path"
-    
-    $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
-
-    # sync third_party
-    python scripts/bootstrap.py
-    gclient sync -D
-
-    # patch
-    if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1" -PathType Leaf) {
-        Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\src\${LIB_NAME}"
-    }
-
     # configure
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
