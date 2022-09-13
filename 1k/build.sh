@@ -22,7 +22,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
     TARGET_PLAT=$PLAT_APPL
 elif [ "$BUILD_TARGET" = "tvos" ] ; then
     TARGET_PLAT=$PLAT_APPL
-elif [ "$BUILD_TARGET" = "mac" ] ; then
+elif [ "$BUILD_TARGET" = "osx" ] ; then
     TARGET_PLAT=$PLAT_APPL
 else
     TARGET_PLAT=0
