@@ -8,7 +8,7 @@ namespace stdfs = std::filesystem;
 
 int main(int argc, char** argv)
 {
-    if (argc < 2) return -1;
+    if (argc < 3) return -1;
 
     stdfs::path src{ argv[1] };
     stdfs::path dest{ argv[2] }; // directory
@@ -39,6 +39,8 @@ int main(int argc, char** argv)
     else {
         std::error_code ec;
         stdfs::copy(src, dest, stdfs::copy_options::overwrite_existing, ec);
+        if (!ec) printf("==> copy file %s to %s succeed.\n", src.c_str(), dest.c_str());
+        else printf("==> copy file %s to %s failed, ec=%d\n", src.c_str(), dest.c_str(), ec.value());
     }
 
     return 0;
