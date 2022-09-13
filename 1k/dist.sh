@@ -14,6 +14,11 @@ fi
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
+# compile copy1 for script, non-recursive simple wildchard without error support
+mkdir -p build
+g++ -std=c++17 1k/copy1.cpp -o build/copy1
+PATH=`pwd`/build:$PATH
+
 # The dist flags
 DISTF_WIN=1
 DISTF_LINUX=2
@@ -93,18 +98,12 @@ function dist_lib {
     # create prebuilt dirs
     if [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/windows/x86
-        libdir=install_windows_x86/${LIB_NAME}/lib
-        if [ -d "$libdir" ] && [ "`ls -A $libdir`" != "" ]; then
-            cp $libdir/*.lib ${DIST_DIR}/prebuilt/windows/x86/
-        fi
-        cp install_windows_x86/${LIB_NAME}/bin/. ${DIST_DIR}/prebuilt/windows/x86/
+        copy1 install_windows_x86/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/windows/x86/
+        copy1 install_windows_x86/${LIB_NAME}/bin/*.dll ${DIST_DIR}/prebuilt/windows/x86/
 
         mkdir -p ${DIST_DIR}/prebuilt/windows/x64
-        libdir=install_windows_x64/${LIB_NAME}/lib
-        if [ -d "$libdir" ] && [ "`ls -A $libdir`" != "" ]; then
-            cp $libdir/*.lib ${DIST_DIR}/prebuilt/windows/x64/
-        fi
-        cp install_windows_x64/${LIB_NAME}/bin/. ${DIST_DIR}/prebuilt/windows/x64/
+        copy1 install_windows_x64/${LIB_NAME}/lib/*.lib ${DIST_DIR}/prebuilt/windows/x64/
+        copy1 install_windows_x64/${LIB_NAME}/bin/*.dll ${DIST_DIR}/prebuilt/windows/x64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
