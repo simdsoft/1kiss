@@ -2,7 +2,7 @@ DIST_ROOT=$1
 LIB_NAME=luajit
 DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
-copy_inc_and_libs ${LIB_NAME} ${DIST_DIR}
+dist_lib ${LIB_NAME} ${DIST_DIR}
 
 # create flat lib for ios
 if [ -f "install_ios_arm/${LIB_NAME}/lib/libluajit.a" ] ; then

@@ -2,7 +2,7 @@ DIST_ROOT=$1
 LIB_NAME=zlib
 DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
-copy_inc_and_libs ${LIB_NAME} ${DIST_DIR}
+dist_lib ${LIB_NAME} ${DIST_DIR}
 
 # create flat lib for ios
 if [ -f "install_ios_arm/${LIB_NAME}/lib/libz.a" ] ; then
@@ -29,3 +29,6 @@ lipo -create install_osx_arm64/${LIB_NAME}/lib/libz.a install_osx_x64/${LIB_NAME
 
 # check the fat lib
 lipo -info ${DIST_DIR}/prebuilt/ios/libz.a
+
+# overrite zconf.h with common header
+cp -f src/zlib/zconf.h ${DIST_DIR}/include/

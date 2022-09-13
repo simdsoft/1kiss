@@ -14,7 +14,7 @@ fi
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
-function copy_inc_and_libs {
+function dist_lib {
     LIB_NAME=$1
     DIST_DIR=$2
     CONF_HEADER=$3
@@ -112,7 +112,7 @@ function copy_inc_and_libs {
 
 }
 
-function copy_win_dlls {
+function dist_dll_only {
     LIB_NAME=$1
     DIST_DIR=$2
     
