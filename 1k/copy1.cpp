@@ -16,18 +16,19 @@ int main(int argc, char** argv)
     if (*filename.native().c_str() == '*') {
 
         stdfs::path srcparent = src.parent_path();
-
-        auto extension = filename.extension();
-        for (const auto& entry : stdfs::directory_iterator(srcparent))
-        {
-            const auto isDir = entry.is_directory();
-            if (entry.is_regular_file())
+        if (stdfs::is_directory(srcparent)) {
+            auto extension = filename.extension();
+            for (const auto& entry : stdfs::directory_iterator(srcparent))
             {
-                auto ext = entry.path().extension();
+                const auto isDir = entry.is_directory();
+                if (entry.is_regular_file())
+                {
+                    auto ext = entry.path().extension();
 
-                if (ext == extension) {
-                    std::error_code ec;
-                    stdfs::copy(entry, dest, stdfs::copy_options::overwrite_existing, ec);
+                    if (ext == extension) {
+                        std::error_code ec;
+                        stdfs::copy(entry, dest, stdfs::copy_options::overwrite_existing, ec);
+                    }
                 }
             }
         }
