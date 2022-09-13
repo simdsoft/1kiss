@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     stdfs::path dest{ argv[2] }; // directory
 
     auto filename = src.filename();
-    if (*filename.native().c_str() == '*') {
+    if (*filename.c_str() == '*') {
 
         stdfs::path srcparent = src.parent_path();
         if (stdfs::is_directory(srcparent)) {
