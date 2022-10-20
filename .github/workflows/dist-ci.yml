@@ -48,7 +48,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Download artifacts from workflow build-ci
       uses: dawidd6/action-download-artifact@v2
@@ -113,7 +113,7 @@ jobs:
         
     - name: Upload dist package to artifact page
       if: ${{ env.RELEASE_TAG_NAME == '' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ./${{ env.DIST_NAME }}
         name: ${{ env.DIST_NAME }}
