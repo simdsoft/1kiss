@@ -8,7 +8,7 @@ Building opensources for multi-platforms with github actions.
 ## opensources
 - [![zlib](https://img.shields.io/badge/zlib-1.2.13-green.svg)](https://github.com/madler/zlib)
 - [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-3.0.5-green.svg)](https://github.com/openssl/openssl/tags)
-- [![libjpeg-turbo](https://img.shields.io/badge/libjpegturbo-2.1.4-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
+- [![jpeg-turbo](https://img.shields.io/badge/jpeg-turbo-2.1.4-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo/releases)
 - [![curl](https://img.shields.io/badge/curl-7.85.0-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-2.1%2d%2d6c4826f-green.svg)](https://github.com/LuaJIT/LuaJIT/commit/6c4826f)
 - [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-cdfc9ef-green.svg)](https://github.com/cocos2d/glsl-optimizer/commit/cdfc9ef)  - Apple Only
