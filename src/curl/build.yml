@@ -1,5 +1,5 @@
-repo: https://curl.se/download/curl-7.85.0.zip
-ver: 7.85.0
+repo: https://curl.se/download/curl-7.86.0.zip
+ver: 7.86.0
 tag_prefix: 'curl-'
 tag_dot2ul: true
 cb_tool: cmake
