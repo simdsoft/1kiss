@@ -12,7 +12,7 @@ if ((Test-Path $install_dir -PathType Container)) {
     del "$install_dir\lib\ossl-modules" -recurse
     del "$install_dir\bin\*.pl"
     del "$install_dir\bin\*.pdb"
-    del "$install_dir\bin\*.exe"
+    # del "$install_dir\bin\*.exe"
 
     echo "[windows] After cleaning ${install_dir}..."
     ls -R "$install_dir\bin"

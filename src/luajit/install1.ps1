@@ -3,10 +3,10 @@ $buildsrc_dir  = $args[1]
 
 if ((Test-Path $install_dir -PathType Container)) {
     # copy prebuilt luajit manually
-    mkdir "$install_dir\include"
-    mkdir "$install_dir\lib"
-    mkdir "$install_dir\bin"
-    mkdir "$install_dir\bin\jit"
+    mkdir "$install_dir\include" -Force
+    mkdir "$install_dir\lib" -Force
+    mkdir "$install_dir\bin" -Force
+    mkdir "$install_dir\bin\jit" -Force
 
     Copy-Item "$buildsrc_dir\src\lua51.lib" "$install_dir\lib\lua51.lib" -Force
     Copy-Item "$buildsrc_dir\src\lua51.dll" "$install_dir\bin\lua51.dll" -Force

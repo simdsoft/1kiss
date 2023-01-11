@@ -102,6 +102,10 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
 else {
     Write-Output "Entering $LIB_SRC ..."
     Set-Location $LIB_SRC
+    
+    if ($repo.EndsWith('.git')) {
+        git pull
+    }
 }
 
 # Prepare source when use google gn build system
