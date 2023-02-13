@@ -107,9 +107,9 @@ if [ "$BUILD_LIBS" = "" ] ; then
    BUILD_LIBS="zlib,openssl,curl,jpeg-turbo,glsl-optimizer,luajit"
 fi
 
-libs_arr=(${rel_str//,/ })
+libs_arr=(${BUILD_LIBS//,/ })
 libs_count=${#libs_arr[@]}
-
+echo "Building $libs_count libs ..."
 for (( i=0; i<${libs_count}; ++i )); do
   source 1k/build1.sh ${libs_arr[$i]} $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
 done
