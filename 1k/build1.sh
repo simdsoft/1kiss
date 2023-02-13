@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021-2022 Bytedance Inc.
+# Copyright (c) 2021-2023 Bytedance Inc.
 #
 
 BUILDWARE_ROOT=`pwd`
@@ -44,7 +44,7 @@ eval $(parse_yaml $PROPS_FILE)
 if [ ! "$targets" = "" ] && [[ ! $targets == *"$BUILD_TARGET"* ]] ; then
     # skip
     echo "Skip $LIB_NAME which is not allow build on $BUILD_TARGET"
-    exit 0
+    return 0
 fi
 
 echo "repo=$repo"
