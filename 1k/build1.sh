@@ -41,6 +41,12 @@ PROPS_FILE="src/${LIB_NAME}/build.yml"
 
 eval $(parse_yaml $PROPS_FILE)
 
+if [ ! "$targets" = "" ] && [[ ! $targets == *"$BUILD_TARGET"* ]] ; then
+    # skip
+    echo "Skip $LIB_NAME which is not allow build on $BUILD_TARGET"
+    exit 0
+fi
+
 echo "repo=$repo"
 echo "config_options_embed=$config_options_embed"
 echo "cb_tool=$cb_tool"

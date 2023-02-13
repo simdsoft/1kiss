@@ -1,5 +1,6 @@
 BUILD_TARGET=$1
 BUILD_ARCH=$2
+BUILD_LIBS=$3
 
 echo "RUNNER_OS=$RUNNER_OS"
 
@@ -102,14 +103,16 @@ if [ "$BUILD_TARGET" = "android" ] ; then
 fi
 
 # Build libs
-source 1k/build1.sh zlib $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-source 1k/build1.sh openssl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-source 1k/build1.sh curl $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-source 1k/build1.sh jpeg-turbo $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
-if [ ! $(($TARGET_PLAT & $PLAT_APPL)) = 0 ] ; then
-    source 1k/build1.sh glsl-optimizer $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+if [ "$BUILD_LIBS" = "" ] ; then
+    $BUILD_LIBS = "zlib,openssl,curl,jpeg-turbo,glsl-optimizer,luajit"
 fi
-source 1k/build1.sh luajit $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+
+libs_arr=(${rel_str//,/ })
+libs_count=${#libs_arr[@]}
+
+for (( i=0; i<${libs_count}; ++i )); do
+  source 1k/build1.sh ${libs_arr[$i]} $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+done
 
 # Export INSTALL_ROOT for uploading
 if [ -n "$GITHUB_ENV" ] ; then
