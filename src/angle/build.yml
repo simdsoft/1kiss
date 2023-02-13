@@ -1,4 +1,4 @@
-repo: https://github.com/google/angle.git
+repo: https://chromium.googlesource.com/angle/angle.git
 ver: chromium/5563
 tag_prefix: ''
 tag_dot2ul: false

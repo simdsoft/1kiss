@@ -102,10 +102,6 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
 else {
     Write-Output "Entering $LIB_SRC ..."
     Set-Location $LIB_SRC
-    
-    if ($repo.EndsWith('.git')) {
-        git pull
-    }
 }
 
 # Prepare source when use google gn build system
@@ -192,7 +188,7 @@ elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
         $BUILD_CFG = "GN|$BUILD_ARCH"
     }
 
-    $cmdStr="devenv out\release\angle-release.sln /build ""$BUILD_CFG"" /project libEGL"
+    $cmdStr="autoninja -C out\release"
     Write-Output "Executing command: {$cmdStr}"
     cmd /c $cmdStr
 }

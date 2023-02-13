@@ -194,9 +194,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - uses: ilammy/msvc-dev-cmd@v1.11.0
+      - uses: ilammy/msvc-dev-cmd@v1.12.1
         with:
           arch: ${{ env.BUILD_ARCH }}
+          toolset: '14.34'
 
       - name: Build
         run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH
