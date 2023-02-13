@@ -170,7 +170,7 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     perl Configure $CONFIG_ALL_OPTIONS
     perl configdata.pm --dump
-    nmake install
+    nmake install_sw
 }
 elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     # configure
