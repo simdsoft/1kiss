@@ -312,7 +312,7 @@ elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom build.sh
         ./Configure $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
     fi
     make VERBOSE=1
-    make install
+    make install_sw
 elif [ "$cb_tool" = "make" ] ; then # luajit # TODO: move to custom build.sh
     if [ ! "$SKIP_CI" = "true" ] ; then
         CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS"

@@ -26,6 +26,15 @@ $cb_script = $PROPS.'cb_script'
 $cb_tool = $PROPS.'cb_tool'
 # $cmake_target = $PROPS.'cmake_target'
 $cb_dir = $PROPS.'cb_dir'
+$cb_target = $PROPS.'cb_target'
+$targets = $PROPS.'targets'
+
+if ($targets) {
+    if (!$targets.contains('windows')) {
+        Write-Output "Skip $LIB_NAME which is not allow build on windows"
+        exit 0
+    }
+}
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))
@@ -156,8 +165,14 @@ if ($cb_tool -eq 'cmake') {
     }
     
     cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
-    cmake --build build_$BUILD_ARCH --config Release
-    cmake --install build_$BUILD_ARCH
+    if (!$cb_target) {
+        cmake --build build_$BUILD_ARCH --config Release
+        cmake --install build_$BUILD_ARCH --config Release
+    } else {
+        Write-Output "Building specific target $cb_target ...";
+        cmake --build build_$BUILD_ARCH --config Release --target $cb_target
+        cmake --install build_$BUILD_ARCH --config Release --component $cb_target
+    }
 }
 elseif($cb_tool -eq 'perl') { # only openssl use perl
     if ($env:NO_DLL -eq 'true') {
@@ -181,13 +196,6 @@ elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     cmd /c $cmdStr
 
     # build
-    $BUILD_CFG = $null
-    if ($BUILD_ARCH -eq 'x86') {
-        $BUILD_CFG = "GN|Win32"
-    } else {
-        $BUILD_CFG = "GN|$BUILD_ARCH"
-    }
-
     $cmdStr="autoninja -C out\release libEGL"
     Write-Output "Executing command: {$cmdStr}"
     cmd /c $cmdStr
