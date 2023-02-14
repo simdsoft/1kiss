@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build
-        run: source 1k/build.sh $BUILD_TARGET $BUILD_ARCH
+        run: source 1k/build.sh $BUILD_TARGET $BUILD_ARCH llvm
 
       - name: Upload prebuilt files
         uses: actions/upload-artifact@v3
@@ -75,103 +75,7 @@ jobs:
           xcode-version: '14.2'
 
       - name: Build
-        run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
-
-      - name: Upload prebuilt files
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./${{ env.INSTALL_ROOT }}/**
-          name: ${{ env.INSTALL_ROOT }}
-
-  ios:
-    # The type of runner that the job will run on
-    runs-on: macos-12
-    
-    strategy:
-      matrix:
-        arch:
-          - arm64
-          - x64
-    
-    env:
-      BUILD_TARGET: ios
-      BUILD_ARCH: ${{ matrix.arch }}
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      - name: Setup Xcode version
-        uses: axmolengine/setup-xcode@master
-        with: 
-          xcode-version: '13.4'
-
-      - name: Build
-        run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
-
-      - name: Upload prebuilt files
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./${{ env.INSTALL_ROOT }}/**
-          name: ${{ env.INSTALL_ROOT }}
-
-  tvos:
-    # The type of runner that the job will run on
-    runs-on: macos-12
-    
-    strategy:
-      matrix:
-        arch:
-          - arm64
-          - x64
-    
-    env:
-      BUILD_TARGET: tvos
-      BUILD_ARCH: ${{ matrix.arch }}
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      - name: Setup Xcode version
-        uses: axmolengine/setup-xcode@master
-        with: 
-          xcode-version: '13.4'
-
-      - name: Build
-        run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
-
-      - name: Upload prebuilt files
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./${{ env.INSTALL_ROOT }}/**
-          name: ${{ env.INSTALL_ROOT }}
-
-  android:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        arch:
-          - arm
-          - arm64
-          - x86
-          - x64
-    
-    env:
-      BUILD_TARGET: android
-      BUILD_ARCH: ${{ matrix.arch }}
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      - name: Build
-        run: source 1k/build.sh $BUILD_TARGET $BUILD_ARCH
+        run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH llvm
 
       - name: Upload prebuilt files
         uses: actions/upload-artifact@v3
@@ -183,16 +87,10 @@ jobs:
     # The type of runner that the job will run on
     runs-on: windows-latest
     
-    # Run a job for each of the specified target architectures:
-    strategy:
-      matrix:
-        arch:
-          - x86
-          - x64
     env:
       BUILD_TARGET: windows
       NO_DLL: ${{ github.event.inputs.no_dll }}
-      BUILD_ARCH: ${{ matrix.arch }}
+      BUILD_ARCH: x64
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -205,7 +103,7 @@ jobs:
           toolset: '14.34'
 
       - name: Build
-        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH
+        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH llvm
 
       - name: Upload prebuilt files
         uses: actions/upload-artifact@v3

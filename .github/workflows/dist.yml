@@ -10,15 +10,19 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
+      run_id:
+        description: 'Please specific run_id'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: true
       release_tag:
-        # actions run ID
         description: 'Please specific a exists release tag name, such as 1.0.0'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
         required: false
       travis_artifacts_tag:
-        # actions run ID
         description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-ff2c34b'
         # Default value if no value is explicitly provided
         default: 'artifacts-ff2c34b'
@@ -73,7 +77,7 @@ jobs:
         # Optional, defaults to all types
         # event: push
         # Optional, if not specified, the artifact from the most recent successfully completed workflow run will be downloaded
-        # run_id: ${{ github.event.inputs.run_id }}
+        run_id: ${{ github.event.inputs.run_id }}
         # Optional, run number from the workflow
         # run_number: 34
         # Optional, uploaded artifact name,
@@ -97,7 +101,7 @@ jobs:
       run: |
         ls
         TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
-        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}}
+        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}} llvm
         ls
 
     - name: Upload dist package to release page
