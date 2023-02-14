@@ -2,8 +2,8 @@
 Building opensources for multi-platforms with github actions.
   
 [![Release](https://img.shields.io/github/v/release/axmolengine/buildware?include_prereleases&label=release)](../../releases/latest)
-[![build-ci](https://github.com/axmolengine/buildware/actions/workflows/build-ci.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/build-ci.yml)
-[![dist-ci](https://github.com/axmolengine/buildware/actions/workflows/dist-ci.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/dist-ci.yml)
+[![build](https://github.com/axmolengine/buildware/actions/workflows/build.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/build.yml)
+[![dist](https://github.com/axmolengine/buildware/actions/workflows/dist.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/dist.yml)
 [![Downloads](https://img.shields.io/github/downloads/axmolengine/buildware/total.svg?label=downloads&colorB=orange)](../../releases/latest)
 
 ## opensources
