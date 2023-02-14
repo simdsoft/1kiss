@@ -89,7 +89,7 @@ fi
 
 # Build libs
 if [ "$BUILD_LIBS" = "" ] ; then
-   BUILD_LIBS="zlib,openssl,curl,jpeg-turbo,glsl-optimizer,luajit,llvm"
+   BUILD_LIBS="zlib,openssl,curl,jpeg-turbo,glsl-optimizer,luajit"
 fi
 
 libs_arr=(${BUILD_LIBS//,/ })
