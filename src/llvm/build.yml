@@ -1,0 +1,9 @@
+repo: https://github.com/llvm/llvm-project.git
+ver: 15.0.7
+tag_prefix: llvmorg-
+tag_dot2ul: false
+cb_tool: cmake
+cb_target: libclang
+config_options_unix: -S llvm -DLLVM_ENABLE_PROJECTS=clang -Thost=x64
+config_options_embed:
+config_options_msw: -S llvm -DLLVM_ENABLE_PROJECTS=clang

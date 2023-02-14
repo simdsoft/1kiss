@@ -47,9 +47,15 @@ if [ ! "$targets" = "" ] && [[ ! $targets == *"$BUILD_TARGET"* ]] ; then
     exit 0
 fi
 
+if [ ! "$archs" = "" ] && [[ ! $archs == *"$BUILD_ARCH"* ]] ; then
+    return 0
+fi
+
+echo "targets=$targets"
 echo "repo=$repo"
 echo "config_options_embed=$config_options_embed"
 echo "cb_tool=$cb_tool"
+echo "cb_target=$cb_target"
 
 if [ "$tag_dot2ul" = "true" ]; then
     ver=${ver//./_}
@@ -306,9 +312,14 @@ if [ "$cb_tool" = "cmake" ] ; then
         CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_LIB_DIR=${openssl_dir}lib"
     fi
     echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
-    cmake "-DCMAKE_C_FLAGS=-fPIC" -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
-    cmake --build build_$BUILD_ARCH --config Release
-    cmake --install build_$BUILD_ARCH
+    cmake "-DCMAKE_C_FLAGS=-fPIC" -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    if [ "$cb_target" = "" ] ; then
+        cmake --build build_$BUILD_ARCH --config Release
+        cmake --install build_$BUILD_ARCH
+    else
+        cmake --build build_$BUILD_ARCH --config Release --target $cb_target
+        cmake --install build_$BUILD_ARCH --config Release --component $cb_target
+    fi
 elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom build.sh
     CONFIG_ALL_OPTIONS="$CONFIG_TARGET $CONFIG_OPTIONS --prefix=$install_dir --openssldir=$install_dir"
     echo CONFIG_ALL_OPTIONS=${CONFIG_ALL_OPTIONS}

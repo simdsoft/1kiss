@@ -7,28 +7,6 @@ echo "RUNNER_OS=$RUNNER_OS"
 BUILDWARE_ROOT=`pwd`
 INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 
-# Determine target platform
-PLAT_WIN=1
-PLAT_LINUX=2
-PLAT_ANDROID=4
-PLAT_APPL=8
-
-if [ "$BUILD_TARGET" = "windows" ] ; then
-    TARGET_PLAT=$PLAT_WIN
-elif [ "$BUILD_TARGET" = "linux" ] ; then
-    TARGET_PLAT=$PLAT_LINUX
-elif [ "$BUILD_TARGET" = "android" ] ; then
-    TARGET_PLAT=$PLAT_ANDROID
-elif [ "$BUILD_TARGET" = "ios" ] ; then
-    TARGET_PLAT=$PLAT_APPL
-elif [ "$BUILD_TARGET" = "tvos" ] ; then
-    TARGET_PLAT=$PLAT_APPL
-elif [ "$BUILD_TARGET" = "osx" ] ; then
-    TARGET_PLAT=$PLAT_APPL
-else
-    TARGET_PLAT=0
-fi
-
 # Create buildsrc tmp dir for build libs
 mkdir -p "buildsrc"
 

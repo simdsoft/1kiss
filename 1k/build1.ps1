@@ -164,7 +164,7 @@ if ($cb_tool -eq 'cmake') {
         $CONFIG_ALL_OPTIONS.Remove("-DBUILD_SHARED_LIBS=ON")
     }
     
-    cmake -S . -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
+    cmake -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     if (!$cb_target) {
         cmake --build build_$BUILD_ARCH --config Release
         cmake --install build_$BUILD_ARCH --config Release
