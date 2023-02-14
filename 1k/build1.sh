@@ -91,7 +91,8 @@ elif [ "$BUILD_TARGET" = "osx" ] ; then
         CONFIG_TARGET=
         export MACOSX_DEPLOYMENT_TARGET=10.12
 
-        SDK_NAME=macosx12.3
+        SDK_NAME=$(nsdk1k $XCODE_VER osx)
+        echo "SDK_NAME=$SDK_NAME"
         HOST_CC="gcc -std=c99"
         XCFLAGS=" -DLJ_NO_SYSTEM=1 "
         if [ "$BUILD_ARCH" = "arm64" ] ; then

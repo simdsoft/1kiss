@@ -80,6 +80,13 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     echo PATH=$PATH
 fi
 
+# compile nsdk1k
+if [ "$RUNNER_OS" = "macOS" ] ; then
+    mkdir -p build
+    g++ -std=c++17 1k/nsdk1k.cpp -o build/nsdk1k
+    PATH=`pwd`/build:$PATH
+fi
+
 # Build libs
 if [ "$BUILD_LIBS" = "" ] ; then
    BUILD_LIBS="zlib,openssl,curl,jpeg-turbo,glsl-optimizer,luajit,llvm"

@@ -1,5 +1,5 @@
-// copy1.cpp : This file contains the 'main' function. Program execution begins and ends there.
-// g++ -std=c++17 1k/copy1.cpp -o build/copy1
+// copy1k.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// g++ -std=c++17 1k/copy1k.cpp -o build/copy1k
 
 #include <stdio.h>
 #include <filesystem>
