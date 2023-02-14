@@ -101,7 +101,7 @@ jobs:
       run: |
         ls
         TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
-        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}} llvm
+        source 1k/dist.sh $RELEASE_TAG_NAME "${{github.event.inputs.package_suffix}}" llvm
         ls
 
     - name: Upload dist package to release page
