@@ -111,9 +111,9 @@ function dist_lib {
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/linux/x64
-        copy1k install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/x64/
-        copy1k install_linux_x64/${LIB_NAME}/lib/*.so ${DIST_DIR}/prebuilt/linux/x64/
+        mkdir -p ${DIST_DIR}/prebuilt/linux
+        copy1k install_linux_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/linux/
+        copy1k install_linux_x64/${LIB_NAME}/lib/*.so ${DIST_DIR}/prebuilt/linux/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_ANDROID)) = 0 ]; then
