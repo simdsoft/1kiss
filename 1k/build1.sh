@@ -289,6 +289,8 @@ if [ ! -d $LIB_SRC ] ; then
         else
             unzip -q ./$outputFile -d ./
         fi
+        # del package after unzip
+        rm -f ./$outputFile 
         cd $LIB_SRC
     fi
 else
@@ -368,4 +370,10 @@ fi
 clean_script="src/${LIB_NAME}/clean1.sh"
 if [ -f "$clean_script" ] ; then
     source $clean_script $install_dir
+fi
+
+# clear lib build src folder to avoid no enough space on GH action VM
+if [ ! "$RUNNER_OS" = "" ] ; then
+    echo "Deleting ./buildsrc/$LIB_SRC"
+    rm -rf ./buildsrc/$LIB_SRC
 fi
