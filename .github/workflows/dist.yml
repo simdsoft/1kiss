@@ -2,7 +2,7 @@
 # Copyright (c) 2021-2023 Bytedance Inc. 
 #
 
-name: dist-ci
+name: dist
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
