@@ -22,7 +22,7 @@ else
     lipo -create install_tvos_arm64/${LIB_NAME}/lib/libluajit.a install_tvos_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/tvos/libluajit.a
 fi
 
-# create fat lib for ios
+# create fat lib for mac
 lipo -create install_osx_arm64/${LIB_NAME}/lib/libluajit.a install_osx_x64/${LIB_NAME}/lib/libluajit.a -output ${DIST_DIR}/prebuilt/mac/libluajit.a
 
 # check the fat lib
