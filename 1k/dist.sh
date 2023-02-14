@@ -128,7 +128,7 @@ function dist_lib {
     if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/mac
     fi
-    
+
     if [ ! $(($DIST_FLAGS & $DISTF_IOS)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/ios
     fi
@@ -138,13 +138,14 @@ function dist_lib {
     fi
 }
 
-source src/zlib/dist1.sh $DIST_ROOT
-source src/jpeg-turbo/dist1.sh $DIST_ROOT
-source src/openssl/dist1.sh $DIST_ROOT
-source src/curl/dist1.sh $DIST_ROOT
-source src/luajit/dist1.sh $DIST_ROOT
-source src/angle/dist1.sh $DIST_ROOT
-source src/glsl-optimizer/dist1.sh $DIST_ROOT
+# dist libs
+dist_libs="zlib,jpeg-turbo,openssl,curl,luajit,angle,glsl-optimizer,llvm"
+libs_arr=(${dist_libs//,/ })
+libs_count=${#libs_arr[@]}
+echo "Dist $libs_count libs ..."
+for (( i=0; i<${libs_count}; ++i )); do
+  source src/zlib/dist1.sh ${libs_arr[$i]} $DIST_ROOT
+done
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip

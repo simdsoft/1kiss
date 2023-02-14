@@ -73,10 +73,10 @@ if ((Get-Module -ListAvailable -Name powershell-yaml) -eq $null) {
 }
 
 if ("$BUILD_LIBS" -eq "") {
-    $BUILD_LIBS = "zlib;openssl;curl;jpeg-turbo;luajit;angle"
+    $BUILD_LIBS = "zlib,openssl,curl,jpeg-turbo,luajit,angle,llvm"
 }
 
-$BUILD_LIBS = $BUILD_LIBS -split ";"
+$BUILD_LIBS = $BUILD_LIBS -split ","
 
 Foreach ($libname in $BUILD_LIBS) {
     Write-Output "Building $libname ..."
