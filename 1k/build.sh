@@ -90,6 +90,10 @@ libs_count=${#libs_arr[@]}
 echo "Building $libs_count libs ..."
 for (( i=0; i<${libs_count}; ++i )); do
   source 1k/build1.sh ${libs_arr[$i]} $BUILD_TARGET $BUILD_ARCH $INSTALL_ROOT
+  # Reset options
+  cb_target=
+  bw_targets=
+  bw_archs=
 done
 
 # Export INSTALL_ROOT for uploading
