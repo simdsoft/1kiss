@@ -149,7 +149,7 @@ libs_arr=(${DIST_LIBS//,/ })
 libs_count=${#libs_arr[@]}
 echo "Dist $libs_count libs ..."
 for (( i=0; i<${libs_count}; ++i )); do
-  source src/${libs_arr[$i]}/dist1.sh ${libs_arr[$i]} $DIST_ROOT
+  source src/${libs_arr[$i]}/dist1.sh $DIST_ROOT
 done
 
 # create dist package
