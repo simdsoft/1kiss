@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2021-2022 Bytedance Inc. 
+# Copyright (c) 2021-2023 Bytedance Inc. 
 #
 
-name: dist-ci
+name: dist_llvm
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -50,13 +50,13 @@ jobs:
 
     - uses: actions/checkout@v3
     
-    - name: Download artifacts from workflow build-ci
+    - name: Download artifacts from workflow build
       uses: dawidd6/action-download-artifact@v2
       with:
         # Optional, GitHub token
         github_token: ${{secrets.GITHUB_TOKEN}}
         # Required, workflow file name or ID
-        workflow: build-ci.yml
+        workflow: build.yml
         # Optional, the status or conclusion of a completed workflow to search for
         # Can be one of a workflow conclusion::
         # "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
@@ -97,7 +97,7 @@ jobs:
       run: |
         ls
         TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
-        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}}
+        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}} llvm
         ls
 
     - name: Upload dist package to release page
@@ -109,7 +109,7 @@ jobs:
         files: ${{ env.DIST_PACKAGE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPOSITORY: axys1/buildware
+        GITHUB_REPOSITORY: axmolengine/buildware
         
     - name: Upload dist package to artifact page
       if: ${{ env.RELEASE_TAG_NAME == '' }}

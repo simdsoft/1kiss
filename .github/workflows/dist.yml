@@ -1,0 +1,120 @@
+#
+# Copyright (c) 2021-2023 Bytedance Inc. 
+#
+
+name: dist-ci
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      release_tag:
+        # actions run ID
+        description: 'Please specific a exists release tag name, such as 1.0.0'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: false
+      travis_artifacts_tag:
+        # actions run ID
+        description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-ff2c34b'
+        # Default value if no value is explicitly provided
+        default: 'artifacts-ff2c34b'
+        # Input has to be provided for the workflow to run
+        required: false
+      test:
+        # test only
+        description: 'Whether test only'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: false
+      package_suffix:
+        description: 'Please specific dist package suffix'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: false
+      
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  dist:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event.inputs.release_tag != '' || github.event.inputs.test != '' }}
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+    - uses: actions/checkout@v3
+    
+    - name: Download artifacts from workflow build
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        # Optional, GitHub token
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        # Required, workflow file name or ID
+        workflow: build.yml
+        # Optional, the status or conclusion of a completed workflow to search for
+        # Can be one of a workflow conclusion::
+        # "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
+        # Or a workflow status:
+        # "completed", "in_progress", "queued"
+        # Default: "completed,success"
+        workflow_conclusion: success
+        # Optional, will get head commit SHA
+        # pr: ${{github.event.pull_request.number}}
+        # Optional, no need to specify if PR is
+        # commit: ${{github.event.pull_request.head.sha}}
+        # Optional, will use the action trigger branch
+        # branch: main
+        # Optional, defaults to all types
+        # event: push
+        # Optional, if not specified, the artifact from the most recent successfully completed workflow run will be downloaded
+        # run_id: ${{ github.event.inputs.run_id }}
+        # Optional, run number from the workflow
+        # run_number: 34
+        # Optional, uploaded artifact name,
+        # will download all artifacts if not specified
+        # and extract them in respective subdirectories
+        # https://github.com/actions/download-artifact#download-all-artifacts
+        # name: artifact_name
+        # Optional, directory where to extract artifact
+        # path: openssl-dist-src
+        # Optional, defaults to current repo
+        # repo: ${{github.repository}}
+
+    - name: Determine release tag name from input
+      run: |
+        if [ "$RELEASE_TAG_NAME" = "" ]; then
+          RELEASE_TAG_NAME=${{github.event.inputs.release_tag}}
+          echo "RELEASE_TAG_NAME=$RELEASE_TAG_NAME" >> $GITHUB_ENV
+        fi
+
+    - name: Prepare dist package
+      run: |
+        ls
+        TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
+        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}}
+        ls
+
+    - name: Upload dist package to release page
+      if: ${{ env.RELEASE_TAG_NAME != '' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.RELEASE_TAG_NAME }}
+        name: ${{ env.RELEASE_TAG_NAME }}
+        files: ${{ env.DIST_PACKAGE }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: axmolengine/buildware
+        
+    - name: Upload dist package to artifact page
+      if: ${{ env.RELEASE_TAG_NAME == '' }}
+      uses: actions/upload-artifact@v3
+      with:
+        path: ./${{ env.DIST_NAME }}
+        name: ${{ env.DIST_NAME }}
+

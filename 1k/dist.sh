@@ -1,5 +1,6 @@
 DIST_REVISION=$1
 DIST_SUFFIX=$2
+DIST_LIBS=$3
 
 DIST_NAME=buildware_dist
 
@@ -139,12 +140,15 @@ function dist_lib {
 }
 
 # dist libs
-dist_libs="zlib,jpeg-turbo,openssl,curl,luajit,angle,glsl-optimizer,llvm"
-libs_arr=(${dist_libs//,/ })
+if [ "$DIST_LIBS" = "" ] ; then
+    DIST_LIBS="zlib,jpeg-turbo,openssl,curl,luajit,angle,glsl-optimizer"
+fi
+
+libs_arr=(${DIST_LIBS//,/ })
 libs_count=${#libs_arr[@]}
 echo "Dist $libs_count libs ..."
 for (( i=0; i<${libs_count}; ++i )); do
-  source src/zlib/dist1.sh ${libs_arr[$i]} $DIST_ROOT
+  source src/${libs_arr[$i]}/dist1.sh ${libs_arr[$i]} $DIST_ROOT
 done
 
 # create dist package

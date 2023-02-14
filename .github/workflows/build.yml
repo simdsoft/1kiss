@@ -1,15 +1,15 @@
 #
-# Copyright (c) 2021-2022 Bytedance Inc.
+# Copyright (c) 2021-2023 Bytedance Inc.
 #
 
-name: build-ci
+name: build
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events
   push:
     paths:
-      - .github/workflows/build-ci.yml
+      - .github/workflows/build.yml
       - 1k/build*
       - 1k/ios.toolchain.cmake
       - src/**/*
