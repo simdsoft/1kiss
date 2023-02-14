@@ -17,7 +17,7 @@ on:
         # Input has to be provided for the workflow to run
         required: true
       release_tag:
-        description: 'Please specific a exists release tag name, such as 1.0.0'
+        description: 'Please specific a exists release tag name, such as llvmorg-15.0.7'
         # Default value if no value is explicitly provided
         default: ''
         # Input has to be provided for the workflow to run
