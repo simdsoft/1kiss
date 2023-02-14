@@ -1,9 +1,9 @@
 repo: https://github.com/cocos2d/glsl-optimizer.git
 ver:
-targets: macos,ios,tvos
 tag_prefix:
 tag_dot2ul: false
 cb_tool: cmake
+bw_targets: macos,ios,tvos
 config_options_unix:
 config_options_embed: ''
 config_options_msw:

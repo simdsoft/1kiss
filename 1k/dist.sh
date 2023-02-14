@@ -23,7 +23,10 @@ PATH=`pwd`/build:$PATH
 DISTF_WIN=1
 DISTF_LINUX=2
 DISTF_ANDROID=4
-DISTF_APPL=8
+DISTF_MAC=8
+DISTF_IOS=16
+DISTF_TVOS=32
+DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
 DISTF_ANY=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 
@@ -122,9 +125,15 @@ function dist_lib {
         cp install_android_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86_64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_APPL)) = 0 ]; then
+    if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/mac
+    fi
+    
+    if [ ! $(($DIST_FLAGS & $DISTF_IOS)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/ios
+    fi
+
+    if [ ! $(($DIST_FLAGS & $DISTF_TVOS)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/tvos
     fi
 }

@@ -41,21 +41,23 @@ PROPS_FILE="src/${LIB_NAME}/build.yml"
 
 eval $(parse_yaml $PROPS_FILE)
 
-if [ ! "$targets" = "" ] && [[ ! $targets == *"$BUILD_TARGET"* ]] ; then
-    # skip
-    echo "Skip $LIB_NAME which is not allow build on $BUILD_TARGET"
-    return 0
-fi
-
-if [ ! "$archs" = "" ] && [[ ! $archs == *"$BUILD_ARCH"* ]] ; then
-    return 0
-fi
-
-echo "targets=$targets"
 echo "repo=$repo"
 echo "config_options_embed=$config_options_embed"
 echo "cb_tool=$cb_tool"
 echo "cb_target=$cb_target"
+echo "bw_targets=$bw_targets"
+echo "bw_archs=$bw_archs"
+
+if [ ! "$bw_targets" = "" ] && [[ ! $bw_targets == *"$BUILD_TARGET"* ]] ; then
+    # skip
+    echo "Skip build $LIB_NAME which is not allow for target: $BUILD_TARGET"
+    return 0
+fi
+
+if [ ! "$bw_archs" = "" ] && [[ ! $bw_archs == *"$BUILD_ARCH"* ]] ; then
+    echo "Skip build $LIB_NAME which is not allow for arch: $BUILD_ARCH"
+    return 0
+fi
 
 if [ "$tag_dot2ul" = "true" ]; then
     ver=${ver//./_}

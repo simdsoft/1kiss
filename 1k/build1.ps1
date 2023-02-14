@@ -27,13 +27,17 @@ $cb_tool = $PROPS.'cb_tool'
 # $cmake_target = $PROPS.'cmake_target'
 $cb_dir = $PROPS.'cb_dir'
 $cb_target = $PROPS.'cb_target'
-$targets = $PROPS.'targets'
+$bw_targets = $PROPS.'bw_targets'
+$bw_archs = $PROPS.'bw_archs'
 
-if ($targets) {
-    if (!$targets.contains('windows')) {
-        Write-Output "Skip $LIB_NAME which is not allow build on windows"
-        exit 0
-    }
+if ($bw_targets -and !$bw_targets.contains('windows')) {
+    Write-Output "Skip build $LIB_NAME which is not allow for target: windows"
+    return 0
+}
+
+if ($bw_archs -and !$bw_archs.contains($BUILD_ARCH)) {
+    Write-Output "Skip build $LIB_NAME which is not allow for arch: $BUILD_ARCH"
+    return 0
 }
 
 if($tag_dot2ul -eq 'true') {
