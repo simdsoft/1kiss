@@ -6,6 +6,6 @@ cb_tool: cmake
 cb_target: libclang
 bw_targets: windows,linux,macos
 bw_archs: x64
-config_options_unix: -S llvm -DLLVM_ENABLE_PROJECTS=clang
+config_options_unix: -S llvm -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Release
 config_options_embed:
 config_options_msw: -S llvm -DLLVM_ENABLE_PROJECTS=clang -Thost=x64
