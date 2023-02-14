@@ -5,7 +5,7 @@ DIST_LIBS=$3
 DIST_NAME=buildware_dist
 
 if [ "${DIST_REVISION}" != "" ]; then
-    DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
+    DIST_NAME="${DIST_REVISION}"
 fi
 
 if [ "${DIST_SUFFIX}" != "" ]; then
