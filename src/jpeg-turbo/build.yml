@@ -1,8 +1,8 @@
 repo: https://github.com/libjpeg-turbo/libjpeg-turbo.git
-ver: 2.1.4
+ver: 2.1.5.1
 tag_prefix: ''
 tag_dot2ul: false
 cb_tool: cmake
 config_options_unix: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF -DWITH_TURBOJPEG=OFF -DWITH_TESTS=OFF -DWITH_TOOLS=OFF
 config_options_embed: ''
-config_options_msw: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF -DWITH_TURBOJPEG=OFF -DWITH_TESTS=OFF -DWITH_TOOLS=OFF -DWITH_CRT_DLL=ON 
+config_options_msw: -DWITH_SIMD=ON -DWITH_JPEG8=ON -DENABLE_SHARED=OFF -DWITH_TURBOJPEG=OFF -DWITH_CRT_DLL=ON -DWITH_TESTS=OFF -DWITH_TOOLS=OFF

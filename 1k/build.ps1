@@ -16,10 +16,11 @@ if(!(Test-Path $BUILD_SRC -PathType Container)) {
 }
 
 # Install nasm
-$nasm_bin = "$BUILDWARE_ROOT\$BUILD_SRC\nasm-2.15.05"
+$nasm_ver='2.16.01'
+$nasm_bin = "$BUILDWARE_ROOT\$BUILD_SRC\nasm-$nasm_ver"
 if(!(Test-Path "$nasm_bin" -PathType Container)) {
-    curl https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/win64/nasm-2.15.05-win64.zip -o .\$BUILD_SRC\nasm-2.15.05-win64.zip
-    Expand-Archive -Path .\$BUILD_SRC\nasm-2.15.05-win64.zip -DestinationPath .\$BUILD_SRC
+    curl "https://www.nasm.us/pub/nasm/releasebuilds/$nasm_ver/win64/nasm-$nasm_ver-win64.zip" -o ".\$BUILD_SRC\nasm-$nasm_ver-win64.zip"
+    Expand-Archive -Path ".\$BUILD_SRC\nasm-$nasm_ver-win64.zip" -DestinationPath ".\$BUILD_SRC"
 }
 $env:Path = "$nasm_bin;$env:Path"
 nasm -v

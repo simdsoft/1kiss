@@ -7,4 +7,5 @@ if [ -d "$install_dir" ] ; then
     rm -rf "$install_dir/share"
     rm -rf "$install_dir/lib/cmake"
     rm -rf "$install_dir/lib/pkgconfig"
+    ls -R "$install_dir"
 fi
