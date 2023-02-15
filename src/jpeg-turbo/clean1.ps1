@@ -7,4 +7,5 @@ if ((Test-Path $install_dir -PathType Container)) {
     Remove-Item "$install_dir\share" -recurse
     Remove-Item "$install_dir\lib\cmake" -recurse
     Remove-Item "$install_dir\lib\pkgconfig" -recurse
+    ls -R "$install_dir"
 }
