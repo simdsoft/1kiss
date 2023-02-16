@@ -106,7 +106,7 @@ jobs:
       - name: Setup Xcode version
         uses: axmolengine/setup-xcode@master
         with: 
-          xcode-version: '13.4'
+          xcode-version: '14.2'
 
       - name: Build
         run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
@@ -139,7 +139,7 @@ jobs:
       - name: Setup Xcode version
         uses: axmolengine/setup-xcode@master
         with: 
-          xcode-version: '13.4'
+          xcode-version: '14.2'
 
       - name: Build
         run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
