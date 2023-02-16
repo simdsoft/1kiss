@@ -134,7 +134,7 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         export CROSS_TOP=$(xcode-select -print-path)/Platforms/iPhone${IOS_PLATFORM}.platform/Developer
         export CROSS_SDK=iPhone${IOS_PLATFORM}.sdk
     else # luajit TODO: move to custom config.sh
-        SDK_NAME=iphoneos
+        SDK_NAME=$(nsdk1k $XCODE_VER ios)
         HOST_CC="gcc -std=c99"
         XCFLAGS=" -DLJ_NO_SYSTEM=1 "
         if [ "$BUILD_ARCH" = "arm" ] ; then
@@ -151,9 +151,10 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         elif [ "$BUILD_ARCH" = "arm64" ] ; then
             ARCH_NAME=arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            SDK_NAME=iphonesimulator
+            SDK_NAME=$(nsdk1k $XCODE_VER ios 1)
             ARCH_NAME=x86_64
         fi
+        echo "SDK_NAME=$SDK_NAME"
         ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
         ICC=$(xcrun --sdk $SDK_NAME --find clang)
         ISDKF="-fembed-bitcode -arch $ARCH_NAME -isysroot $ISDKP"
@@ -185,15 +186,16 @@ elif [ "$BUILD_TARGET" = "tvos" ] ; then
         export CROSS_TOP=$(xcode-select -print-path)/Platforms/AppleTV${TVOS_PLATFORM}.platform/Developer
         export CROSS_SDK=AppleTV${TVOS_PLATFORM}.sdk
     else # luajit TODO: move to custom config.sh
-        SDK_NAME=appletvos
+        SDK_NAME=$(nsdk1k $XCODE_VER tvos)
         HOST_CC="gcc -std=c99"
         XCFLAGS=" -DLJ_NO_SYSTEM=1 "
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             ARCH_NAME=arm64
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            SDK_NAME=appletvsimulator
+            SDK_NAME=$(nsdk1k $XCODE_VER tvos 1)
             ARCH_NAME=x86_64
         fi
+        echo "SDK_NAME=$SDK_NAME"
         ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
         ICC=$(xcrun --sdk $SDK_NAME --find clang)
         ISDKF="-fembed-bitcode -arch $ARCH_NAME -isysroot $ISDKP"
