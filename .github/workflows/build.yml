@@ -25,6 +25,8 @@ on:
          default: ''
          # Input has to be provided for the workflow to run
          required: false
+env:
+  GH_XCODE_VER: 14.2
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -73,7 +75,7 @@ jobs:
       - name: Setup Xcode version
         uses: axmolengine/setup-xcode@master
         with: 
-          xcode-version: '14.2'
+          xcode-version: '${{ env.GH_XCODE_VER }}'
 
       - name: Build
         run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
@@ -106,7 +108,7 @@ jobs:
       - name: Setup Xcode version
         uses: axmolengine/setup-xcode@master
         with: 
-          xcode-version: '13.4'
+          xcode-version: '${{ env.GH_XCODE_VER }}'
 
       - name: Build
         run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
@@ -139,7 +141,7 @@ jobs:
       - name: Setup Xcode version
         uses: axmolengine/setup-xcode@master
         with: 
-          xcode-version: '13.4'
+          xcode-version: '${{ env.GH_XCODE_VER }}'
 
       - name: Build
         run: ./1k/build.sh $BUILD_TARGET $BUILD_ARCH
