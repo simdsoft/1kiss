@@ -1,5 +1,6 @@
-# buildware - Your thridparty prebuilts will never look outdated if you're using buildware!
-Building opensources for multi-platforms with github actions.
+# buildware
+Building opensources for multi-platforms with github actions.  
+Your thridparty prebuilts will never outdated if you're using buildware!
   
 [![Release](https://img.shields.io/github/v/release/axmolengine/buildware?include_prereleases&label=release)](../../releases/latest)
 [![build](https://github.com/axmolengine/buildware/actions/workflows/build.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/build.yml)
