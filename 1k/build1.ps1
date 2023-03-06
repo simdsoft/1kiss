@@ -6,6 +6,7 @@
 $LIB_NAME = $args[0]
 $BUILD_ARCH = $args[1]
 $INSTALL_ROOT = $args[2]
+$UWP = $args[3]
 
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
 
@@ -60,10 +61,19 @@ if ($cb_tool -eq 'cmake') {
 }
 elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
     if($BUILD_ARCH -eq "x86") {
-        $CONFIG_ALL_OPTIONS += 'VC-WIN32'
+        if ($UWP) {
+            $CONFIG_ALL_OPTIONS += 'VC-WIN32'
+        } else {
+            $CONFIG_ALL_OPTIONS += 'VC-WIN32-UWP'
+        }
     }
     else {
-        $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
+        if ($UWP) {
+            $CONFIG_ALL_OPTIONS += 'VC-WIN64A-UWP'
+        }
+        else {
+            $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
+        }
     }
 }
 
@@ -143,7 +153,7 @@ if ($cb_tool -eq 'gn') {
 
 # Apply custom patch
 if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1" -PathType Leaf) {
-    Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\src\${LIB_NAME}"
+    Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_NAME}"
 }
 
 # Config & Build
@@ -158,11 +168,11 @@ if ($cb_tool -eq 'cmake') {
         Copy-Item $CMAKE_PATCH .\CMakeLists.txt
     }
     if($LIB_NAME -eq 'curl') {
-        $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl\"
+        $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_INCLUDE_DIR=${openssl_dir}\include"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_LIB_DIR=${openssl_dir}\lib"
 
-        # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib\"
+        # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib"
         # $CONFIG_ALL_OPTIONS += "-DZLIB_INCLUDE_DIR=${zlib_dir}\include"
         # $CONFIG_ALL_OPTIONS += "-DZLIB_LIBRARY=${zlib_dir}\lib\zlib.lib" # dyn link zlib, for static use zlibstatic.lib
     }
@@ -172,6 +182,13 @@ if ($cb_tool -eq 'cmake') {
         $CONFIG_ALL_OPTIONS = [System.Collections.ArrayList]$CONFIG_ALL_OPTIONS
         $CONFIG_ALL_OPTIONS.Remove("-DBUILD_SHARED_LIBS=ON")
     }
+
+    if ($UWP) {
+        $CONFIG_ALL_OPTIONS += "-DCMAKE_SYSTEM_NAME=WindowsStore"
+        $CONFIG_ALL_OPTIONS += "-DCMAKE_SYSTEM_VERSION=10.0"
+    }
+
+    Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     
     cmake -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
     if (!$cb_target) {
@@ -198,6 +215,9 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
 }
 elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     # configure
+    if ($UWP) {
+        $CONFIG_ALL_OPTIONS += 'target_os=\"winuwp\"'
+    }
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
     $cmdStr="gn gen out/release --sln=angle-release --ide=vs2022 ""--args=target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"""

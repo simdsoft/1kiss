@@ -1,6 +1,7 @@
 $BUILD_TARGET = $args[0]
 $BUILD_ARCH = $args[1]
 $BUILD_LIBS = $args[2]
+$UWP = $args[3]
 
 echo "env:NO_DLL=$env:NO_DLL"
 
@@ -81,7 +82,7 @@ $BUILD_LIBS = $BUILD_LIBS -split ","
 
 Foreach ($libname in $BUILD_LIBS) {
     Write-Output "Building $libname ..."
-    Invoke-Expression -Command "$build_script $libname $BUILD_ARCH $INSTALL_ROOT"
+    Invoke-Expression -Command "$build_script $libname $BUILD_ARCH $INSTALL_ROOT $UWP"
 }
 
 # Export INSTALL_ROOT for uploading
