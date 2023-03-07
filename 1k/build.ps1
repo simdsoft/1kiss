@@ -4,6 +4,10 @@ $BUILD_LIBS = $args[2]
 
 echo "env:NO_DLL=$env:NO_DLL"
 
+if ($BUILD_ARCH -eq 'amd64_arm64') {
+    $BUILD_ARCH = 'arm64'
+}
+
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
 $build_script = "$BUILDWARE_ROOT\1k\build1.ps1"
 $INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"

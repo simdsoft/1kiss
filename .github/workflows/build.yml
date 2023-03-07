@@ -225,7 +225,7 @@ jobs:
       matrix:
         arch:
           - x64
-          - arm64
+          - amd64_arm64
     env:
       BUILD_TARGET: winrt
       NO_DLL: ${{ github.event.inputs.no_dll }}
@@ -240,6 +240,7 @@ jobs:
         with:
           arch: ${{ env.BUILD_ARCH }}
           toolset: '14.35'
+          uwp: true
 
       - name: Build
         run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH
