@@ -4,7 +4,7 @@ tag_prefix: llvmorg-
 tag_dot2ul: false
 cb_tool: cmake
 cb_target: libclang
-bw_targets: windows,linux,osx
+bw_targets: win32,linux,osx
 bw_archs: x64
 config_options_unix: -S llvm -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Release -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=1
 config_options_embed:

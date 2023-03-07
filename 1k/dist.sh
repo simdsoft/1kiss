@@ -78,8 +78,8 @@ function dist_lib {
 
             # copy platform spec config header file
             if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
-                cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
-                cp install_windows_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
+                cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+                cp install_win32_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
                 # cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
@@ -93,7 +93,7 @@ function dist_lib {
                 cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
 
             elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
-                cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+                cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
             fi
         fi
@@ -102,12 +102,12 @@ function dist_lib {
     # create prebuilt dirs
     if [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/windows/x86
-        copy1k "install_windows_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x86/
-        copy1k "install_windows_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x86/
+        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x86/
+        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x86/
 
         mkdir -p ${DIST_DIR}/prebuilt/windows/x64
-        copy1k "install_windows_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x64/
-        copy1k "install_windows_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x64/
+        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x64/
+        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then

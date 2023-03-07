@@ -18,7 +18,7 @@ Your thridparty prebuilts will never outdated if you're using buildware!
 
 
 ## Build Targets:
-- macos: 
+- osx/macos: 
   - arm64 (M1+)
   - x86_64
 - linux: x86_64

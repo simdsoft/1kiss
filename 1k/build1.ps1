@@ -1,12 +1,12 @@
 #
-# Copyright (c) 2021-2022 Bytedance Inc.
+# Copyright (c) 2021-2023 Bytedance Inc.
 #
-# params: LIB_NAME BUILD_ARCH INSTALL_ROOT
+# params: LIB_NAME BUILD_TARGET BUILD_ARCH INSTALL_ROOT
 
 $LIB_NAME = $args[0]
-$BUILD_ARCH = $args[1]
-$INSTALL_ROOT = $args[2]
-$UWP = $args[3]
+$BUILD_TARGET = $args[1]
+$BUILD_ARCH = $args[2]
+$INSTALL_ROOT = $args[3]
 
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
 
@@ -31,8 +31,8 @@ $cb_target = $PROPS.'cb_target'
 $bw_targets = $PROPS.'bw_targets'
 $bw_archs = $PROPS.'bw_archs'
 
-if ($bw_targets -and !$bw_targets.contains('windows')) {
-    Write-Output "Skip build $LIB_NAME which is not allow for target: windows"
+if ($bw_targets -and !$bw_targets.contains($BUILD_TARGET)) {
+    Write-Output "Skip build $LIB_NAME which is not allow for target: $BUILD_TARGET"
     return 0
 }
 
@@ -40,6 +40,8 @@ if ($bw_archs -and !$bw_archs.contains($BUILD_ARCH)) {
     Write-Output "Skip build $LIB_NAME which is not allow for arch: $BUILD_ARCH"
     return 0
 }
+
+$is_winrt = ($BUILD_TARGET -eq 'winrt')
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))
@@ -54,26 +56,34 @@ $CONFIG_ALL_OPTIONS=@()
 
 # Determine build target & config options
 if ($cb_tool -eq 'cmake') {
+    # vs2019+, default is -A x64
     if($BUILD_ARCH -eq "x86") {
         $CONFIG_ALL_OPTIONS += '-A', 'Win32'
     }
-    # only support vs2019+, default is Win64
+    if ($is_winrt) {
+        $CONFIG_ALL_OPTIONS += '-DCMAKE_SYSTEM_NAME=WindowsStore', '-DCMAKE_SYSTEM_VERSION=10.0'
+    }
 }
 elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
     if($BUILD_ARCH -eq "x86") {
-        if ($UWP) {
+        if (!$is_winrt) {
             $CONFIG_ALL_OPTIONS += 'VC-WIN32'
         } else {
             $CONFIG_ALL_OPTIONS += 'VC-WIN32-UWP'
         }
     }
     else {
-        if ($UWP) {
-            $CONFIG_ALL_OPTIONS += 'VC-WIN64A-UWP'
-        }
-        else {
+        if (!$is_winrt) {
             $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
         }
+        else {
+            $CONFIG_ALL_OPTIONS += 'VC-WIN64A-UWP'
+        }
+    }
+}
+elseif ($cb_tool -eq 'gn') {
+    if ($is_winrt) {
+        $CONFIG_ALL_OPTIONS += 'target_os=\"winuwp\"'
     }
 }
 
@@ -183,11 +193,6 @@ if ($cb_tool -eq 'cmake') {
         $CONFIG_ALL_OPTIONS.Remove("-DBUILD_SHARED_LIBS=ON")
     }
 
-    if ($UWP) {
-        $CONFIG_ALL_OPTIONS += "-DCMAKE_SYSTEM_NAME=WindowsStore"
-        $CONFIG_ALL_OPTIONS += "-DCMAKE_SYSTEM_VERSION=10.0"
-    }
-
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
     
     cmake -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
@@ -215,9 +220,6 @@ elseif($cb_tool -eq 'perl') { # only openssl use perl
 }
 elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     # configure
-    if ($UWP) {
-        $CONFIG_ALL_OPTIONS += 'target_os=\"winuwp\"'
-    }
     Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
     $cmdStr="gn gen out/release --sln=angle-release --ide=vs2022 ""--args=target_cpu=\""$BUILD_ARCH\"" $CONFIG_ALL_OPTIONS"""
