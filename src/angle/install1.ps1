@@ -8,7 +8,10 @@ if ((Test-Path $install_dir -PathType Container)) {
     }
     Copy-Item "$buildsrc_dir\out\release\libEGL.dll" "$install_dir\bin\libEGL.dll" -Force
     Copy-Item "$buildsrc_dir\out\release\libGLESv2.dll" "$install_dir\bin\libGLESv2.dll" -Force
-    Copy-Item "$buildsrc_dir\out\release\d3dcompiler_47.dll" "$install_dir\bin\d3dcompiler_47.dll" -Force
+
+    if (Test-Path "$buildsrc_dir\out\release\d3dcompiler_47.dll" -PathType Leaf) {
+        Copy-Item "$buildsrc_dir\out\release\d3dcompiler_47.dll" "$install_dir\bin\d3dcompiler_47.dll" -Force
+    }
 
     echo "[windows] list ${install_dir}..."
     ls -R "$install_dir"
