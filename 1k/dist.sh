@@ -21,15 +21,18 @@ g++ -std=c++17 1k/copy1k.cpp -o build/copy1k
 PATH=`pwd`/build:$PATH
 
 # The dist flags
-DISTF_WIN=1
-DISTF_LINUX=2
-DISTF_ANDROID=4
-DISTF_MAC=8
-DISTF_IOS=16
-DISTF_TVOS=32
+DISTF_WIN32=1
+DISTF_WINRT=2
+DISTF_WIN=$(($DISTF_WIN32|$DISTF_WINRT))
+DISTF_LINUX=4
+DISTF_ANDROID=8
+DISTF_MAC=16
+DISTF_IOS=32
+DISTF_TVOS=64
 DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
-DISTF_ANY=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_NO_WINRT=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_ALL=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 
 function dist_lib {
     LIB_NAME=$1
@@ -100,14 +103,24 @@ function dist_lib {
     fi
 
     # create prebuilt dirs
-    if [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/windows/x86
-        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x86/
-        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x86/
+    if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/win32/x86
+        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x86/
+        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x86/
 
-        mkdir -p ${DIST_DIR}/prebuilt/windows/x64
-        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x64/
-        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x64/
+        mkdir -p ${DIST_DIR}/prebuilt/win32/x64
+        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x64/
+        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x64/
+    fi
+
+    if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/winrt/x64
+        copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/x64/
+        copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/x64/
+
+        mkdir -p ${DIST_DIR}/prebuilt/winrt/arm64
+        copy1k "install_winrt_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/arm64/
+        copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/arm64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
