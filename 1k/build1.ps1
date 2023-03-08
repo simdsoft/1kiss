@@ -163,7 +163,7 @@ if ($cb_tool -eq 'gn') {
 
 # Apply custom patch
 if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1" -PathType Leaf) {
-    Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_NAME}"
+    Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\patch1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}"
 }
 
 # Config & Build
