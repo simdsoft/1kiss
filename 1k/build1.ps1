@@ -61,6 +61,7 @@ if ($cb_tool -eq 'cmake') {
         $CONFIG_ALL_OPTIONS += '-A', 'Win32'
     }
     if ($is_winrt) {
+        $CONFIG_ALL_OPTIONS += '-A', $BUILD_ARCH
         $CONFIG_ALL_OPTIONS += '-DCMAKE_SYSTEM_NAME=WindowsStore', '-DCMAKE_SYSTEM_VERSION=10.0'
     }
 }
@@ -77,7 +78,16 @@ elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
             $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
         }
         else {
-            $CONFIG_ALL_OPTIONS += 'VC-WIN64A-UWP'
+            if ($BUILD_ARCH -eq 'x64') {
+                $CONFIG_ALL_OPTIONS += 'VC-WIN64A-UWP'
+            }
+            elseif ($BUILD_ARCH -eq 'arm64') {
+                $CONFIG_ALL_OPTIONS += 'VC-WIN64-ARM-UWP'
+            }
+            else {
+                Write-Output "Unsupported arch: $BUILD_ARCH"
+                return 1
+            }
         }
     }
 }
