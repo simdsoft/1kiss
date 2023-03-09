@@ -67,7 +67,11 @@ function dist_lib {
         fi
 
         # copy common headers
-        cp -rf install_osx_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
+        if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
+            cp -rf install_osx_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
+        elif [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
+            cp -rf install_win32_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
+        fi
 
         if [ "$CONF_HEADER" != "" ] ; then
             rm -rf ${DIST_DIR}/include/${INC_DIR}${CONF_HEADER}
