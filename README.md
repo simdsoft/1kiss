@@ -36,6 +36,6 @@ Your thridparty prebuilts will never outdated if you're using buildware!
 - win32
   - x86
   - x86_64
-- winrt (TODO for UWP)
+- winrt
   - x86_64
   - arm64
