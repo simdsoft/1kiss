@@ -63,6 +63,7 @@ if ($cb_tool -eq 'cmake') {
     if ($is_winrt) {
         $CONFIG_ALL_OPTIONS += '-A', $BUILD_ARCH
         $CONFIG_ALL_OPTIONS += '-DCMAKE_SYSTEM_NAME=WindowsStore', '-DCMAKE_SYSTEM_VERSION=10.0'
+        $CONFIG_ALL_OPTIONS += "-DCMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION=$env:VS_DEPLOYMENT_TARGET"
     }
 }
 elseif ($cb_tool -eq 'perl') { # opnel openssl use perl

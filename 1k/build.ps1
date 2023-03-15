@@ -9,6 +9,9 @@ if ($BUILD_ARCH -eq 'amd64_arm64') {
 }
 
 $BUILDWARE_ROOT=(Resolve-Path .\).Path
+
+echo "BUILDWARE_ROOT=$BUILDWARE_ROOT"
+
 $build_script = "$BUILDWARE_ROOT\1k\build1.ps1"
 $INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 
@@ -19,15 +22,34 @@ if(!(Test-Path $BUILD_SRC -PathType Container)) {
     mkdir "$BUILD_SRC"
 }
 
+#### install tools
+$TOOLS_DIR = "$BUILDWARE_ROOT\tools"
+if(!(Test-Path $TOOLS_DIR -PathType Container)) {
+    mkdir "$TOOLS_DIR"
+}
+
 # Install nasm
 $nasm_ver='2.16.01'
-$nasm_bin = "$BUILDWARE_ROOT\$BUILD_SRC\nasm-$nasm_ver"
+$nasm_bin = "$TOOLS_DIR\nasm-$nasm_ver"
 if(!(Test-Path "$nasm_bin" -PathType Container)) {
-    curl "https://www.nasm.us/pub/nasm/releasebuilds/$nasm_ver/win64/nasm-$nasm_ver-win64.zip" -o ".\$BUILD_SRC\nasm-$nasm_ver-win64.zip"
-    Expand-Archive -Path ".\$BUILD_SRC\nasm-$nasm_ver-win64.zip" -DestinationPath ".\$BUILD_SRC"
+    curl -L "https://www.nasm.us/pub/nasm/releasebuilds/$nasm_ver/win64/nasm-$nasm_ver-win64.zip" -o "$TOOLS_DIR\nasm-$nasm_ver-win64.zip"
+    Expand-Archive -Path "$TOOLS_DIR\nasm-$nasm_ver-win64.zip" -DestinationPath "$TOOLS_DIR"
 }
 $env:Path = "$nasm_bin;$env:Path"
 nasm -v
+
+# Install latest cmake for reuqired feature CMAKE_VS_WINDOWS_PLATFORM_MIN_VERSION
+$cmake_ver = "3.27.20230315"
+$cmake_host = "https://github.com/axmolengine/archive/releases/download/v1.0.0" # "https://github.com/Kitware/CMake/releases/download/v$cmake_ver"
+$cmake_bin = "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64\bin"
+if(!(Test-Path "$nasm_bin" -PathType Container)) {
+    echo "Downloading $cmake_host/cmake-$cmake_ver-windows-x86_64.zip ..."
+    curl -L "$cmake_host/cmake-$cmake_ver-windows-x86_64.zip" -o "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64.zip"
+    Expand-Archive -Path "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64.zip" -DestinationPath "$TOOLS_DIR\"
+}
+$env:Path = "$cmake_bin;$env:Path"
+
+cmake --version
 
 # winbuild only
 

@@ -30,6 +30,7 @@ on:
          required: false
 env:
   GH_XCODE_VER: 14.2
+  VS_DEPLOYMENT_TARGET: 10.0.17763.0 # for Windows Store(UWP) Apps only
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
