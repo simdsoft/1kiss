@@ -42,7 +42,7 @@ nasm -v
 $cmake_ver = "3.27.20230315"
 $cmake_host = "https://github.com/axmolengine/archive/releases/download/v1.0.0" # "https://github.com/Kitware/CMake/releases/download/v$cmake_ver"
 $cmake_bin = "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64\bin"
-if(!(Test-Path "$nasm_bin" -PathType Container)) {
+if(!(Test-Path "$cmake_bin" -PathType Container)) {
     echo "Downloading $cmake_host/cmake-$cmake_ver-windows-x86_64.zip ..."
     curl -L "$cmake_host/cmake-$cmake_ver-windows-x86_64.zip" -o "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64.zip"
     Expand-Archive -Path "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64.zip" -DestinationPath "$TOOLS_DIR\"
