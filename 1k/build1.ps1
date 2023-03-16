@@ -123,6 +123,17 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
         git clone -q $repo $LIB_NAME
         Set-Location $LIB_SRC
         git checkout $release_tag
+        $branchName = $(git branch --show-current)
+        if ("$branchName" -ne '') { # have branch
+            $commitHash = $(git rev-parse --short HEAD)
+            $commitCount = $(git rev-list --count HEAD)
+            Out-File -FilePath .\bw_version.txt -InputObject "branch: $branchName" -Encoding ASCII
+            Out-File -FilePath .\bw_version.txt -InputObject "commit-hash: $commitHash" -Encoding ASCII -Append
+            Out-File -FilePath .\bw_version.txt -InputObject "commit-count: $commitCount" -Encoding ASCII -Append
+            if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1" -PathType Leaf) {
+                Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}"
+            }
+        }
     }
     else {
        if ($repo.EndsWith('.tar.gz')) {
@@ -256,6 +267,10 @@ Set-Location ..\..\
 $install_script = "src\${LIB_NAME}\install1.ps1"
 if(Test-Path $install_script -PathType Leaf) {
     Invoke-Expression -Command "$install_script $install_dir ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}"
+}
+
+if(Test-Path "${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}\bw_version.txt" -PathType Leaf) {
+    Copy-Item "${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}\bw_version.txt" "$install_dir\bw_version.txt" -Force
 }
 
 $clean_script = "src\${LIB_NAME}\clean1.ps1"

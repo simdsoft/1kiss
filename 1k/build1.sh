@@ -277,6 +277,14 @@ if [ ! -d $LIB_SRC ] ; then
         cd $LIB_SRC
         git checkout $release_tag
         git submodule update --init --recursive
+        branchName = $(git branch --show-current)
+        if [! "$branchName" = ""] ; then
+            commitHash = $(git rev-parse --short HEAD)
+            commitCount = $(git rev-list --count HEAD)
+            echo "branch: $branchName">./bw_version.txt
+            echo "commit-hash: $commitHash">>./bw_version.txt
+            echo "commit-count: $commitCount">>./bw_version.txt
+        fi
     else
         if [[ $repo == *".tar.gz" ]] ; then
             outputFile="${LIB_SRC}.tar.gz"
@@ -367,6 +375,10 @@ cd ../../
 
 if [ ! "$install_script" = "" ] && [ -f "$install_script" ] ; then
     source $install_script $install_dir "${BUILDWARE_ROOT}/buildsrc/${LIB_SRC}"
+fi
+
+if [ -f  "./buildsrc/$LIB_SRC/bw_version.txt"] ; then
+    cp "./buildsrc/$LIB_SRC/bw_version.txt" "$install_dir/"
 fi
 
 clean_script="src/${LIB_NAME}/clean1.sh"
