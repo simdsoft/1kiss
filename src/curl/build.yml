@@ -1,6 +1,6 @@
 repo: https://curl.se/download/curl-7.88.1.zip
 ver: 7.88.1
-tag_prefix: 'curl-'
+tag_prefix: curl-
 tag_dot2ul: true
 cb_tool: cmake
 config_options_unix: -DCURL_USE_LIBSSH2=FALSE -DBUILD_CURL_EXE=FALSE -DCURL_DISABLE_TESTS=TRUE -DCURL_USE_OPENSSL=TRUE -DBUILD_SHARED_LIBS=OFF
