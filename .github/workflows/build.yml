@@ -17,6 +17,7 @@ on:
       - src/**/install*
       - src/**/patch*
       - src/**/clean*
+      - src/**/rel*
       - toolchain.properties
   workflow_dispatch:
     # Inputs the workflow accepts.
