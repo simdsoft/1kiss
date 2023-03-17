@@ -186,7 +186,11 @@ function dist_lib {
         verinfo_file="install_win32_x64/${LIB_NAME}/bw_version.yml"
     elif [ -f "install_osx_x64/${LIB_NAME}/bw_version.yml" ] ; then
         verinfo_file="install_osx_x64/${LIB_NAME}/bw_version.yml"
+    elif [ -f "install_linux_x64/${LIB_NAME}/bw_version.yml" ] ; then
+        verinfo_file="install_linux_x64/${LIB_NAME}/bw_version.yml"
     fi
+
+    echo "verinfo_file=$verinfo_file"
 
     if [ "$verinfo_file" != "" ] ; then
         eval $(parse_yaml "$verinfo_file")
