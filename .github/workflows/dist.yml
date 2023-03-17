@@ -105,7 +105,9 @@ jobs:
         tag_name: ${{ env.RELEASE_TAG_NAME }}
         name: ${{ env.RELEASE_TAG_NAME }}
         body_path: ${{ env.DIST_NOTES }}
-        files: ${{ env.DIST_PACKAGE }}
+        files: |
+          ${{ env.DIST_PACKAGE }}
+          ${{ env.DIST_VERLIST }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: axmolengine/buildware

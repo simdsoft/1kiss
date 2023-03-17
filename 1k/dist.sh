@@ -17,6 +17,8 @@ DIST_NOTES=`pwd`/verlist.txt
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
+DIST_VERLIST=$DIST_ROOT/verlist.yml
+
 # compile copy1k for script, non-recursive simple wildchard without error support
 mkdir -p build
 g++ -std=c++17 1k/copy1k.cpp -o build/copy1k
@@ -189,21 +191,21 @@ function dist_lib {
     if [ "$verinfo_file" != "" ] ; then
         eval $(parse_yaml "$verinfo_file")
         if [ "$bw_version" != "" ] ; then
-            echo "$LIB_NAME: $bw_version" >> "$DIST_ROOT/verlist.yml"
+            echo "$LIB_NAME: $bw_version" >> "$DIST_VERLIST"
             echo "- $LIB_NAME: $bw_version" >> "$DIST_NOTES"
         else
            if [ "$bw_branch" != "" ] && [ "$bw_branch" != "master" ] ; then
-               echo "$LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_ROOT/verlist.yml"
+               echo "$LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_VERLIST"
                echo "- $LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_NOTES"
            else
-               echo "$LIB_NAME: git $bw_commit_hash" >> "$DIST_ROOT/verlist.yml"
+               echo "$LIB_NAME: git $bw_commit_hash" >> "$DIST_VERLIST"
                echo "- $LIB_NAME: git $bw_commit_hash" >> "$DIST_NOTES"
            fi
         fi
     else
         # read version from src/${LIB_NAME}/build.yml
         eval $(parse_yaml "src/${LIB_NAME}/build.yml")
-        echo "$LIB_NAME: $ver" >> "$DIST_ROOT/verlist.yml"
+        echo "$LIB_NAME: $ver" >> "$DIST_VERLIST"
         echo "- $LIB_NAME: $ver" >> "$DIST_NOTES"
     fi
 }
@@ -213,8 +215,8 @@ if [ "$DIST_LIBS" = "" ] ; then
     DIST_LIBS="zlib,jpeg-turbo,openssl,curl,luajit,angle,glsl-optimizer"
 fi
 
-if [ -f "$DIST_ROOT/verlist.yml" ] ; then
-    rm -f "$DIST_ROOT/verlist.yml"
+if [ -f "$DIST_VERLIST" ] ; then
+    rm -f "$DIST_VERLIST"
 fi
 
 libs_arr=(${DIST_LIBS//,/ })
@@ -233,4 +235,5 @@ if [ "$GITHUB_ENV" != "" ] ; then
     echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
     echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
     echo "DIST_NOTES=${DIST_NOTES}" >> $GITHUB_ENV
+    echo "DIST_VERLIST=${DIST_VERLIST}" >> $GITHUB_ENV
 fi
