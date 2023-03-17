@@ -302,17 +302,12 @@ fi
 if [[ $repo == *".git" ]] ; then
     git --version
     branchName=$(git branch --show-current)
-    echo "branchName=$branchName"
-
     if [ "$branchName" != "" ] ; then
         commitHash=$(git rev-parse --short HEAD)
         commitCount=$(git rev-list --count HEAD)
-        echo "bw_branch: $branchName"
-        echo "bw_commit_hash: $commitHash"
-        echo "bw_commit_count: $commitCount"
-        echo "bw_branch: $branchName" > ./bw_version.txt
-        echo "bw_commit_hash: $commitHash" >> ./bw_version.txt
-        echo "bw_commit_count: $commitCount" >> ./bw_version.txt
+        echo "bw_branch: $branchName" > ./bw_version.yml
+        echo "bw_commit_hash: $commitHash" >> ./bw_version.yml
+        echo "bw_commit_count: $commitCount" >> ./bw_version.yml
     fi
 fi
 
@@ -382,13 +377,13 @@ fi
 
 cd ../../
 
-if [ ! "$install_script" = "" ] && [ -f "$install_script" ] ; then
-    source $install_script $install_dir "${BUILDWARE_ROOT}/buildsrc/${LIB_SRC}"
+if [ -f  "./buildsrc/$LIB_SRC/bw_version.yml" ] ; then
+    cat "./buildsrc/$LIB_SRC/bw_version.yml"
+    cp -f "./buildsrc/$LIB_SRC/bw_version.yml" "$install_dir/"
 fi
 
-if [ -f  "./buildsrc/$LIB_SRC/bw_version.txt" ] ; then
-    cat "./buildsrc/$LIB_SRC/bw_version.txt"
-    cp -f "./buildsrc/$LIB_SRC/bw_version.txt" "$install_dir/"
+if [ ! "$install_script" = "" ] && [ -f "$install_script" ] ; then
+    source $install_script $install_dir "${BUILDWARE_ROOT}/buildsrc/${LIB_SRC}"
 fi
 
 clean_script="src/${LIB_NAME}/clean1.sh"

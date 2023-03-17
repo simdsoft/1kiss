@@ -12,6 +12,8 @@ if [ "${DIST_SUFFIX}" != "" ]; then
     DIST_NAME="${DIST_NAME}${DIST_SUFFIX}"
 fi
 
+DIST_NOTES=`pwd`/verlist.txt
+
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
@@ -33,6 +35,23 @@ DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
 DISTF_NO_WINRT=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 DISTF_ALL=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+
+function parse_yaml {
+   local prefix=$2
+   local s='[[:space:]]*' w='[a-zA-Z0-9_]*' fs=$(echo @|tr @ '\034')
+   sed -ne "s|^\($s\):|\1|" \
+        -e "s|^\($s\)\($w\)$s:$s[\"']\(.*\)[\"']$s\$|\1$fs\2$fs\3|p" \
+        -e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p"  $1 |
+   awk -F$fs '{
+      indent = length($1)/2;
+      vname[indent] = $2;
+      for (i in vname) {if (i > indent) {delete vname[i]}}
+      if (length($3) >= 0) {
+         vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+         printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
+      }
+   }'
+}
 
 function dist_lib {
     LIB_NAME=$1
@@ -155,11 +174,40 @@ function dist_lib {
     if [ ! $(($DIST_FLAGS & $DISTF_TVOS)) = 0 ]; then
         mkdir -p ${DIST_DIR}/prebuilt/tvos
     fi
+
+    bw_branch=
+    bw_commit_hash=
+    bw_commit_count=
+    bw_version=
+    if [ -f "install_win32_x64/${LIB_NAME}/bw_version.yml" ] ; then
+        eval $(parse_yaml "install_win32_x64/${LIB_NAME}/bw_version.yml")
+        if [ "$bw_version" != "" ] ; then
+            echo "$LIB_NAME: $bw_version" >> "$DIST_ROOT/verlist.yml"
+            echo "- $LIB_NAME: $bw_version" >> "$DIST_NOTES"
+        else
+           if [ "$bw_branch" != "" ] && [ "$bw_branch" != "master" ] ; then
+               echo "$LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_ROOT/verlist.yml"
+               echo "- $LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_NOTES"
+           else
+               echo "$LIB_NAME: git $bw_commit_hash" >> "$DIST_ROOT/verlist.yml"
+               echo "- $LIB_NAME: git $bw_commit_hash" >> "$DIST_NOTES"
+           fi
+        fi
+    else
+        # read from source
+        eval $(parse_yaml "src/${LIB_NAME}/build.yml")
+        echo "$LIB_NAME: $ver" >> "$DIST_ROOT/verlist.yml"
+        echo "- $LIB_NAME: $ver" >> "$DIST_NOTES"
+    fi
 }
 
 # dist libs
 if [ "$DIST_LIBS" = "" ] ; then
     DIST_LIBS="zlib,jpeg-turbo,openssl,curl,luajit,angle,glsl-optimizer"
+fi
+
+if [ -f "$DIST_ROOT/verlist.yml" ] ; then
+    rm -f "$DIST_ROOT/verlist.yml"
 fi
 
 libs_arr=(${DIST_LIBS//,/ })
@@ -177,4 +225,5 @@ zip -q -r ${DIST_PACKAGE} ${DIST_NAME}
 if [ "$GITHUB_ENV" != "" ] ; then
     echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
     echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
+    echo "DIST_NOTES=${DIST_NOTES}" >> $GITHUB_ENV
 fi
