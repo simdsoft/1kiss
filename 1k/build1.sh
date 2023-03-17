@@ -277,7 +277,15 @@ if [ ! -d $LIB_SRC ] ; then
         cd $LIB_SRC
         git checkout $release_tag
         git submodule update --init --recursive
+        git --version
         branchName=$(git branch --show-current)
+        echo "branchName=$branchName"
+        branchName2=$(git rev-parse --abbrev-ref HEAD)
+        echo "branchName2=$branchName2"
+        if [ "$branchName2" != "" ] ; then
+            branchName=$branchName2
+        fi
+
         if [ "$branchName" != "" ] ; then
             commitHash=$(git rev-parse --short HEAD)
             commitCount=$(git rev-list --count HEAD)
