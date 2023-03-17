@@ -179,8 +179,15 @@ function dist_lib {
     bw_commit_hash=
     bw_commit_count=
     bw_version=
+    verinfo_file=
     if [ -f "install_win32_x64/${LIB_NAME}/bw_version.yml" ] ; then
-        eval $(parse_yaml "install_win32_x64/${LIB_NAME}/bw_version.yml")
+        verinfo_file="install_win32_x64/${LIB_NAME}/bw_version.yml"
+    elif [ -f "install_osx_x64/${LIB_NAME}/bw_version.yml" ] ; then
+        verinfo_file="install_osx_x64/${LIB_NAME}/bw_version.yml"
+    fi
+
+    if [ "$verinfo_file" != "" ] ; then
+        eval $(parse_yaml "$verinfo_file")
         if [ "$bw_version" != "" ] ; then
             echo "$LIB_NAME: $bw_version" >> "$DIST_ROOT/verlist.yml"
             echo "- $LIB_NAME: $bw_version" >> "$DIST_NOTES"
@@ -194,7 +201,7 @@ function dist_lib {
            fi
         fi
     else
-        # read from source
+        # read version from src/${LIB_NAME}/build.yml
         eval $(parse_yaml "src/${LIB_NAME}/build.yml")
         echo "$LIB_NAME: $ver" >> "$DIST_ROOT/verlist.yml"
         echo "- $LIB_NAME: $ver" >> "$DIST_NOTES"
