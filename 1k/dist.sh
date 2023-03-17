@@ -183,6 +183,8 @@ function dist_lib {
     bw_commit_count=
     bw_version=
     verinfo_file=
+    ver=
+    
     if [ -f "install_win32_x64/${LIB_NAME}/bw_version.yml" ] ; then
         verinfo_file="install_win32_x64/${LIB_NAME}/bw_version.yml"
     elif [ -f "install_osx_x64/${LIB_NAME}/bw_version.yml" ] ; then
@@ -200,8 +202,14 @@ function dist_lib {
             echo "- $LIB_NAME: $bw_version" >> "$DIST_NOTES"
         else
            if [ "$bw_branch" != "" ] && [ "$bw_branch" != "master" ] ; then
-               echo "$LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_VERLIST"
-               echo "- $LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_NOTES"
+               eval $(parse_yaml "src/${LIB_NAME}/build.yml")
+               if [ "$ver" != "" ] ; then
+                  echo "$LIB_NAME: $ver-$bw_commit_hash" >> "$DIST_VERLIST"
+                  echo "- $LIB_NAME: $ver-$bw_commit_hash" >> "$DIST_NOTES"
+               else
+                  echo "$LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_VERLIST"
+                  echo "- $LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_NOTES"
+               fi
            else
                echo "$LIB_NAME: git $bw_commit_hash" >> "$DIST_VERLIST"
                echo "- $LIB_NAME: git $bw_commit_hash" >> "$DIST_NOTES"
