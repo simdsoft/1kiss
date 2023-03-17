@@ -277,22 +277,6 @@ if [ ! -d $LIB_SRC ] ; then
         cd $LIB_SRC
         git checkout $release_tag
         git submodule update --init --recursive
-        git --version
-        branchName=$(git branch --show-current)
-        echo "branchName=$branchName"
-        branchName2=$(git rev-parse --abbrev-ref HEAD)
-        echo "branchName2=$branchName2"
-        if [ "$branchName2" != "" ] ; then
-            branchName=$branchName2
-        fi
-
-        if [ "$branchName" != "" ] ; then
-            commitHash=$(git rev-parse --short HEAD)
-            commitCount=$(git rev-list --count HEAD)
-            echo "branch: $branchName">./bw_version.txt
-            echo "commit-hash: $commitHash">>./bw_version.txt
-            echo "commit-count: $commitCount">>./bw_version.txt
-        fi
     else
         if [[ $repo == *".tar.gz" ]] ; then
             outputFile="${LIB_SRC}.tar.gz"
@@ -313,6 +297,23 @@ if [ ! -d $LIB_SRC ] ; then
     fi
 else
     cd $LIB_SRC
+fi
+
+if [[ $repo == *".git" ]] ; then
+    git --version
+    branchName=$(git branch --show-current)
+    echo "branchName=$branchName"
+
+    if [ "$branchName" != "" ] ; then
+        commitHash=$(git rev-parse --short HEAD)
+        commitCount=$(git rev-list --count HEAD)
+        echo "bw_branch: $branchName"
+        echo "bw_commit_hash: $commitHash"
+        echo "bw_commit_count: $commitCount"
+        echo "bw_branch: $branchName" > ./bw_version.txt
+        echo "bw_commit_hash: $commitHash" >> ./bw_version.txt
+        echo "bw_commit_count: $commitCount" >> ./bw_version.txt
+    fi
 fi
 
 # Apply custom patch
@@ -386,7 +387,8 @@ if [ ! "$install_script" = "" ] && [ -f "$install_script" ] ; then
 fi
 
 if [ -f  "./buildsrc/$LIB_SRC/bw_version.txt" ] ; then
-    cp "./buildsrc/$LIB_SRC/bw_version.txt" "$install_dir/"
+    cat "./buildsrc/$LIB_SRC/bw_version.txt"
+    cp -f "./buildsrc/$LIB_SRC/bw_version.txt" "$install_dir/"
 fi
 
 clean_script="src/${LIB_NAME}/clean1.sh"

@@ -127,9 +127,9 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
         if ("$branchName" -ne '') { # have branch
             $commitHash = $(git rev-parse --short HEAD)
             $commitCount = $(git rev-list --count HEAD)
-            Out-File -FilePath .\bw_version.txt -InputObject "branch: $branchName" -Encoding ASCII
-            Out-File -FilePath .\bw_version.txt -InputObject "commit-hash: $commitHash" -Encoding ASCII -Append
-            Out-File -FilePath .\bw_version.txt -InputObject "commit-count: $commitCount" -Encoding ASCII -Append
+            Out-File -FilePath .\bw_version.txt -InputObject "bw_branch: $branchName" -Encoding ASCII
+            Out-File -FilePath .\bw_version.txt -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
+            Out-File -FilePath .\bw_version.txt -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
             if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1" -PathType Leaf) {
                 Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}"
             }
