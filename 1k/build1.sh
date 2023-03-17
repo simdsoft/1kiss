@@ -303,7 +303,7 @@ if [[ $repo == *".git" ]] ; then
     git --version
     branchName=$(git branch --show-current)
     if [ "$branchName" != "" ] ; then
-        commitHash=$(git rev-parse --short HEAD)
+        commitHash=$(git rev-parse --short=7 HEAD)
         commitCount=$(git rev-list --count HEAD)
         echo "bw_branch: $branchName" > ./bw_version.yml
         echo "bw_commit_hash: $commitHash" >> ./bw_version.yml

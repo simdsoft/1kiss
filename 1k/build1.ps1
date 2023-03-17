@@ -125,7 +125,7 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
         git checkout $release_tag
         $branchName = $(git branch --show-current)
         if ("$branchName" -ne '') { # have branch
-            $commitHash = $(git rev-parse --short HEAD)
+            $commitHash = $(git rev-parse --short=7 HEAD)
             $commitCount = $(git rev-list --count HEAD)
             Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII
             Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
