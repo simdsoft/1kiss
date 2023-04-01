@@ -123,17 +123,6 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
         git clone -q $repo $LIB_NAME
         Set-Location $LIB_SRC
         git checkout $release_tag
-        $branchName = $(git branch --show-current)
-        if ("$branchName" -ne '') { # have branch
-            $commitHash = $(git rev-parse --short=7 HEAD)
-            $commitCount = $(git rev-list --count HEAD)
-            Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII
-            Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
-            Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
-            if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1" -PathType Leaf) {
-                Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC}"
-            }
-        }
     }
     else {
        if ($repo.EndsWith('.tar.gz')) {
@@ -161,6 +150,24 @@ else {
         git checkout -- .
         git fetch
         git checkout $release_tag
+        git pull
+    }
+}
+
+if ($repo.EndsWith('.git')) {
+    $branchName = $(git branch --show-current)
+    if ("$branchName" -ne '') { # have branch
+        $commitCount = $(git rev-list --count HEAD)
+        Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII
+        Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
+        if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1" -PathType Leaf) {
+            $fullCommitHash = $(Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC} $release_tag")
+            git checkout $fullCommitHash
+        }
+
+        $commitHash = $(git rev-parse --short=7 HEAD)
+        Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
+        return 0
     }
 }
 
