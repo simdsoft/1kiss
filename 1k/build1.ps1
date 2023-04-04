@@ -167,7 +167,6 @@ if ($repo.EndsWith('.git')) {
 
         $commitHash = $(git rev-parse --short=7 HEAD)
         Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
-        return 0
     }
 }
 

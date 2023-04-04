@@ -130,13 +130,13 @@ function dist_lib {
 
     # create prebuilt dirs
     if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/win32/x86
-        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x86/
-        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x86/
+        mkdir -p ${DIST_DIR}/prebuilt/windows/x86
+        copy1k "install_windows_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x86/
+        copy1k "install_windows_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x86/
 
-        mkdir -p ${DIST_DIR}/prebuilt/win32/x64
-        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x64/
-        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x64/
+        mkdir -p ${DIST_DIR}/prebuilt/windows/x64
+        copy1k "install_windows_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x64/
+        copy1k "install_windows_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
