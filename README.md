@@ -37,7 +37,7 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
   - arm64
   - x86
   - x86_64
-- win32
+- windows
   - x86
   - x86_64
 - winrt
