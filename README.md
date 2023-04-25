@@ -37,9 +37,9 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
   - arm64
   - x86
   - x86_64
-- windows
+- win (Windows Desktop Apps)
   - x86
   - x86_64
-- winrt
+- uwp (Windows Universal Apps)
   - x86_64
   - arm64

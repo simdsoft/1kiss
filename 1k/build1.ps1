@@ -41,7 +41,7 @@ if ($bw_archs -and !$bw_archs.contains($BUILD_ARCH)) {
     return 0
 }
 
-$is_winrt = ($BUILD_TARGET -eq 'winrt')
+$is_uwp = ($BUILD_TARGET -eq 'uwp')
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))
@@ -60,7 +60,7 @@ if ($cb_tool -eq 'cmake') {
     if($BUILD_ARCH -eq "x86") {
         $CONFIG_ALL_OPTIONS += '-A', 'Win32'
     }
-    if ($is_winrt) {
+    if ($is_uwp) {
         $CONFIG_ALL_OPTIONS += '-A', $BUILD_ARCH
         $CONFIG_ALL_OPTIONS += '-DCMAKE_SYSTEM_NAME=WindowsStore', '-DCMAKE_SYSTEM_VERSION=10.0'
         $CONFIG_ALL_OPTIONS += "-DCMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION=$env:VS_DEPLOYMENT_TARGET"
@@ -68,14 +68,14 @@ if ($cb_tool -eq 'cmake') {
 }
 elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
     if($BUILD_ARCH -eq "x86") {
-        if (!$is_winrt) {
+        if (!$is_uwp) {
             $CONFIG_ALL_OPTIONS += 'VC-WIN32'
         } else {
             $CONFIG_ALL_OPTIONS += 'VC-WIN32-UWP'
         }
     }
     else {
-        if (!$is_winrt) {
+        if (!$is_uwp) {
             $CONFIG_ALL_OPTIONS += 'VC-WIN64A'
         }
         else {
@@ -93,7 +93,7 @@ elseif ($cb_tool -eq 'perl') { # opnel openssl use perl
     }
 }
 elseif ($cb_tool -eq 'gn') {
-    if ($is_winrt) {
+    if ($is_uwp) {
         $CONFIG_ALL_OPTIONS += 'target_os=\"winuwp\"'
     }
 }

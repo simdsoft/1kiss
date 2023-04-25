@@ -2,7 +2,7 @@ DIST_ROOT=$1
 LIB_NAME=luajit
 DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
-dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_NO_WINRT
+dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_NO_UWP
 
 # create flat lib for ios
 if [ -f "install_ios_arm/${LIB_NAME}/lib/libluajit.a" ] ; then

@@ -25,9 +25,9 @@ g++ -std=c++17 1k/copy1k.cpp -o build/copy1k
 PATH=`pwd`/build:$PATH
 
 # The dist flags
-DISTF_WIN32=1
-DISTF_WINRT=2
-DISTF_WIN=$(($DISTF_WIN32|$DISTF_WINRT))
+DISTF_WIN=1
+DISTF_UWP=2
+DISTF_WINALL=$(($DISTF_WIN|$DISTF_UWP))
 DISTF_LINUX=4
 DISTF_ANDROID=8
 DISTF_MAC=16
@@ -35,8 +35,8 @@ DISTF_IOS=32
 DISTF_TVOS=64
 DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
-DISTF_NO_WINRT=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
-DISTF_ALL=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_NO_UWP=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_ALL=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 
 function parse_yaml {
    local prefix=$2
@@ -91,8 +91,8 @@ function dist_lib {
         # copy common headers
         if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
             cp -rf install_osx_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
-        elif [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
-            cp -rf install_windows_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
+        elif [ ! $(($DIST_FLAGS & $DISTF_WINALL)) = 0 ]; then
+            cp -rf install_win_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
         fi
 
         if [ "$CONF_HEADER" != "" ] ; then
@@ -107,8 +107,8 @@ function dist_lib {
 
             # copy platform spec config header file
             if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
-                cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
-                cp install_windows_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
+                cp install_win_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+                cp install_win_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
                 # cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
@@ -122,31 +122,31 @@ function dist_lib {
                 cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
 
             elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
-                cp install_windows_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+                cp install_win_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
             fi
         fi
     fi
 
     # create prebuilt dirs
-    if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/windows/x86
-        copy1k "install_windows_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x86/
-        copy1k "install_windows_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x86/
+    if [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/win/x86
+        copy1k "install_win_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win/x86/
+        copy1k "install_win_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win/x86/
 
-        mkdir -p ${DIST_DIR}/prebuilt/windows/x64
-        copy1k "install_windows_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/windows/x64/
-        copy1k "install_windows_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/windows/x64/
+        mkdir -p ${DIST_DIR}/prebuilt/win/x64
+        copy1k "install_win_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win/x64/
+        copy1k "install_win_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win/x64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/winrt/x64
-        copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/x64/
-        copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/x64/
+    if [ ! $(($DIST_FLAGS & $DISTF_UWP)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/uwp/x64
+        copy1k "install_uwp_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/uwp/x64/
+        copy1k "install_uwp_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/uwp/x64/
 
-        mkdir -p ${DIST_DIR}/prebuilt/winrt/arm64
-        copy1k "install_winrt_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/arm64/
-        copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/arm64/
+        mkdir -p ${DIST_DIR}/prebuilt/uwp/arm64
+        copy1k "install_uwp_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/uwp/arm64/
+        copy1k "install_uwp_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/uwp/arm64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
@@ -185,8 +185,8 @@ function dist_lib {
     verinfo_file=
     ver=
     
-    if [ -f "install_windows_x64/${LIB_NAME}/bw_version.yml" ] ; then
-        verinfo_file="install_windows_x64/${LIB_NAME}/bw_version.yml"
+    if [ -f "install_win_x64/${LIB_NAME}/bw_version.yml" ] ; then
+        verinfo_file="install_win_x64/${LIB_NAME}/bw_version.yml"
     elif [ -f "install_osx_x64/${LIB_NAME}/bw_version.yml" ] ; then
         verinfo_file="install_osx_x64/${LIB_NAME}/bw_version.yml"
     elif [ -f "install_linux_x64/${LIB_NAME}/bw_version.yml" ] ; then
