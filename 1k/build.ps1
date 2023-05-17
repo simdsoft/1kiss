@@ -28,6 +28,15 @@ if(!(Test-Path $TOOLS_DIR -PathType Container)) {
     mkdir "$TOOLS_DIR"
 }
 
+echo "Before relocate powershell"
+powershell -Command "$pwshVSI='PowerShell ' + $PSVersionTable.PSVersion.ToString();echo $pwshVSI"
+
+#relocate powershell.exe to opensource edition pwsh.exe to solve angle gclient execute issues:
+# Get-FileHash is not recognized as a name of a cmdlet
+$env:Path = "$BUILDWARE_ROOT\1k\reloc;$env:Path"
+echo "After relocate powershell"
+powershell -Command "$pwshVSI='PowerShell ' + $PSVersionTable.PSVersion.ToString();echo $pwshVSI"
+
 # Install nasm
 $nasm_ver='2.16.01'
 $nasm_bin = "$TOOLS_DIR\nasm-$nasm_ver"

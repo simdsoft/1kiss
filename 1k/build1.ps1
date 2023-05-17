@@ -23,6 +23,7 @@ $ver = $PROPS.'ver'
 $tag_prefix = $PROPS.'tag_prefix'
 $tag_dot2ul = $PROPS.'tag_dot2ul'
 $config_options_msw=$PROPS.'config_options_msw'
+$config_options_uwp=$PROPS.'config_options_uwp'
 $cb_script = $PROPS.'cb_script'
 $cb_tool = $PROPS.'cb_tool'
 # $cmake_target = $PROPS.'cmake_target'
@@ -64,6 +65,7 @@ if ($cb_tool -eq 'cmake') {
         $CONFIG_ALL_OPTIONS += '-A', $BUILD_ARCH
         $CONFIG_ALL_OPTIONS += '-DCMAKE_SYSTEM_NAME=WindowsStore', '-DCMAKE_SYSTEM_VERSION=10.0'
         $CONFIG_ALL_OPTIONS += "-DCMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION=$env:VS_DEPLOYMENT_TARGET"
+        $CONFIG_ALL_OPTIONS += ($config_options_uwp -split ' ')
     }
 }
 elseif ($cb_tool -eq 'perl') { # opnel openssl use perl

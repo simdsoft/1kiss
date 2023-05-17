@@ -328,6 +328,7 @@ if [ "$cb_tool" = "cmake" ] ; then
     fi
     if [ "$LIB_NAME" = "curl" ]; then
         openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl"
+        export OPENSSL_ROOT_DIR=$openssl_dir
         CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_ROOT_DIR=${openssl_dir}"
     fi
     echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
