@@ -328,8 +328,10 @@ if [ "$cb_tool" = "cmake" ] ; then
     fi
     if [ "$LIB_NAME" = "curl" ]; then
         openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl"
-        export OPENSSL_ROOT_DIR=$openssl_dir
         CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_ROOT_DIR=${openssl_dir}"
+        if [ "$BUILD_TARGET" = "android" ]; then
+            CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DCMAKE_FIND_ROOT_PATH=${openssl_dir}"
+        fi
     fi
     echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
     cmake "-DCMAKE_C_FLAGS=-fPIC" -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS
@@ -393,7 +395,7 @@ if [ -f "$clean_script" ] ; then
 fi
 
 # clear lib build src folder to avoid no enough space on GH action VM
-if [ ! "$RUNNER_OS" = "" ] ; then
+if [ ! "$GITHUB_ACTIONS" = "" ] ; then
     echo "Deleting ./buildsrc/$LIB_SRC"
     rm -rf ./buildsrc/$LIB_SRC
 fi

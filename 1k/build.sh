@@ -45,7 +45,7 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     fi
     
     # Check exist ndk
-    if [ "$GITHUB_ACTION" = "" ] && [ -d "$ANDROID_NDK" ] ; then
+    if [ "$GITHUB_ACTIONS" = "" ] && [ -d "$ANDROID_NDK" ] ; then
         echo "Using exist android ndk: $ANDROID_NDK"
         ndk_rev=$(cat $ANDROID_NDK/source.properties | grep -w 'Pkg.Revision' | cut -d '=' -f 2 | tr -d '\n')
         ndk_ver=${ndk_rev:0:2}
