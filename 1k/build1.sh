@@ -327,8 +327,8 @@ if [ "$cb_tool" = "cmake" ] ; then
         cp -f ${CMAKE_PATCH} ./
     fi
     if [ "$LIB_NAME" = "curl" ]; then
-        openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl/"
-        CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_INCLUDE_DIR=${openssl_dir}include -DOPENSSL_LIB_DIR=${openssl_dir}lib"
+        openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl"
+        CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_ROOT_DIR=${openssl_dir}"
     fi
     echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
     cmake "-DCMAKE_C_FLAGS=-fPIC" -B build_$BUILD_ARCH $CONFIG_ALL_OPTIONS

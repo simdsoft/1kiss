@@ -207,8 +207,7 @@ if ($cb_tool -eq 'cmake') {
     }
     if($LIB_NAME -eq 'curl') {
         $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl"
-        $CONFIG_ALL_OPTIONS += "-DOPENSSL_INCLUDE_DIR=${openssl_dir}\include"
-        $CONFIG_ALL_OPTIONS += "-DOPENSSL_LIB_DIR=${openssl_dir}\lib"
+        $CONFIG_ALL_OPTIONS += "-DOPENSSL_ROOT_DIR=${openssl_dir}" # make sure curl can find openssl built by buildware
 
         # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib"
         # $CONFIG_ALL_OPTIONS += "-DZLIB_INCLUDE_DIR=${zlib_dir}\include"
