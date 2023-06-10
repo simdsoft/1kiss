@@ -195,7 +195,6 @@ jobs:
     strategy:
       matrix:
         arch:
-          - x86
           - x64
     env:
       BUILD_TARGET: win
