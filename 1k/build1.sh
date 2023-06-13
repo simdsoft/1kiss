@@ -108,15 +108,11 @@ elif [ "$BUILD_TARGET" = "osx" ] ; then
     fi
 elif [ "$BUILD_TARGET" = "ios" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        PLATFORM=""
-        if [ "$BUILD_ARCH" = "arm" ] ; then
-            PLATFORM=OS
-        elif [ "$BUILD_ARCH" = "arm64" ] ; then
-            PLATFORM=OS64
-        elif [ "$BUILD_ARCH" = "x64" ] ; then
-            PLATFORM=SIMULATOR64
+        U_ARCH=$BUILD_ARCH
+        if [ "$U_ARCH" = "x64" ] ; then
+            U_ARCH=x86_64
         fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} -DDEPLOYMENT_TARGET=9.0"
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.cmake -DPLAT=iOS -DARCHS=$U_ARCH -DDEPLOYMENT_TARGET=11.0"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
@@ -157,20 +153,18 @@ elif [ "$BUILD_TARGET" = "ios" ] ; then
         echo "SDK_NAME=$SDK_NAME"
         ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
         ICC=$(xcrun --sdk $SDK_NAME --find clang)
-        ISDKF="-fembed-bitcode -arch $ARCH_NAME -isysroot $ISDKP"
+        ISDKF="-arch $ARCH_NAME -isysroot $ISDKP"
         CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=iOS XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
     fi
 
     CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
 elif [ "$BUILD_TARGET" = "tvos" ] ; then
     if [ "$cb_tool" = "cmake" ] ; then
-        PLATFORM=""
-        if [ "$BUILD_ARCH" = "arm64" ] ; then
-            PLATFORM=TVOS
-        elif [ "$BUILD_ARCH" = "x64" ] ; then
-            PLATFORM=SIMULATOR_TVOS
+        U_ARCH=$BUILD_ARCH
+        if [ "$U_ARCH" = "x64" ] ; then
+            U_ARCH=x86_64
         fi
-        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.toolchain.cmake -DPLATFORM=${PLATFORM} -DDEPLOYMENT_TARGET=9.0"
+        CONFIG_TARGET="-GXcode -DCMAKE_TOOLCHAIN_FILE=${BUILDWARE_ROOT}/1k/ios.cmake -DPLAT=tvOS -DARCHS=$U_ARCH -DDEPLOYMENT_TARGET=11.0"
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         export OPENSSL_LOCAL_CONFIG_DIR="$BUILDWARE_ROOT/1k" 
@@ -198,7 +192,7 @@ elif [ "$BUILD_TARGET" = "tvos" ] ; then
         echo "SDK_NAME=$SDK_NAME"
         ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
         ICC=$(xcrun --sdk $SDK_NAME --find clang)
-        ISDKF="-fembed-bitcode -arch $ARCH_NAME -isysroot $ISDKP"
+        ISDKF="-arch $ARCH_NAME -isysroot $ISDKP"
         CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=\"$HOST_CC\" CROSS=\"$(dirname $ICC)/\" TARGET_FLAGS=\"$ISDKF\" TARGET_SYS=iOS XCFLAGS=\"$XCFLAGS\" LUAJIT_A=libluajit.a"
     fi
 

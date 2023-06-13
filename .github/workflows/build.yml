@@ -12,7 +12,7 @@ on:
       - .github/workflows/build.yml
       - 1k/build*
       - 1k/nsdk1k.cpp
-      - 1k/ios.toolchain.cmake
+      - 1k/ios.cmake
       - src/**/build*
       - src/**/install*
       - src/**/patch*
