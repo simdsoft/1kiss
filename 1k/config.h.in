@@ -7,9 +7,9 @@
 #if defined(_WIN32)
 
 #  if defined(_WIN64)
-#    include "win/@INC_DIR@@CONF_HEADER@"
+#    include "win64/@INC_DIR@@CONF_HEADER@"
 #  else
-#    error "The windows x86 support was dropped since v54"
+#    include "win32/@INC_DIR@@CONF_HEADER@"
 #  endif
 
 #elif defined(__APPLE__)

@@ -1,11 +1,11 @@
 #
-# The simple ios toolchain file: https://github.com/yasio/ios.cmake
-# version: 4.0.2
+# The simple ios toolchain file: https://github.com/yasio/yasio/blob/dev/cmake/ios.cmake
+# version: 4.0.3
 #
 # The supported params:
 #   PLAT: iOS, tvOS, default: iOS
 #   ARCHS: arm64, x86_64, default: arm64
-#   DEPLOYMENT_TARGET: 11.0(default)
+#   DEPLOYMENT_TARGET: default: iOS=11.0, tvOS=15.0, watchOS=8.0
 #   SIMULATOR: TRUE, FALSE, UNDEFINED(auto determine by archs) 
 #   ENABLE_BITCODE: FALSE(default)
 #
@@ -22,10 +22,18 @@ endif()
 
 # DEPLOYMENT_TARGET
 if(NOT DEFINED DEPLOYMENT_TARGET)
-    if("${ARCHS}" MATCHES ".*armv7.*")
-       set(DEPLOYMENT_TARGET "10.0" CACHE STRING "" FORCE)
+    if (PLAT STREQUAL "iOS")
+        if("${ARCHS}" MATCHES ".*armv7.*")
+           set(DEPLOYMENT_TARGET "10.0" CACHE STRING "" FORCE)
+        else()
+           set(DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
+        endif()
+    elseif (PLAT STREQUAL "tvOS")
+        set(DEPLOYMENT_TARGET "15.0" CACHE STRING "" FORCE)
+    elseif (PLAT STREQUAL "watchOS")
+        set(DEPLOYMENT_TARGET "8.0" CACHE STRING "" FORCE)
     else()
-       set(DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
+        message(FATAL_ERROR "PLAT=${PLAT} unsupported!")
     endif()
 endif()
 
@@ -67,14 +75,14 @@ if(NOT DEFINED CMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET)
 endif()
 
 if(SIMULATOR)
-    if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    if (PLAT STREQUAL "iOS")
         set(CMAKE_OSX_SYSROOT "iphonesimulator" CACHE STRING "")
-    elseif(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+    elseif(PLAT STREQUAL "tvOS")
         set(CMAKE_OSX_SYSROOT "appletvsimulator" CACHE STRING "")
-    elseif(CMAKE_SYSTEM_NAME STREQUAL "watchsimulator")
+    elseif(PLAT STREQUAL "watchOS")
         set(CMAKE_OSX_SYSROOT "watchsimulator" CACHE STRING "")
     else()
-        message(FATAL_ERROR "CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME} unsupported!")
+        message(FATAL_ERROR "PLAT=${PLAT} unsupported!")
     endif()
 endif() 
 
