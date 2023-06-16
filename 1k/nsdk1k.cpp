@@ -52,6 +52,17 @@ int main(int argc, char** argv)
           {"14.1.0"sv, "16.1"sv},
           {"14.2.0"sv, "16.1"sv}
         }
+      },
+      {"watchos"sv,
+        {
+          {"13.1.0"sv, "8.0"sv},
+          {"13.2.1"sv, "8.3"sv},
+          {"13.3.1"sv, "8.5"sv},
+          {"13.4.1"sv, "8.5"sv},
+          {"14.0.1"sv, "9.0"sv},
+          {"14.1.0"sv, "9.1"sv},
+          {"14.2.0"sv, "9.1"sv}
+        }
       }
     };
 
@@ -65,11 +76,14 @@ int main(int argc, char** argv)
             if (target == "osx"sv) {
                 printf("%s%s", "macosx", sdk_ver.data());
             }
-            else if (target == "ios"sv) {
+            else if (target == "ios"sv) { // ios
                 printf("%s%s", !simulator ? "iphoneos" : "iphonesimulator", sdk_ver.data());
             }
-            else { // tvos
+            else if (target == "tvos"sv) { // tvos
                 printf("%s%s", !simulator ? "appletvos" : "appletvsimulator", sdk_ver.data());
+            }
+            else if (target == "watchos"sv) { // watchos
+                printf("%s%s", !simulator ? "watchos" : "watchsimulator", sdk_ver.data());
             }
             return 0;
         }
