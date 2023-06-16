@@ -324,7 +324,9 @@ if [ "$cb_tool" = "cmake" ] ; then
         openssl_dir="${BUILDWARE_ROOT}/${INSTALL_ROOT}/openssl"
         CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DOPENSSL_ROOT_DIR=${openssl_dir}"
         if [ "$BUILD_TARGET" = "android" ]; then
-            CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS -DCMAKE_FIND_ROOT_PATH=${openssl_dir}"
+            CONFIG_ALL_OPTIONS+=" -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"
+            CONFIG_ALL_OPTIONS+=" -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=BOTH"
+            CONFIG_ALL_OPTIONS+=" -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=BOTH"
         fi
     fi
     echo CONFIG_ALL_OPTIONS="$CONFIG_ALL_OPTIONS"
