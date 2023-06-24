@@ -1,0 +1,9 @@
+repo: https://c-ares.org/download/c-ares-1.19.1.tar.gz
+ver: 1.19.1
+tag_prefix: cares-
+tag_dot2ul: true
+cb_tool: cmake
+config_options_unix: -DCARES_STATIC=ON -DCARES_SHARED=OFF -DCARES_BUILD_TOOLS=OFF
+config_options_embed: ''
+config_options_msw: -DCARES_STATIC=ON -DCARES_SHARED=OFF -DCARES_BUILD_TOOLS=OFF
+config_options_uwp: -DCARES_STATIC=ON -DCARES_SHARED=OFF -DCARES_BUILD_TOOLS=OFF
