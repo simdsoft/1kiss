@@ -80,8 +80,9 @@ if [ "$BUILD_TARGET" = "android" ] ; then
     echo PATH=$PATH
 fi
 
-# compile nsdk1k
+# compile nsdk1k on macOS
 if [ "$RUNNER_OS" = "macOS" ] ; then
+    echo "XCODE_VERSION=$XCODE_VERSION"
     mkdir -p build
     g++ -std=c++17 1k/nsdk1k.cpp -o build/nsdk1k
     PATH=`pwd`/build:$PATH
