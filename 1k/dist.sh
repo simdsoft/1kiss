@@ -225,7 +225,7 @@ function dist_lib {
 
 # dist libs
 if [ "$DIST_LIBS" = "" ] ; then
-    DIST_LIBS="zlib,jpeg-turbo,openssl,curl,luajit,angle,glsl-optimizer"
+    DIST_LIBS="zlib,jpeg-turbo,openssl,cares,curl,luajit,angle,glsl-optimizer"
 fi
 
 if [ -f "$DIST_VERLIST" ] ; then
@@ -245,13 +245,13 @@ done
 ls ./seprate/
 
 # create dist package
-DIST_PACKAGE=${DIST_NAME}.zip
-zip -q -r ${DIST_PACKAGE} ${DIST_NAME}
+# DIST_PACKAGE=${DIST_NAME}.zip
+# zip -q -r ${DIST_PACKAGE} ${DIST_NAME}
 
 # Export DIST_NAME & DIST_PACKAGE for uploading
 if [ "$GITHUB_ENV" != "" ] ; then
     echo "DIST_NAME=$DIST_NAME" >> $GITHUB_ENV
-    echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
+    # echo "DIST_PACKAGE=${DIST_PACKAGE}" >> $GITHUB_ENV
     echo "DIST_NOTES=${DIST_NOTES}" >> $GITHUB_ENV
     echo "DIST_VERLIST=${DIST_VERLIST}" >> $GITHUB_ENV
 fi

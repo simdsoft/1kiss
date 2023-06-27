@@ -11,15 +11,9 @@ on:
     # Inputs the workflow accepts.
     inputs:
       release_tag:
-        description: 'Please specific a exists release tag name, such as v43'
+        description: 'Please specific a exists release tag name, such as v56'
         # Default value if no value is explicitly provided
         default: ''
-        # Input has to be provided for the workflow to run
-        required: false
-      travis_artifacts_tag:
-        description: 'Please specific a exists release tag name released by travis-ci, such as artifacts-ff2c34b'
-        # Default value if no value is explicitly provided
-        default: 'artifacts-ff2c34b'
         # Input has to be provided for the workflow to run
         required: false
       test:
@@ -94,7 +88,6 @@ jobs:
     - name: Prepare dist package
       run: |
         ls
-        TRAVIS_ARTIFACTS_REL=${{github.event.inputs.travis_artifacts_tag}}
         source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}}
         ls
 
@@ -106,17 +99,8 @@ jobs:
         name: ${{ env.RELEASE_TAG_NAME }}
         body_path: ${{ env.DIST_NOTES }}
         files: |
-          ${{ env.DIST_PACKAGE }}
           ./seprate/*.zip
           ${{ env.DIST_VERLIST }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_REPOSITORY: axmolengine/buildware
-        
-    - name: Upload dist package to artifact page
-      if: ${{ env.RELEASE_TAG_NAME == '' }}
-      uses: actions/upload-artifact@v3
-      with:
-        path: ./${{ env.DIST_NAME }}
-        name: ${{ env.DIST_NAME }}
-
