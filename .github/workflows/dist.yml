@@ -13,9 +13,9 @@ on:
       release_tag:
         description: 'Please specific a exists release tag name, such as v56'
         # Default value if no value is explicitly provided
-        default: ''
+        default: 'v56'
         # Input has to be provided for the workflow to run
-        required: false
+        required: true
       test:
         # test only
         description: 'Whether test only'
