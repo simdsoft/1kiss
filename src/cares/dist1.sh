@@ -31,3 +31,6 @@ lipo -create install_osx_arm64/${LIB_NAME}/lib/libcares.a install_osx_x64/${LIB_
 
 # check the fat lib
 lipo -info ${DIST_DIR}/prebuilt/mac/libcares.a
+
+# overrite ares_build.h with common header
+cp -f src/cares/ares_build.h ${DIST_DIR}/include/
