@@ -235,9 +235,14 @@ fi
 libs_arr=(${DIST_LIBS//,/ })
 libs_count=${#libs_arr[@]}
 echo "Dist $libs_count libs ..."
+mkdir ./seprate
 for (( i=0; i<${libs_count}; ++i )); do
-  source src/${libs_arr[$i]}/dist1.sh $DIST_ROOT
+  lib_name=${libs_arr[$i]}
+  source src/$lib_name/dist1.sh $DIST_ROOT
+  zip -q -r ./seprate/$lib_name.zip ${DIST_NAME}/$lib_name
 done
+
+ls ./seprate/
 
 # create dist package
 DIST_PACKAGE=${DIST_NAME}.zip
