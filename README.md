@@ -1,4 +1,4 @@
-# buildware
+# build1k
 Building opensources for multi-platforms with github actions.  
 Your thridparty prebuilts will never outdated if you're using buildware!
   
