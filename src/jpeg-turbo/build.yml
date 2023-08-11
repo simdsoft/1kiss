@@ -1,5 +1,5 @@
 repo: https://github.com/libjpeg-turbo/libjpeg-turbo.git
-ver: 2.1.5.1
+ver: 3.0.0
 tag_prefix: ''
 tag_dot2ul: false
 cb_tool: cmake

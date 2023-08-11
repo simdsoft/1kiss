@@ -225,7 +225,7 @@ function dist_lib {
 
 # dist libs
 if [ "$DIST_LIBS" = "" ] ; then
-    DIST_LIBS="zlib,jpeg-turbo,openssl,cares,curl,luajit,angle,glsl-optimizer"
+    DIST_LIBS="zlib,jpeg-turbo,openssl,cares,curl,luajit,angle"
 fi
 
 if [ -f "$DIST_VERLIST" ] ; then

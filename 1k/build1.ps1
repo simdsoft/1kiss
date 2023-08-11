@@ -175,14 +175,14 @@ if ($repo.EndsWith('.git')) {
 # Prepare source when use google gn build system
 if ($cb_tool -eq 'gn') {
     # download depot_tools
-    # git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
-    if(!(Test-Path "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools" -PathType Container)) {
-        mkdir "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools"
-        Invoke-WebRequest "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -o ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip
-        Expand-Archive -Path ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools.zip -DestinationPath ${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools
+    # git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git ${BUILDWARE_ROOT}\tools\depot_tools
+    if(!(Test-Path "${BUILDWARE_ROOT}\tools\depot_tools" -PathType Container)) {
+        mkdir "${BUILDWARE_ROOT}\tools\depot_tools"
+        Invoke-WebRequest "https://storage.googleapis.com/chrome-infra/depot_tools.zip" -o ${BUILDWARE_ROOT}\tools\depot_tools.zip
+        Expand-Archive -Path ${BUILDWARE_ROOT}\tools\depot_tools.zip -DestinationPath ${BUILDWARE_ROOT}\tools\depot_tools
     }
     
-    $env:Path = "${BUILDWARE_ROOT}\$BUILD_SRC\depot_tools;$env:Path"
+    $env:Path = "${BUILDWARE_ROOT}\tools\depot_tools;$env:Path"
     
     $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
 
