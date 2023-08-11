@@ -13,7 +13,6 @@ Your thridparty prebuilts will never outdated if you're using buildware!
 - [![jpeg-turbo](https://img.shields.io/badge/jpeg%2d%2dturbo-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo)
 - [![curl](https://img.shields.io/badge/curl-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-green.svg)](https://github.com/LuaJIT/LuaJIT)
-- [![glsl-optimizer](https://img.shields.io/badge/glsl_optimizer-green.svg)](https://github.com/cocos2d/glsl-optimizer)  - Apple Only
 - [![angle](https://img.shields.io/badge/angle-green.svg)](https://github.com/google/angle) - Windows Only
 
 
