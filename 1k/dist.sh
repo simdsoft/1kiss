@@ -92,7 +92,7 @@ function dist_lib {
         if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
             cp -rf install_osx_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
         elif [ ! $(($DIST_FLAGS & $DISTF_WINALL)) = 0 ]; then
-            cp -rf install_win_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
+            cp -rf install_win32_x64/${LIB_NAME}/include/${INC_DIR} ${DIST_DIR}/include/${INC_DIR}
         fi
 
         if [ "$CONF_HEADER" != "" ] ; then
@@ -107,8 +107,8 @@ function dist_lib {
 
             # copy platform spec config header file
             if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
-                cp install_win_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
-                cp install_win_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
+                cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+                cp install_win32_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
                 # cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
@@ -122,7 +122,7 @@ function dist_lib {
                 cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
 
             elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
-                cp install_win_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
+                cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/unix/${INC_DIR}
             fi
         fi
@@ -185,8 +185,8 @@ function dist_lib {
     verinfo_file=
     ver=
     
-    if [ -f "install_win_x64/${LIB_NAME}/bw_version.yml" ] ; then
-        verinfo_file="install_win_x64/${LIB_NAME}/bw_version.yml"
+    if [ -f "install_win32_x64/${LIB_NAME}/bw_version.yml" ] ; then
+        verinfo_file="install_win32_x64/${LIB_NAME}/bw_version.yml"
     elif [ -f "install_osx_x64/${LIB_NAME}/bw_version.yml" ] ; then
         verinfo_file="install_osx_x64/${LIB_NAME}/bw_version.yml"
     elif [ -f "install_linux_x64/${LIB_NAME}/bw_version.yml" ] ; then
