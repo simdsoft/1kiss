@@ -196,7 +196,7 @@ jobs:
           path: ./${{ env.INSTALL_ROOT }}/**
           name: ${{ env.INSTALL_ROOT }}
 
-  win:
+  win32:
     # The type of runner that the job will run on
     runs-on: windows-latest
     
@@ -207,7 +207,7 @@ jobs:
           - x86
           - x64
     env:
-      BUILD_TARGET: win
+      BUILD_TARGET: win32
       NO_DLL: ${{ github.event.inputs.no_dll }}
       BUILD_ARCH: ${{ matrix.arch }}
 
@@ -229,7 +229,7 @@ jobs:
           path: ./${{ env.INSTALL_ROOT }}/**
           name: ${{ env.INSTALL_ROOT }}
    
-  uwp:
+  winuwp:
     # The type of runner that the job will run on
     runs-on: windows-latest
     
@@ -240,7 +240,7 @@ jobs:
           - x64
           - amd64_arm64
     env:
-      BUILD_TARGET: uwp
+      BUILD_TARGET: winuwp
       NO_DLL: ${{ github.event.inputs.no_dll }}
       BUILD_ARCH: ${{ matrix.arch }}
 

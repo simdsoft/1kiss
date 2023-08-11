@@ -4,7 +4,7 @@ tag_prefix: v
 tag_dot2ul: false
 cb_script: msvcbuild.bat
 cb_tool: make
-bw_targets: win,linux,android,osx,ios,tvos
+bw_targets: win32,linux,android,osx,ios,tvos
 cb_dir: .\src
 config_options_unix:
 config_options_embed:

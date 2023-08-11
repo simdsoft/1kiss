@@ -22,7 +22,7 @@ Your thridparty prebuilts will never outdated if you're using buildware!
 https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&num=1
 
 ## Build Targets:
-- osx/macos: 
+- osx: 
   - arm64 (M1+)
   - x86_64
 - linux: x86_64
@@ -37,9 +37,9 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
   - arm64
   - x86
   - x86_64
-- win (Windows Desktop Apps)
+- win32 (Windows Desktop Apps)
   - x86
   - x86_64
-- uwp (Windows Universal Apps)
+- winuwp (Windows Universal Apps)
   - x86_64
   - arm64

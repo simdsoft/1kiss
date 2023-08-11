@@ -42,7 +42,7 @@ if ($bw_archs -and !$bw_archs.contains($BUILD_ARCH)) {
     return 0
 }
 
-$is_uwp = ($BUILD_TARGET -eq 'uwp')
+$is_uwp = ($BUILD_TARGET -eq 'winuwp')
 
 if($tag_dot2ul -eq 'true') {
     $ver = ([Regex]::Replace($ver, '\.', '_'))

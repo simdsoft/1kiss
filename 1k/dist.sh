@@ -25,9 +25,9 @@ g++ -std=c++17 1k/copy1k.cpp -o build/copy1k
 PATH=`pwd`/build:$PATH
 
 # The dist flags
-DISTF_WIN=1
-DISTF_UWP=2
-DISTF_WINALL=$(($DISTF_WIN|$DISTF_UWP))
+DISTF_WIN32=1
+DISTF_WINUWP=2
+DISTF_WINALL=$(($DISTF_WIN32|$DISTF_WINUWP))
 DISTF_LINUX=4
 DISTF_ANDROID=8
 DISTF_MAC=16
@@ -35,7 +35,7 @@ DISTF_IOS=32
 DISTF_TVOS=64
 DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
-DISTF_NO_UWP=$(($DISTF_WIN|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_NO_WINUWP=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 DISTF_ALL=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 
 function parse_yaml {
@@ -129,24 +129,24 @@ function dist_lib {
     fi
 
     # create prebuilt dirs
-    if [ ! $(($DIST_FLAGS & $DISTF_WIN)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/win/x86
-        copy1k "install_win_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win/x86/
-        copy1k "install_win_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win/x86/
+    if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/win32/x86
+        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x86/
+        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x86/
 
-        mkdir -p ${DIST_DIR}/prebuilt/win/x64
-        copy1k "install_win_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win/x64/
-        copy1k "install_win_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win/x64/
+        mkdir -p ${DIST_DIR}/prebuilt/win32/x64
+        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x64/
+        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_UWP)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/uwp/x64
-        copy1k "install_uwp_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/uwp/x64/
-        copy1k "install_uwp_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/uwp/x64/
+    if [ ! $(($DIST_FLAGS & $DISTF_WINUWP)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/winuwp/x64
+        copy1k "install_winuwp_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winuwp/x64/
+        copy1k "install_winuwp_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winuwp/x64/
 
-        mkdir -p ${DIST_DIR}/prebuilt/uwp/arm64
-        copy1k "install_uwp_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/uwp/arm64/
-        copy1k "install_uwp_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/uwp/arm64/
+        mkdir -p ${DIST_DIR}/prebuilt/winuwp/arm64
+        copy1k "install_winuwp_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winuwp/arm64/
+        copy1k "install_winuwp_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winuwp/arm64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then

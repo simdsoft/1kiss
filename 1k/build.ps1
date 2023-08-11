@@ -2,6 +2,20 @@ $BUILD_TARGET = $args[0]
 $BUILD_ARCH = $args[1]
 $BUILD_LIBS = $args[2]
 
+$targets_list = @{
+    'win32' = $true;
+    'winuwp' = $true;
+    'ios' = $true;
+    'tvos' = $true;
+    'osx' = $true;
+    'linux' = $true;
+    'android' = $true;
+}
+
+if (!$targets_list.Contains($BUILD_TARGET)) {
+    throw "unsupport build target: $BUILD_TARGET"
+}
+
 echo "env:NO_DLL=$env:NO_DLL"
 
 if ($BUILD_ARCH -eq 'amd64_arm64') {
