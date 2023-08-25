@@ -3,7 +3,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION "1.2.13")
+set(VERSION "1.3")
 
 option(ZLIB_BUILD_SHARED "Build zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Build zlib static library" ON)

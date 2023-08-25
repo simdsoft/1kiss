@@ -221,7 +221,7 @@ jobs:
           arch: ${{ env.BUILD_ARCH }}
 
       - name: Build
-        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH
+        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH 'zlib,openssl,cares,curl,jpeg-turbo,luajit,angle'
 
       - name: Upload prebuilt files
         uses: actions/upload-artifact@v3
@@ -255,7 +255,7 @@ jobs:
           uwp: true
 
       - name: Build
-        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH
+        run: .\1k\build.ps1 $env:BUILD_TARGET $env:BUILD_ARCH 'zlib,openssl,cares,curl,jpeg-turbo,luajit,angle'
 
       - name: Upload prebuilt files
         uses: actions/upload-artifact@v3
