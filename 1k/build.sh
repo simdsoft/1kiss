@@ -2,7 +2,10 @@ BUILD_TARGET=$1
 BUILD_ARCH=$2
 BUILD_LIBS=$3
 
-echo "RUNNER_OS=$RUNNER_OS"
+# host os: 'Linux', 'Darwin'
+HOST_OS=`uname`
+
+echo "HOST_OS=<$HOST_OS>"
 
 BUILDWARE_ROOT=`pwd`
 INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
@@ -10,7 +13,7 @@ INSTALL_ROOT="install_${BUILD_TARGET}_${BUILD_ARCH}"
 # Create buildsrc tmp dir for build libs
 mkdir -p "buildsrc"
 
-if [ "$RUNNER_OS" = "Linux" ] ; then
+if [ "$HOST_OS" = "Linux" ] ; then
     sudo apt-get update
     sudo apt-get install gcc-multilib --fix-missing
 fi
@@ -20,9 +23,9 @@ nasm_bin=$(which nasm) || true
 if [ -f "$nasm_bin" ] ; then
     echo "The nasm installed at $nasm_bin"
 else
-    if [ "$RUNNER_OS" = "Linux" ] ; then
+    if [ "$HOST_OS" = "Linux" ] ; then
         sudo apt-get install nasm
-    elif [ "$RUNNER_OS" = "macOS" ] ; then
+    elif [ "$HOST_OS" = "Darwin" ] ; then
         brew install nasm
     fi
 fi
@@ -38,9 +41,9 @@ fi
 # Install android ndk
 if [ "$BUILD_TARGET" = "android" ] ; then
     # Determine builder host OS
-    if [ "$RUNNER_OS" = "Linux" ] ; then
+    if [ "$HOST_OS" = "Linux" ] ; then
         NDK_PLAT=linux
-    elif [ "$RUNNER_OS" = "macOS" ] ; then
+    elif [ "$HOST_OS" = "Darwin" ] ; then
         NDK_PLAT=darwin
     fi
     
@@ -81,7 +84,7 @@ if [ "$BUILD_TARGET" = "android" ] ; then
 fi
 
 # compile nsdk1k on macOS
-if [ "$RUNNER_OS" = "macOS" ] ; then
+if [ "$HOST_OS" = "Darwin" ] ; then
     echo "XCODE_VERSION=$XCODE_VERSION"
     mkdir -p build
     g++ -std=c++17 1k/nsdk1k.cpp -o build/nsdk1k
