@@ -221,21 +221,28 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
         fi
     else # luajit TODO: move to custom config.sh
         NDKBIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$NDK_PLAT-x86_64/bin
-        NDKCROSS_LINKER=$NDKBIN/llvm-
         if [ "$BUILD_ARCH" = "arm64" ] ; then
             NDKCROSS=$NDKBIN/aarch64-linux-android-
             NDKCC=$NDKBIN/aarch64-linux-android$android_api_level_arm64-clang
-            CONFIG_TARGET="HOST_CC=\"gcc\" CROSS=$NDKCROSS CROSS_LINKER=$NDKCROSS_LINKER STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+            HOST_CC="\"gcc\""
         elif [ "$BUILD_ARCH" = "arm" ] ; then
             NDKCROSS=$NDKBIN/arm-linux-androideabi-
             NDKCC=$NDKBIN/armv7a-linux-androideabi$android_api_level-clang
-            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS CROSS_LINKER=$NDKCROSS_LINKER STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+            HOST_CC="\"gcc -m32\""
         else
             NDKCROSS=$NDKBIN/i686-linux-android-
             NDKCC=$NDKBIN/i686-linux-android$android_api_level-clang
-            CONFIG_TARGET="HOST_CC=\"gcc -m32\" CROSS=$NDKCROSS CROSS_LINKER=$NDKCROSS_LINKER STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+            HOST_CC="\"gcc -m32\""
         fi
-        echo NDKCC=$NDKCC
+        # create symlink for cross commands: 'ar' and 'strip' used by luajit makefile
+        if [ ! -f "${NDKCROSS}ar" ] ; then
+            ln $NDKBIN/llvm-ar ${NDKCROSS}ar
+        fi
+        if [ ! -f "${NDKCROSS}strip" ] ; then
+            ln $NDKBIN/llvm-strip ${NDKCROSS}strip
+        fi
+        CONFIG_TARGET="HOST_CC=$HOST_CC CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=\"$NDKCC -fPIC\" TARGET_LD=$NDKCC TARGET_SYS=\"Linux\""
+        echo CONFIG_TARGET=$CONFIG_TARGET
     fi
 
     CONFIG_OPTIONS="$CONFIG_OPTIONS $config_options_embed"
