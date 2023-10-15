@@ -211,9 +211,8 @@ if ($cb_tool -eq 'cmake') {
         $openssl_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\openssl"
         $CONFIG_ALL_OPTIONS += "-DOPENSSL_ROOT_DIR=${openssl_dir}" # make sure curl can find openssl built by buildware
 
-        # $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib"
-        # $CONFIG_ALL_OPTIONS += "-DZLIB_INCLUDE_DIR=${zlib_dir}\include"
-        # $CONFIG_ALL_OPTIONS += "-DZLIB_LIBRARY=${zlib_dir}\lib\zlib.lib" # dyn link zlib, for static use zlibstatic.lib
+        $zlib_dir="${BUILDWARE_ROOT}\${INSTALL_ROOT}\zlib"
+        $CONFIG_ALL_OPTIONS += "-DZLIB_ROOT=${zlib_dir}"
     }
     
     if ($env:NO_DLL -eq 'true') {
