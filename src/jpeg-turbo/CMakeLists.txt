@@ -10,7 +10,7 @@ if(CMAKE_EXECUTABLE_SUFFIX)
 endif()
 
 project(libjpeg-turbo C)
-set(VERSION 3.0.0)
+set(VERSION 3.0.1)
 set(COPYRIGHT_YEAR "1991-2023")
 string(REPLACE "." ";" VERSION_TRIPLET ${VERSION})
 list(GET VERSION_TRIPLET 0 VERSION_MAJOR)
@@ -874,14 +874,14 @@ endif()
 #       extensions
 # no-fp-contract = validate against the expected results from the C code when
 #                  floating point expression contraction is disabled (the
-#                  default with Clang, with GCC when building for platforms
-#                  that lack fused multiply-add [FMA] instructions, or when
-#                  passing -ffp-contract=off to the compiler)
+#                  default with Clang 13 and earlier, when building for
+#                  platforms that lack fused multiply-add [FMA] instructions,
+#                  or when passing -ffp-contract=off to GCC or Clang)
 # fp-contract = validate against the expected results from the C code when
 #               floating point expression contraction is enabled (the default
-#               with GCC when building for platforms that have fused multiply-
-#               add [FMA] instructions or when passing -ffp-contract=fast to
-#               the compiler)
+#               with Clang 14 and later, with GCC when building for platforms
+#               that have fused multiply-add [FMA] instructions, or when
+#               passing -ffp-contract=fast to GCC or -ffp-contract=on to Clang)
 # 387 = validate against the expected results from the C code when the 387 FPU
 #       is being used for floating point math (which is generally the default
 #       with x86 compilers)
@@ -893,18 +893,22 @@ if(CPU_TYPE STREQUAL "x86_64" OR CPU_TYPE STREQUAL "i386")
     set(DEFAULT_FLOATTEST8 sse)
   elseif(CPU_TYPE STREQUAL "x86_64")
     set(DEFAULT_FLOATTEST8 no-fp-contract)
-  # else we can't really set an intelligent default for i386.  The appropriate
-  # value could be no-fp-contract, fp-contract, 387, or msvc, depending on the
-  # compiler and compiler options.  We leave it to the user to set FLOATTEST
-  # manually.
   endif()
-else()
-  if((CPU_TYPE STREQUAL "powerpc" OR CPU_TYPE STREQUAL "arm64") AND
-    NOT CMAKE_C_COMPILER_ID STREQUAL "Clang" AND NOT MSVC)
+elseif(CPU_TYPE STREQUAL "powerpc" OR CPU_TYPE STREQUAL "arm64")
+  if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_VERSION VERSION_EQUAL 14.0.0 OR
+      CMAKE_C_COMPILER_VERSION VERSION_GREATER 14.0.0)
+      set(DEFAULT_FLOATTEST8 fp-contract)
+    else()
+      set(DEFAULT_FLOATTEST8 no-fp-contract)
+    endif()
+  elseif(CMAKE_COMPILER_IS_GNUCC)
     set(DEFAULT_FLOATTEST8 fp-contract)
-  else()
-    set(DEFAULT_FLOATTEST8 no-fp-contract)
   endif()
+# else we can't really set an intelligent default for FLOATTEST8.  The
+# appropriate value could be no-fp-contract, fp-contract, 387, or msvc,
+# depending on the compiler and compiler options.  We leave it to the user to
+# set FLOATTEST8 manually.
 endif()
 
 # This causes FLOATTEST8 to reset to the default value if WITH_SIMD has
@@ -932,13 +936,21 @@ endif()
 
 if(CPU_TYPE STREQUAL "x86_64")
   set(DEFAULT_FLOATTEST12 no-fp-contract)
-elseif(NOT CPU_TYPE STREQUAL "i386")
-  if((CPU_TYPE STREQUAL "powerpc" OR CPU_TYPE STREQUAL "arm64") AND
-    NOT CMAKE_C_COMPILER_ID STREQUAL "Clang" AND NOT MSVC)
+elseif(CPU_TYPE STREQUAL "powerpc" OR CPU_TYPE STREQUAL "arm64")
+  if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_C_COMPILER_VERSION VERSION_EQUAL 14.0.0 OR
+      CMAKE_C_COMPILER_VERSION VERSION_GREATER 14.0.0)
+      set(DEFAULT_FLOATTEST12 fp-contract)
+    else()
+      set(DEFAULT_FLOATTEST12 no-fp-contract)
+    endif()
+  elseif(CMAKE_COMPILER_IS_GNUCC)
     set(DEFAULT_FLOATTEST12 fp-contract)
-  else()
-    set(DEFAULT_FLOATTEST12 no-fp-contract)
   endif()
+# else we can't really set an intelligent default for FLOATTEST12.  The
+# appropriate value could be no-fp-contract, fp-contract, or something else,
+# depending on the compiler and compiler options.  We leave it to the user to
+# set FLOATTEST12 manually.
 endif()
 
 set(FLOATTEST12 ${DEFAULT_FLOATTEST12} CACHE STRING
@@ -1004,7 +1016,7 @@ foreach(libtype ${TEST_LIBTYPES})
 
       if(sample_bits EQUAL 12)
         set(tjbench tjbench12)
-        set(testout testout12)
+        set(testout testout12${suffix})
 
         set(MD5_PPM_GRAY_TILE 2f799249148b1a9d0e61fa4408f6c397)
         set(MD5_PPM_420_8x8_TILE b25684e1af37be504ee3fd137757353f)
@@ -1024,7 +1036,7 @@ foreach(libtype ${TEST_LIBTYPES})
         set(MD5_PPM_444_TILE 2f571a032e4dbc8ef40f75219d336b0b)
       else()
         set(tjbench tjbench)
-        set(testout testout)
+        set(testout testout${suffix})
 
         set(MD5_PPM_GRAY_TILE 2c3b567086e6ca0c5e6d34ad8d6f6fe8)
         set(MD5_PPM_420_8x8_TILE efca1bdf0226df01777137778cf986ec)
@@ -1160,7 +1172,7 @@ foreach(libtype ${TEST_LIBTYPES})
       set(cjpeg cjpeg12)
       set(djpeg djpeg12)
       set(jpegtran jpegtran12)
-      set(testout testout12)
+      set(testout testout12${suffix})
 
       set(TESTORIG testorig12.jpg)
       set(MD5_JPEG_RGB_ISLOW 9d7369207c520d37f2c1cbfcb82b2964)
@@ -1186,7 +1198,11 @@ foreach(libtype ${TEST_LIBTYPES})
       set(MD5_PPM_3x2_FLOAT_NO_FP_CONTRACT ${MD5_PPM_3x2_FLOAT_SSE})
       set(MD5_JPEG_3x2_FLOAT_PROG_FP_CONTRACT
         ${MD5_JPEG_3x2_FLOAT_PROG_NO_FP_CONTRACT})
-      set(MD5_PPM_3x2_FLOAT_FP_CONTRACT ${MD5_PPM_3x2_FLOAT_SSE})
+      if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        set(MD5_PPM_3x2_FLOAT_FP_CONTRACT 2da9de6ae869e88b8372de815d366b03)
+      else()
+        set(MD5_PPM_3x2_FLOAT_FP_CONTRACT ${MD5_PPM_3x2_FLOAT_SSE})
+      endif()
       set(MD5_JPEG_3x2_FLOAT_PROG_387 bc6dbbefac2872f6b9d6c4a0ae60c3c0)
       set(MD5_PPM_3x2_FLOAT_387 bcc5723c61560463ac60f772e742d092)
       set(MD5_JPEG_3x2_FLOAT_PROG_MSVC e27840755870fa849872e58aa0cd1400)
@@ -1222,7 +1238,7 @@ foreach(libtype ${TEST_LIBTYPES})
       set(cjpeg cjpeg)
       set(djpeg djpeg)
       set(jpegtran jpegtran)
-      set(testout testout)
+      set(testout testout${suffix})
 
       set(TESTORIG testorig.jpg)
       set(MD5_JPEG_RGB_ISLOW 1d44a406f61da743b5fd31c0a9abdca3)
@@ -1254,7 +1270,11 @@ foreach(libtype ${TEST_LIBTYPES})
       set(MD5_PPM_3x2_FLOAT_NO_FP_CONTRACT f6bfab038438ed8f5522fbd33595dcdc)
       set(MD5_JPEG_3x2_FLOAT_PROG_FP_CONTRACT
         ${MD5_JPEG_3x2_FLOAT_PROG_NO_FP_CONTRACT})
-      set(MD5_PPM_3x2_FLOAT_FP_CONTRACT 0e917a34193ef976b679a6b069b1be26)
+      if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+        set(MD5_PPM_3x2_FLOAT_FP_CONTRACT ${MD5_PPM_3x2_FLOAT_NO_FP_CONTRACT})
+      else()
+        set(MD5_PPM_3x2_FLOAT_FP_CONTRACT 0e917a34193ef976b679a6b069b1be26)
+      endif()
       set(MD5_JPEG_3x2_FLOAT_PROG_387 1657664a410e0822c924b54f6f65e6e9)
       set(MD5_PPM_3x2_FLOAT_387 cb0a1f027f3d2917c902b5640214e025)
       set(MD5_JPEG_3x2_FLOAT_PROG_MSVC 7999ce9cd0ee9b6c7043b7351ab7639d)
@@ -1632,6 +1652,8 @@ foreach(libtype ${TEST_LIBTYPES})
     add_test(example-${sample_bits}bit-${libtype}-decompress
       ${CMAKE_CROSSCOMPILING_EMULATOR} example${suffix} decompress
         ${EXAMPLE_12BIT_ARG} ${testout}-example.jpg ${testout}-example.ppm)
+    set_tests_properties(example-${sample_bits}bit-${libtype}-decompress
+      PROPERTIES DEPENDS example-${sample_bits}bit-${libtype}-compress)
     add_test(example-${sample_bits}bit-${libtype}-decompress-cmp
       ${CMAKE_CROSSCOMPILING_EMULATOR} ${MD5CMP} ${MD5_PPM_EXAMPLE_DECOMPRESS}
         ${testout}-example.ppm)
