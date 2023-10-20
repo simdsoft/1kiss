@@ -1,5 +1,5 @@
 repo: https://chromium.googlesource.com/angle/angle.git
-ver: chromium/5790
+ver: 115
 tag_prefix: ''
 tag_dot2ul: false
 cb_tool: gn

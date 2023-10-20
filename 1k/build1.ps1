@@ -124,7 +124,6 @@ if(!(Test-Path $LIB_SRC -PathType Container)) {
         Write-Output "Checking out $repo, please wait..."
         git clone -q $repo $LIB_NAME
         Set-Location $LIB_SRC
-        git checkout $release_tag
     }
     else {
        if ($repo.EndsWith('.tar.gz')) {
@@ -151,25 +150,30 @@ else {
     if ($repo.EndsWith('.git')) {
         git checkout -- .
         git fetch
-        git checkout $release_tag
-        git pull
     }
 }
 
 if ($repo.EndsWith('.git')) {
-    $branchName = $(git branch --show-current)
-    if ("$branchName" -ne '') { # have branch
-        $commitCount = $(git rev-list --count HEAD)
-        Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII
-        Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
-        if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1" -PathType Leaf) {
-            $fullCommitHash = $(Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC} $release_tag")
-            git checkout $fullCommitHash
-        }
-
-        $commitHash = $(git rev-parse --short=7 HEAD)
-        Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
+    if (Test-Path .\bw_version.yml -PathType Leaf) {
+        Remove-Item .\bw_version.yml -Force
     }
+
+    if(Test-Path "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1" -PathType Leaf) {
+        $release_tag = $(Invoke-Expression -Command "${BUILDWARE_ROOT}\src\${LIB_NAME}\rel1.ps1 ${BUILDWARE_ROOT}\$BUILD_SRC\${LIB_SRC} $release_tag")
+    }
+
+    git checkout $release_tag
+    $branchName = $(git branch --show-current)
+    if ($branchName) {
+        git pull
+    }
+
+    $commitCount = $(git rev-list --count HEAD)
+    Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII -Append
+    Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
+
+    $commitHash = $(git rev-parse --short=7 HEAD)
+    Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
 }
 
 # Prepare source when use google gn build system
