@@ -166,14 +166,13 @@ if ($repo.EndsWith('.git')) {
     $branchName = $(git branch --show-current)
     if ($branchName) {
         git pull
+        $commitCount = $(git rev-list --count HEAD)
+        Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII -Append
+        Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
+
+        $commitHash = $(git rev-parse --short=7 HEAD)
+        Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
     }
-
-    $commitCount = $(git rev-list --count HEAD)
-    Out-File -FilePath .\bw_version.yml -InputObject "bw_branch: $branchName" -Encoding ASCII -Append
-    Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_count: $commitCount" -Encoding ASCII -Append
-
-    $commitHash = $(git rev-parse --short=7 HEAD)
-    Out-File -FilePath .\bw_version.yml -InputObject "bw_commit_hash: $commitHash" -Encoding ASCII -Append
 }
 
 # Prepare source when use google gn build system
