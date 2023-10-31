@@ -210,11 +210,11 @@ elif [ "$BUILD_TARGET" = "android" ] ; then
         fi
     elif [ "$cb_tool" = "perl" ] ; then # openssl TODO: move to custom config.sh
         if [ "$BUILD_ARCH" = "arm64" ] ; then
-            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_MIN_SDK_VERSION__=$android_api_level_arm64"
+            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level_arm64"
         elif [ "$BUILD_ARCH" = "x64" ] ; then
-            CONFIG_TARGET="android-x86_64 -D__ANDROID_MIN_SDK_VERSION__=$android_api_level_x86_64"
+            CONFIG_TARGET="android-x86_64 -D__ANDROID_API__=$android_api_level_x86_64"
         else
-            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_MIN_SDK_VERSION__=$android_api_level"
+            CONFIG_TARGET="android-$BUILD_ARCH -D__ANDROID_API__=$android_api_level"
             if [ "$BUILD_ARCH" = "x86" ] ; then
                 CONFIG_TARGET="$CONFIG_TARGET -latomic"
             fi
