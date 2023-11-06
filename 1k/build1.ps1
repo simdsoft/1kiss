@@ -258,7 +258,7 @@ elseif($cb_tool -eq 'gn') { # google gn: for angleproject only
     cmd /c $cmdStr
 
     # build
-    $cmdStr="autoninja -C out\release libEGL"
+    $cmdStr="autoninja -C out\release --verbose libEGL"
     Write-Output "Executing command: {$cmdStr}"
     cmd /c $cmdStr
 }
