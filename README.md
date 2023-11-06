@@ -14,6 +14,7 @@ Your thridparty prebuilts will never outdated if you're using build1k!
 - [![curl](https://img.shields.io/badge/curl-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-green.svg)](https://github.com/LuaJIT/LuaJIT)
 - [![angle](https://img.shields.io/badge/angle-green.svg)](https://github.com/google/angle) - Windows Only
+- [![c-ares](https://img.shields.io/badge/c--ares-green.svg)](https://github.com/c-ares/c-ares)
 
 
 ## 
