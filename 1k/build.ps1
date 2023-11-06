@@ -4,7 +4,7 @@ $BUILD_LIBS = $args[2]
 
 $targets_list = @{
     'win32' = $true;
-    'winuwp' = $true;
+    'winrt' = $true; # Windows Universal Apps
     'ios' = $true;
     'tvos' = $true;
     'osx' = $true;

@@ -26,8 +26,8 @@ PATH=`pwd`/build:$PATH
 
 # The dist flags
 DISTF_WIN32=1
-DISTF_WINUWP=2
-DISTF_WINALL=$(($DISTF_WIN32|$DISTF_WINUWP))
+DISTF_WINRT=2
+DISTF_WINALL=$(($DISTF_WIN32|$DISTF_WINRT))
 DISTF_LINUX=4
 DISTF_ANDROID=8
 DISTF_MAC=16
@@ -35,7 +35,7 @@ DISTF_IOS=32
 DISTF_TVOS=64
 DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
-DISTF_NO_WINUWP=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_NO_WINRT=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 DISTF_ALL=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
 
 function parse_yaml {
@@ -139,14 +139,14 @@ function dist_lib {
         copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_WINUWP)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/winuwp/x64
-        copy1k "install_winuwp_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winuwp/x64/
-        copy1k "install_winuwp_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winuwp/x64/
+    if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
+        mkdir -p ${DIST_DIR}/prebuilt/winrt/x64
+        copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/x64/
+        copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/x64/
 
-        mkdir -p ${DIST_DIR}/prebuilt/winuwp/arm64
-        copy1k "install_winuwp_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winuwp/arm64/
-        copy1k "install_winuwp_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winuwp/arm64/
+        mkdir -p ${DIST_DIR}/prebuilt/winrt/arm64
+        copy1k "install_winrt_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/arm64/
+        copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/arm64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then

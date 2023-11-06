@@ -21,6 +21,7 @@ Your thridparty prebuilts will never outdated if you're using build1k!
 https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&num=1
 
 ## Build Targets:
+
 - osx: 
   - arm64 (M1+)
   - x86_64
@@ -39,6 +40,10 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
 - win32 (Windows Desktop Apps)
   - x86
   - x86_64
-- winuwp (Windows Universal Apps)
+- winrt/winuwp (Windows Universal Apps)
   - x86_64
   - arm64
+
+## cppwinrt
+
+Since axmol-2.1 migrate from `C++/CX` to [`cppwinrt`](https://learn.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/move-to-winrt-from-wrl) for breaking of c++ standard limition, benefits to use c++20 on all target platforms.
