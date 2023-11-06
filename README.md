@@ -46,4 +46,4 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
 
 ## cppwinrt
 
-Since axmol-2.1 migrate from `C++/CX` to [`cppwinrt`](https://learn.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/move-to-winrt-from-wrl) for breaking of c++ standard limition, benefits to use c++20 on all target platforms.
+Since axmol-2.1-`LTS`: migrate from `C++/CX` to [`cppwinrt`](https://learn.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/move-to-winrt-from-wrl) for breaking c++ standard limition, benefits to use c++20 on all target platforms.
