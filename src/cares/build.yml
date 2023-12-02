@@ -1,5 +1,5 @@
-repo: https://c-ares.org/download/c-ares-1.20.1.tar.gz
-ver: 1.20.1
+repo: https://c-ares.org/download/c-ares-1.23.0.tar.gz
+ver: 1.23.0
 tag_prefix: cares-
 tag_dot2ul: true
 cb_tool: cmake
