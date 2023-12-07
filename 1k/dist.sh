@@ -130,52 +130,52 @@ function dist_lib {
 
     # create prebuilt dirs
     if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/win32/x86
-        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x86/
-        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x86/
+        mkdir -p ${DIST_DIR}/lib/win32/x86
+        copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/win32/x86/
+        copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x86/
 
-        mkdir -p ${DIST_DIR}/prebuilt/win32/x64
-        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/win32/x64/
-        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/win32/x64/
+        mkdir -p ${DIST_DIR}/lib/win32/x64
+        copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/win32/x64/
+        copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/winrt/x64
-        copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/x64/
-        copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/x64/
+        mkdir -p ${DIST_DIR}/lib/winrt/x64
+        copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/winrt/x64/
+        copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/winrt/x64/
 
-        mkdir -p ${DIST_DIR}/prebuilt/winrt/arm64
-        copy1k "install_winrt_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/prebuilt/winrt/arm64/
-        copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/prebuilt/winrt/arm64/
+        mkdir -p ${DIST_DIR}/lib/winrt/arm64
+        copy1k "install_winrt_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/winrt/arm64/
+        copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/winrt/arm64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/linux
-        copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/prebuilt/linux/
-        copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/prebuilt/linux/
+        mkdir -p ${DIST_DIR}/lib/linux
+        copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/
+        copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_ANDROID)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/android/armeabi-v7a
-        mkdir -p ${DIST_DIR}/prebuilt/android/arm64-v8a
-        mkdir -p ${DIST_DIR}/prebuilt/android/x86
-        mkdir -p ${DIST_DIR}/prebuilt/android/x86_64
-        cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/armeabi-v7a/
-        cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/arm64-v8a/
-        cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86/
-        cp install_android_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/prebuilt/android/x86_64/
+        mkdir -p ${DIST_DIR}/lib/android/armeabi-v7a
+        mkdir -p ${DIST_DIR}/lib/android/arm64-v8a
+        mkdir -p ${DIST_DIR}/lib/android/x86
+        mkdir -p ${DIST_DIR}/lib/android/x86_64
+        cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/armeabi-v7a/
+        cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/arm64-v8a/
+        cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/x86/
+        cp install_android_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/x86_64/
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/mac
+        mkdir -p ${DIST_DIR}/lib/mac
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_IOS)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/ios
+        mkdir -p ${DIST_DIR}/lib/ios
     fi
 
     if [ ! $(($DIST_FLAGS & $DISTF_TVOS)) = 0 ]; then
-        mkdir -p ${DIST_DIR}/prebuilt/tvos
+        mkdir -p ${DIST_DIR}/lib/tvos
     fi
 
     bw_branch=

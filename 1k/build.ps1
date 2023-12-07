@@ -65,8 +65,8 @@ $env:Path = "$nasm_bin;$env:Path"
 nasm -v
 
 # Install latest cmake for reuqired feature CMAKE_VS_WINDOWS_PLATFORM_MIN_VERSION
-$cmake_ver = "3.27.20230315"
-$cmake_host = "https://github.com/axmolengine/archive/releases/download/v1.0.0" # "https://github.com/Kitware/CMake/releases/download/v$cmake_ver"
+$cmake_ver = "3.28.0"
+$cmake_host = "https://github.com/Kitware/CMake/releases/download/v$cmake_ver"
 $cmake_bin = "$TOOLS_DIR\cmake-$cmake_ver-windows-x86_64\bin"
 if(!(Test-Path "$cmake_bin" -PathType Container)) {
     echo "Downloading $cmake_host/cmake-$cmake_ver-windows-x86_64.zip ..."
