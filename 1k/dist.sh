@@ -2,7 +2,7 @@ DIST_REVISION=$1
 DIST_SUFFIX=$2
 DIST_LIBS=$3
 
-DIST_NAME=buildware_dist
+DIST_NAME=1kdist
 
 if [ "${DIST_REVISION}" != "" ]; then
     DIST_NAME="${DIST_NAME}_${DIST_REVISION}"
@@ -240,7 +240,7 @@ for (( i=0; i<${libs_count}; ++i )); do
   lib_name=${libs_arr[$i]}
   source src/$lib_name/dist1.sh $DIST_ROOT
   cd ${DIST_NAME}
-  zip -q -r ../seprate/$lib_name.zip ./$lib_name
+  zip -q -r ../seprate/$lib_name.$DIST_REVISION.zip ./$lib_name
   cd ..
 done
 
