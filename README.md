@@ -1,6 +1,6 @@
-# build1k
+# 1k
 Building opensources for multi-platforms with github actions.  
-Your thridparty prebuilts will never outdated if you're using build1k!
+Your thridparty prebuilts will never outdated if you're using 1k!
   
 [![Release](https://img.shields.io/github/v/release/axmolengine/buildware?include_prereleases&label=release)](../../releases/latest)
 [![build](https://github.com/axmolengine/buildware/actions/workflows/build.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/build.yml)
@@ -36,10 +36,10 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
 - android
   - armv7
   - arm64
-  - x86
+  - x86 (DEPRECATED)
   - x86_64
 - win32 (Windows Desktop Apps)
-  - x86
+  - x86 (DEPRECATED)
   - x86_64
 - winrt/winuwp (Windows Universal Apps)
   - x86_64
