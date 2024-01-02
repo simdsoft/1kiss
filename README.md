@@ -1,4 +1,4 @@
-# 1k
+# 1kiss (1k)
 Building opensources for multi-platforms with github actions.  
 Your thridparty prebuilts will never outdated if you're using 1k!
   
