@@ -2,7 +2,9 @@ repo: https://www.openssl.org/source/openssl-3.0.12.tar.gz
 ver: 3.0.12
 tag_prefix: openssl-
 tag_dot2ul: false
-cb_tool: perl
-config_options_unix: no-tests no-comp no-async no-shared
-config_options_embed: no-dso no-engine no-hw
-config_options_msw: no-tests no-comp enable-md4
+cb_tool: custom
+options: 'no-tests'
+options_unix: no-comp no-async no-shared
+options_embed: no-dso no-engine no-hw
+options_msw: no-comp enable-md4
+options_wasm: no-asm no-threads no-ssl3 no-dtls no-engine no-dso linux-x32 -static

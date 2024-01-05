@@ -12,12 +12,12 @@ if [ "${DIST_SUFFIX}" != "" ]; then
     DIST_NAME="${DIST_NAME}${DIST_SUFFIX}"
 fi
 
-DIST_NOTES=`pwd`/verlist.txt
+DIST_NOTES=`pwd`/_1kiss.txt
 
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
-DIST_VERLIST=$DIST_ROOT/verlist.yml
+DIST_VERLIST=$DIST_ROOT/_1kiss.yml
 
 # compile copy1k for script, non-recursive simple wildchard without error support
 mkdir -p build
@@ -33,10 +33,12 @@ DISTF_ANDROID=8
 DISTF_MAC=16
 DISTF_IOS=32
 DISTF_TVOS=64
+DISTF_WASM=128
 DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
 DISTF_NO_WINRT=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
-DISTF_ALL=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_NATIVES=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_ALL=$(($DISTF_NATIVES|$DISTF_WASM))
 
 function parse_yaml {
    local prefix=$2
@@ -54,6 +56,12 @@ function parse_yaml {
          printf("%s%s%s=\"%s\"\n", "'$prefix'",vn, $2, $3);
       }
    }'
+}
+
+function try_copy_file {
+    if [ -f "$1" ]; then
+        cp "$1" "$2"
+    fi
 }
 
 function dist_lib {
@@ -83,6 +91,7 @@ function dist_lib {
             mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-x86_64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/wasm/${INC_DIR}
         elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
             mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
@@ -111,15 +120,16 @@ function dist_lib {
                 cp install_win32_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
-                # cp install_ios_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
+                # cp install_ios_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
                 cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
                 cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
                 cp install_tvos_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
                 cp install_tvos_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-x64/${INC_DIR}
-                cp install_android_arm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
+                cp install_android_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
                 cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
                 cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
                 cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
+                try_copy_file install_wasm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/wasm/${INC_DIR}
 
             elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
                 cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
@@ -128,8 +138,8 @@ function dist_lib {
         fi
     fi
 
-    # create prebuilt dirs
-    if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
+    # create lib dirs
+    if [ $(($DIST_FLAGS & $DISTF_WIN32)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/win32/x86
         copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/win32/x86/
         copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x86/
@@ -139,7 +149,7 @@ function dist_lib {
         copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_WINRT)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/winrt/x64
         copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/winrt/x64/
         copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/winrt/x64/
@@ -149,70 +159,75 @@ function dist_lib {
         copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/winrt/arm64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_LINUX)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/linux
         copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/
         copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_ANDROID)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_ANDROID)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/android/armeabi-v7a
         mkdir -p ${DIST_DIR}/lib/android/arm64-v8a
         mkdir -p ${DIST_DIR}/lib/android/x86
         mkdir -p ${DIST_DIR}/lib/android/x86_64
-        cp install_android_arm/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/armeabi-v7a/
+        cp install_android_armv7/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/armeabi-v7a/
         cp install_android_arm64/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/arm64-v8a/
         cp install_android_x86/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/x86/
         cp install_android_x64/${LIB_NAME}/lib/*.a ${DIST_DIR}/lib/android/x86_64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_WASM)) != 0 ] ; then
+        mkdir -p ${DIST_DIR}/lib/wasm
+        copy1k "install_wasm/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/wasm/
+        copy1k "install_wasm/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm/
+    fi
+
+    if [ $(($DIST_FLAGS & $DISTF_MAC)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/mac
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_IOS)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_IOS)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/ios
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_TVOS)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_TVOS)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/tvos
     fi
 
-    bw_branch=
-    bw_commit_hash=
-    bw_commit_count=
-    bw_version=
-    verinfo_file=
     ver=
-    
-    if [ -f "install_win32_x64/${LIB_NAME}/bw_version.yml" ] ; then
-        verinfo_file="install_win32_x64/${LIB_NAME}/bw_version.yml"
-    elif [ -f "install_osx_x64/${LIB_NAME}/bw_version.yml" ] ; then
-        verinfo_file="install_osx_x64/${LIB_NAME}/bw_version.yml"
-    elif [ -f "install_linux_x64/${LIB_NAME}/bw_version.yml" ] ; then
-        verinfo_file="install_linux_x64/${LIB_NAME}/bw_version.yml"
+    branch=
+    commits=
+    rev=
+    verinfo_file=
+
+    if [ -f "install_win32_x64/${LIB_NAME}/_1kiss" ] ; then
+        verinfo_file="install_win32_x64/${LIB_NAME}/_1kiss"
+    elif [ -f "install_osx_x64/${LIB_NAME}/_1kiss" ] ; then
+        verinfo_file="install_osx_x64/${LIB_NAME}/_1kiss"
+    elif [ -f "install_linux_x64/${LIB_NAME}/_1kiss" ] ; then
+        verinfo_file="install_linux_x64/${LIB_NAME}/_1kiss"
     fi
 
     echo "verinfo_file=$verinfo_file"
 
     if [ "$verinfo_file" != "" ] ; then
         eval $(parse_yaml "$verinfo_file")
-        if [ "$bw_version" != "" ] ; then
-            echo "$LIB_NAME: $bw_version" >> "$DIST_VERLIST"
-            echo "- $LIB_NAME: $bw_version" >> "$DIST_NOTES"
+        if [ "$ver" != "" ] ; then
+            echo "$LIB_NAME: $ver" >> "$DIST_VERLIST"
+            echo "- $LIB_NAME: $ver" >> "$DIST_NOTES"
         else
-           if [ "$bw_branch" != "" ] && [ "$bw_branch" != "master" ] ; then
+           if [ "$branch" != "" ] && [ "$branch" != "master" ] ; then
                eval $(parse_yaml "src/${LIB_NAME}/build.yml")
                if [ "$ver" != "" ] ; then
-                  echo "$LIB_NAME: $ver-$bw_commit_hash" >> "$DIST_VERLIST"
-                  echo "- $LIB_NAME: $ver-$bw_commit_hash" >> "$DIST_NOTES"
+                  echo "$LIB_NAME: $ver-$rev" >> "$DIST_VERLIST"
+                  echo "- $LIB_NAME: $ver-$rev" >> "$DIST_NOTES"
                else
-                  echo "$LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_VERLIST"
-                  echo "- $LIB_NAME: $bw_branch-$bw_commit_hash" >> "$DIST_NOTES"
+                  echo "$LIB_NAME: $branch-$rev" >> "$DIST_VERLIST"
+                  echo "- $LIB_NAME: $branch-$rev" >> "$DIST_NOTES"
                fi
            else
-               echo "$LIB_NAME: git $bw_commit_hash" >> "$DIST_VERLIST"
-               echo "- $LIB_NAME: git $bw_commit_hash" >> "$DIST_NOTES"
+               echo "$LIB_NAME: git $rev" >> "$DIST_VERLIST"
+               echo "- $LIB_NAME: git $rev" >> "$DIST_NOTES"
            fi
         fi
     else

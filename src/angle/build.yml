@@ -2,7 +2,8 @@ repo: https://chromium.googlesource.com/angle/angle.git
 ver: 115
 tag_prefix: ''
 tag_dot2ul: false
+targets: win32,winrt
 cb_tool: gn
-config_options_unix: ''
-config_options_embed: ''
-config_options_msw: is_debug=false is_clang=false treat_warnings_as_errors=false angle_enable_d3d9=false angle_enable_vulkan=false angle_enable_gl=false
+cb_target: libEGL
+options: ''
+options_msw: is_debug=false is_clang=false treat_warnings_as_errors=false angle_enable_d3d9=false angle_enable_vulkan=false angle_enable_gl=false
