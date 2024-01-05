@@ -1,13 +1,19 @@
 #
-# The simple ios toolchain file: https://github.com/yasio/yasio/blob/dev/cmake/ios.cmake
-# version: 4.0.4
+# The minimal ios toolchain file: https://github.com/yasio/yasio/blob/dev/cmake/ios.cmake
+# version: 4.1.1
 #
 # The supported params:
 #   PLAT: iOS, tvOS, default: iOS
 #   ARCHS: arm64, x86_64, default: arm64
-#   DEPLOYMENT_TARGET: default: iOS=11.0, tvOS=15.0, watchOS=8.0
+#   DEPLOYMENT_TARGET: default: iOS=11.0/12.0, tvOS=15.0, watchOS=8.0
 #   SIMULATOR: TRUE, FALSE, UNDEFINED(auto determine by archs) 
 #   ENABLE_BITCODE: FALSE(default)
+# 
+# !!!Note: iOS simulator, there is no xcode General tab, and we must set
+# CMAKE_OSX_SYSROOT properly for simulator, otherwise will lead cmake based
+# project detect C/C++ header from device sysroot which is not present in 
+# simulator sysroot, then cause compiling errors
+#
 #
 
 # PLAT
@@ -26,7 +32,11 @@ if(NOT DEFINED DEPLOYMENT_TARGET)
         if("${ARCHS}" MATCHES ".*armv7.*")
            set(DEPLOYMENT_TARGET "10.0" CACHE STRING "" FORCE)
         else()
-           set(DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
+           if (XCODE_VERSION LESS "14.3.0")
+               set(DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
+           else() # xcode 14.3+ require 12.0 for c++ std::get
+               set(DEPLOYMENT_TARGET "12.0" CACHE STRING "" FORCE)
+           endif()
         endif()
     elseif (PLAT STREQUAL "tvOS")
         set(DEPLOYMENT_TARGET "15.0" CACHE STRING "" FORCE)
@@ -76,14 +86,24 @@ endif()
 
 if(SIMULATOR)
     if (PLAT STREQUAL "iOS")
-        set(CMAKE_OSX_SYSROOT "iphonesimulator" CACHE STRING "")
+        set(_SDK_NAME "iphonesimulator")
     elseif(PLAT STREQUAL "tvOS")
-        set(CMAKE_OSX_SYSROOT "appletvsimulator" CACHE STRING "")
+        set(_SDK_NAME "appletvsimulator")
     elseif(PLAT STREQUAL "watchOS")
-        set(CMAKE_OSX_SYSROOT "watchsimulator" CACHE STRING "")
+        set(_SDK_NAME "watchsimulator")
     else()
         message(FATAL_ERROR "PLAT=${PLAT} unsupported!")
     endif()
+    
+    find_program(XCODEBUILD_PROG xcodebuild)
+    if(NOT XCODEBUILD_PROG)
+        message(FATAL_ERROR "xcodebuild not found. Please install either the standalone commandline tools or Xcode.")
+    endif()
+    execute_process(COMMAND ${XCODEBUILD_PROG} -version -sdk ${_SDK_NAME} SDKVersion
+          OUTPUT_VARIABLE _SDK_VER
+          ERROR_QUIET
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(CMAKE_OSX_SYSROOT "${_SDK_NAME}${_SDK_VER}" CACHE STRING "")
 endif() 
 
 # Since xcode14, the bitcode was marked deprecated, so we disable by default
@@ -96,9 +116,13 @@ endif()
 
 # Set find path mode properly for cross-compiling
 # refer to: https://discourse.cmake.org/t/find-package-stops-working-when-cmake-system-name-ios/4609/6
-set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH CACHE STRING "")
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH CACHE STRING "")
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH CACHE STRING "")
+# BUT: CMAKE_FIND_ROOT_PATH is preferred for additional search directories when cross-compiling
+# set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH CACHE STRING "")
+# set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH CACHE STRING "")
+# set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH CACHE STRING "")
+
+# by default, we want find host program only when cross-compiling
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER CACHE STRING "")
 
 # Sets CMAKE_SYSTEM_PROCESSOR for device and simulator properly
 string(TOLOWER "${CMAKE_OSX_SYSROOT}" lowercase_CMAKE_OSX_SYSROOT)

@@ -39,6 +39,8 @@
 
 #elif defined(__linux__)
 #  include "linux/@INC_DIR@@CONF_HEADER@"
+#elif defined(__EMSCRIPTEN__)
+#  include "wasm/@INC_DIR@@CONF_HEADER@"
 #else
 #  error "unsupported platform"
 #endif

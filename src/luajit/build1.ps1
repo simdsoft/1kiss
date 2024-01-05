@@ -1,0 +1,83 @@
+$target_os = $args[0]
+$target_arch = $args[1]
+$install_dir = $args[2]
+
+if ($target_os.StartsWith('win')) {
+    Push-Location 'src'
+    .\msvcbuild.bat
+    Pop-Location
+}
+else {
+    # config
+    $CONFIG_TARGET = $null
+    if ($target_os -eq 'android') {
+        if ($IsMacOS) {
+            $NDK_PLAT = 'darwin'
+        }
+        elseif ($IsLinux) {
+            $NDK_PLAT = 'linux'
+        }
+        else {
+            $NDK_PLAT = 'win'
+        }
+        $NDK_HOME = $env:ANDROID_NDK
+        $NDKBIN = "$NDK_HOME/toolchains/llvm/prebuilt/$NDK_PLAT-x86_64/bin"
+        if ( "$target_arch" -eq "arm64" ) {
+            $NDKCROSS = "$NDKBIN/aarch64-linux-android-"
+            $NDKCC = "$NDKBIN/aarch64-linux-android$env:android_api_level_arm64-clang"
+            $HOST_CC = "`"gcc`""
+        }
+        elseif ( "$target_arch" -eq "arm" ) {
+            $NDKCROSS = "$NDKBIN/arm-linux-androideabi-"
+            $NDKCC = "$NDKBIN/armv7a-linux-androideabi$env:android_api_level-clang"
+            $HOST_CC = "`"gcc -m32`""
+        }
+        else {
+            $NDKCROSS = "$NDKBIN/i686-linux-android-"
+            $NDKCC = "$NDKBIN/i686-linux-android$env:android_api_level-clang"
+            $HOST_CC = "`"gcc -m32`""
+        }
+        # create symlink for cross commands: 'ar' and 'strip' used by luajit makefile
+        if ( !(Test-Path "${NDKCROSS}ar" -PathType Leaf)) {
+            ln $NDKBIN/llvm-ar ${NDKCROSS}ar
+        }
+        if ( !(Test-Path "${NDKCROSS}strip" -PathType Leaf) ) {
+            ln $NDKBIN/llvm-strip ${NDKCROSS}strip
+        }
+        $CONFIG_TARGET = "HOST_CC=$HOST_CC CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=`"$NDKCC -fPIC`" TARGET_LD=$NDKCC TARGET_SYS=`"Linux`""
+        println CONFIG_TARGET=$CONFIG_TARGET
+    }
+    elseif ($is_apple_platforms) {
+        $CONFIG_TARGET = $null
+        $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
+        # regard ios,tvos x64 as simulator
+        if ($target_arch -eq 'x64' -and ($target_os -eq 'ios' -or $target_os -eq 'tvos')) {
+            $SDK_NAME = $(nsdk1k $XCODE_VERSION $target_os 1)
+        }
+        else {
+            $SDK_NAME = $(nsdk1k $env:XCODE_VERSION $target_os)
+        }
+        println "SDK_NAME=$SDK_NAME"
+
+        $underlaying_arch = $target_arch
+        if ($target_arch -eq 'x64') { $underlaying_arch = 'x86_64' }
+
+        $ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
+        $ICC=$(xcrun --sdk $SDK_NAME --find clang)
+        $ISDKF="-arch $underlaying_arch -isysroot $ISDKP"
+        $TARGET_SYS = if ($target_os -eq 'osx') { 'Darwin' } else { 'iOS' }
+        $CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=`"$HOST_CC`" CROSS=`"$(dirname $ICC)/`" TARGET_FLAGS=`"$ISDKF`" TARGET_SYS=$TARGET_SYS XCFLAGS=`"$XCFLAGS`" LUAJIT_A=libluajit.a"
+    }
+
+    # build
+    if ($CONFIG_TARGET) {
+        echo "$CONFIG_TARGET" | xargs make V=1
+    }
+    else {
+        make V=1
+    }
+
+    # install
+    $install_script = Join-Path $PSScriptRoot 'install1.ps1'
+    &$install_script $install_dir $(Get-Location).Path
+}

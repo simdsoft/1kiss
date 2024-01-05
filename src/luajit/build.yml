@@ -2,10 +2,6 @@ repo: https://github.com/LuaJIT/LuaJIT.git
 ver: 2.1
 tag_prefix: v
 tag_dot2ul: false
-cb_script: msvcbuild.bat
-cb_tool: make
-bw_targets: win32,linux,android,osx,ios,tvos
-cb_dir: .\src
-config_options_unix:
-config_options_embed:
-config_options_msw:
+cb_tool: custom
+targets: win32,linux,android,osx,ios,tvos
+$options: ''

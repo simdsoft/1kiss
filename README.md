@@ -1,4 +1,5 @@
 # 1kiss (1k)
+
 Building opensources for multi-platforms with github actions.  
 Your thridparty prebuilts will never outdated if you're using 1k!
   
@@ -9,7 +10,7 @@ Your thridparty prebuilts will never outdated if you're using 1k!
 
 ## opensources
 - [![zlib](https://img.shields.io/badge/zlib-green.svg)](https://github.com/madler/zlib)
-- [![OpenSSL Stable Releaee](https://img.shields.io/badge/openssl-green.svg)](https://github.com/openssl/openssl)
+- [![openssl](https://img.shields.io/badge/openssl-green.svg)](https://github.com/openssl/openssl)
 - [![jpeg-turbo](https://img.shields.io/badge/jpeg%2d%2dturbo-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo)
 - [![curl](https://img.shields.io/badge/curl-green.svg)](https://github.com/curl/curl/releases)
 - [![luajit](https://img.shields.io/badge/luajit-green.svg)](https://github.com/LuaJIT/LuaJIT)
