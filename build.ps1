@@ -8,6 +8,12 @@ function eval($str) {
     return Invoke-Expression "`"$str`""
 }
 
+function mkdirs($path) {
+    if (!(Test-Path $path -PathType Container)) {
+        New-Item $path -ItemType Directory 1>$null 2>$null
+    }
+}
+
 println "env:NO_DLL=$env:NO_DLL"
 
 if ($target_arch -eq 'amd64_arm64') {
@@ -28,14 +34,6 @@ if ($target_arch -ne '*') {
     $install_path = "${install_path}_$target_arch"
 }
 $install_root = Join-Path $_1k_root $install_path
-
-$is_winrt = ($target_os -eq 'winrt')
-
-function mkdirs($path) {
-    if (!(Test-Path $path -PathType Container)) {
-        New-Item $path -ItemType Directory | Out-Null
-    }
-}
 
 # Create buildsrc tmp dir for build libs
 mkdirs $build_src
@@ -81,13 +79,17 @@ if ($target_os -eq 'android') {
     println "PATH=$env:PATH"
 }
 
-$is_apple_platforms = !!(@{'osx' = $true; 'ios' = $true; 'tvos' = $true }[$TARGET_OS])
+$is_gh_act = "$env:GITHUB_ACTIONS" -eq 'true'
+$is_winrt = ($target_os -eq 'winrt')
+$is_win_family = $is_winrt -or ($target_os -eq 'win32')
+# used by custom build step
+$is_apple_family = !!(@{'osx' = $true; 'ios' = $true; 'tvos' = $true }[$TARGET_OS])
 
 mkdirs $install_root
 
 # options_xxx, xxx = msw, unix, embed
 $embed_family = ''
-if ($target_os.StartsWith('win')) {
+if ($is_win_family) {
     $os_family = 'msw'
 }
 else {
@@ -166,14 +168,15 @@ Foreach ($lib_name in $build_libs) {
     if ($build_conf.cb_tool -ne 'custom') {
         $_config_options = $build_conf.options
         if ($build_conf.cb_tool -eq 'cmake') {
-            if ($IsWindows) {
-                if ($is_winrt -and $build_conf.cb_tool -eq 'cmake') {
-                    $_config_options += "-DCMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION=$env:VS_DEPLOYMENT_TARGET"
-                }
+            if ($is_winrt) {
+                $_config_options += "-DCMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION=$env:VS_DEPLOYMENT_TARGET"
             }
 
-            # TODO: cross platform toolchain -xt: perl for openssl, custom_script for luajit
-            $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir", "-DCMAKE_C_FLAGS=-fPIC"
+            if (!$is_win_family) {
+                $_config_options += '-DCMAKE_C_FLAGS=-fPIC'
+            }
+
+            $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir"
         
             &$build_script -p $target_os -a $target_arch -xc $_config_options -xb '--target', 'install'
         } elseif($is_gn) {
@@ -200,13 +203,13 @@ Foreach ($lib_name in $build_libs) {
     }
 
     # delete lib_src if run in github ci
-    if ("$env:GITHUB_ACTIONS" -eq 'true') {
+    if ($is_gh_act) {
         println "Deleting $lib_src"
         Remove-Item $lib_src -Recurse -Force
     }
 }
 
 # Export INSTALL_ROOT for uploading
-if ($env:GITHUB_ACTIONS -eq 'true') {
+if ($is_gh_act) {
     Write-Output "install_path=$install_path" >> $env:GITHUB_ENV
 }
