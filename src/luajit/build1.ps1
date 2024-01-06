@@ -11,17 +11,7 @@ else {
     # config
     $CONFIG_TARGET = $null
     if ($target_os -eq 'android') {
-        if ($IsMacOS) {
-            $NDK_PLAT = 'darwin'
-        }
-        elseif ($IsLinux) {
-            $NDK_PLAT = 'linux'
-        }
-        else {
-            $NDK_PLAT = 'win'
-        }
-        $NDK_HOME = $env:ANDROID_NDK
-        $NDKBIN = "$NDK_HOME/toolchains/llvm/prebuilt/$NDK_PLAT-x86_64/bin"
+        $NDKBIN = $env:ANDROID_NDK_BIN
         if ( "$target_arch" -eq "arm64" ) {
             $NDKCROSS = "$NDKBIN/aarch64-linux-android-"
             $NDKCC = "$NDKBIN/aarch64-linux-android$env:android_api_level_arm64-clang"

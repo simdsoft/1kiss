@@ -62,28 +62,8 @@ $build_libs = $build_libs -split ","
 setup_nasm
 
 if ($target_os -eq 'android') {
-    if ($IsMacOS) {
-        $NDK_PLAT = 'darwin'
-    }
-    elseif ($IsLinux) {
-        $NDK_PLAT = 'linux'
-    }
-    else {
-        $NDK_PLAT = 'win'
-    }
-    $ANDROID_NDK = $env:ANDROID_NDK
-    $ndk_toolchain_bin = "$ANDROID_NDK/toolchains/llvm/prebuilt/${NDK_PLAT}-x86_64/bin"
-    if ($env:PATH.IndexOf($ndk_toolchain_bin) -eq -1) {
-        $env:PATH = "$ndk_toolchain_bin$ENV_PATH_SEP$env:PATH"
-    }
-    println "PATH=$env:PATH"
+    active_ndk_toolchain
 }
-
-$is_gh_act = "$env:GITHUB_ACTIONS" -eq 'true'
-$is_winrt = ($target_os -eq 'winrt')
-$is_win_family = $is_winrt -or ($target_os -eq 'win32')
-# used by custom build step
-$is_apple_family = !!(@{'osx' = $true; 'ios' = $true; 'tvos' = $true }[$TARGET_OS])
 
 mkdirs $install_root
 

@@ -91,11 +91,6 @@ else {
                 $TARGET_OPTIONS += '-latomic'
             }
         }
-        # check ndk clang version
-        clang --version
-        # NOTE: openssl require $env:ANDROID_NDK_ROOT, otherwise, may report
-        # no NDK xxx-linux-android-gcc on $PATH at (eval 10) line 142.
-        $env:ANDROID_NDK_ROOT = $ANDROID_NDK
     }
     elseif ($target_os -eq 'wasm') {
         $env:CFLAGS = '-pthread -O3'
