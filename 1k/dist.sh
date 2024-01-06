@@ -12,12 +12,12 @@ if [ "${DIST_SUFFIX}" != "" ]; then
     DIST_NAME="${DIST_NAME}${DIST_SUFFIX}"
 fi
 
-DIST_NOTES=`pwd`/verlist.txt
+DIST_NOTES=`pwd`/_1kiss.txt
 
 DIST_ROOT=`pwd`/${DIST_NAME}
 mkdir -p $DIST_ROOT
 
-DIST_VERLIST=$DIST_ROOT/verlist.yml
+DIST_VERLIST=$DIST_ROOT/_1kiss.yml
 
 # compile copy1k for script, non-recursive simple wildchard without error support
 mkdir -p build
