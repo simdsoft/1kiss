@@ -2,7 +2,7 @@ $target_os = $args[0]
 $target_arch = $args[1]
 $install_dir = $args[2]
 
-if ($target_os.StartsWith('win')) {
+if ($is_win_family) {
     Push-Location 'src'
     .\msvcbuild.bat
     Pop-Location
@@ -47,7 +47,7 @@ else {
         $CONFIG_TARGET = "HOST_CC=$HOST_CC CROSS=$NDKCROSS STATIC_CC=$NDKCC DYNAMIC_CC=`"$NDKCC -fPIC`" TARGET_LD=$NDKCC TARGET_SYS=`"Linux`""
         println CONFIG_TARGET=$CONFIG_TARGET
     }
-    elseif ($is_apple_platforms) {
+    elseif ($is_apple_family) {
         $CONFIG_TARGET = $null
         $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
         # regard ios,tvos x64 as simulator
