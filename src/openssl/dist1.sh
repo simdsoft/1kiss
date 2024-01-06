@@ -2,7 +2,7 @@ DIST_ROOT=$1
 LIB_NAME=openssl
 DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
-dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_ALL configuration.h config.h.in openssl/
+dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_ALL|$DISTF_WASM configuration.h config.h.in openssl/
 
 # create flat lib for ios
 if [ -f "install_ios_arm/${LIB_NAME}/lib/libssl.a" ] ; then
