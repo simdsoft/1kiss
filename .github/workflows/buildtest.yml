@@ -1,0 +1,54 @@
+name: buildtest
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events
+  push:
+    paths:
+      - .github/workflows/buildtest.yml
+      - 1k/build*
+      - 1k/nsdk1k.cpp
+      - 1k/ios.cmake
+      - src/**/build*
+      - src/**/install*
+      - src/**/patch*
+      - src/**/clean*
+      - src/**/rel*
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      no_dll:
+         # actions run ID
+         description: 'Do not build windows lib as dll'
+         # Default value if no value is explicitly provided
+         default: ''
+         # Input has to be provided for the workflow to run
+         required: false
+env:
+  GH_XCODE_VER: 14.2
+  VS_DEPLOYMENT_TARGET: 10.0.17763.0 # for Windows Store(UWP) Apps only
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  test-android:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - armv7
+          - arm64
+          - x86
+          - x64
+    env:
+      BUILD_ARCH: ${{ matrix.arch }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 android $env:BUILD_ARCH luajit
