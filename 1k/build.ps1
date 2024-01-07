@@ -1335,7 +1335,7 @@ elseif ($TARGET_OS -eq 'android') {
     $env:ANDROID_NDK_HOME = $ndk_root
     $env:ANDROID_NDK_ROOT = $ndk_root
 
-    $ndk_host = @('win', 'linux', 'darwin').Get($HOST_OS)
+    $ndk_host = @('windows', 'linux', 'darwin').Get($HOST_OS)
     $env:ANDROID_NDK_BIN = Join-Path $ndk_root "toolchains/llvm/prebuilt/$ndk_host-x86_64/bin"
 
     # ensure ninja in cmake_bin

@@ -38,7 +38,6 @@ else {
         println CONFIG_TARGET=$CONFIG_TARGET
     }
     elseif ($is_apple_family) {
-        $CONFIG_TARGET = $null
         $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
         # regard ios,tvos x64 as simulator
         if ($target_arch -eq 'x64' -and ($target_os -eq 'ios' -or $target_os -eq 'tvos')) {
@@ -61,7 +60,11 @@ else {
 
     # build
     if ($CONFIG_TARGET) {
-        echo "$CONFIG_TARGET" | xargs make V=1
+        if (!$IsWIn) {
+            echo "$CONFIG_TARGET" | xargs make V=1
+        } else {
+            throw "Can't build luajit for $target_os on windows host machine"
+        }
     }
     else {
         make V=1
