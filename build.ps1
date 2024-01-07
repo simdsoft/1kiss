@@ -56,6 +56,11 @@ if ($IsMacOS) {
     $env:PATH = "${1kiss_bin}:${env:PATH}"
 }
 
+if ($IsLinux -and $target_arch -eq 'armv7' -and $target_arch -eq 'x86') {
+    sudo apt update
+    sudo apt install gcc-multilib --fix-missing
+}
+
 $build_libs = $build_libs -split ","
 
 . $build_script -p $target_os -a $target_arch -setupOnly -ndkOnly

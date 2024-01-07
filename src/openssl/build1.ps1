@@ -86,7 +86,7 @@ else {
             $TARGET_OPTIONS += "android-x86_64", "-D__ANDROID_API__=$env:android_api_level_x86_64"
         }
         else {
-            $TARGET_OPTIONS += "android-$target_arch", "-D__ANDROID_API__=$env:android_api_level"
+            $TARGET_OPTIONS += "android-$($target_arch.TrimEnd('v7'))", "-D__ANDROID_API__=$env:android_api_level"
             if ( "$target_arch" -eq "x86" ) {
                 $TARGET_OPTIONS += '-latomic'
             }

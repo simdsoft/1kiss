@@ -17,7 +17,7 @@ else {
             $NDKCC = "$NDKBIN/aarch64-linux-android$env:android_api_level_arm64-clang"
             $HOST_CC = "`"gcc`""
         }
-        elseif ( "$target_arch" -eq "arm" ) {
+        elseif ( "$target_arch" -eq "armv7" ) {
             $NDKCROSS = "$NDKBIN/arm-linux-androideabi-"
             $NDKCC = "$NDKBIN/armv7a-linux-androideabi$env:android_api_level-clang"
             $HOST_CC = "`"gcc -m32`""

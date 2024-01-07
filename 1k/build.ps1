@@ -280,6 +280,8 @@ if (!$is_wasm) {
             $TARGET_ARCH = $hostArch
         }
         $options.a = $TARGET_ARCH
+    } elseif($TARGET_ARCH -eq 'arm') {
+        $TARGET_ARCH = $options.a = 'armv7'
     }
 }
 else {
