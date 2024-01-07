@@ -6,10 +6,6 @@
 # 3.28.0: https://gitlab.kitware.com/cmake/cmake/-/merge_requests/9014
 #
 
-$env:android_api_level=16
-$env:android_api_level_arm64=21
-$env:android_api_level_x86_64=22
-
 if ($IsWindows) {
     $manifest['nasm'] = '2.16.01+'
 } else {

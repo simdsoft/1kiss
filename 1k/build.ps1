@@ -191,7 +191,7 @@ $manifest = @{
     # _EMIT_STL_ERROR(STL1000, "Unexpected compiler version, expected Clang 16.0.0 or newer.");
     llvm         = '16.0.6+'; # clang-cl msvc14.37 require 16.0.0+
     gcc          = '9.0.0+';
-    cmake        = '3.27.7+';
+    cmake        = '3.28.1+';
     ninja        = '1.11.1+';
     jdk          = '17.0.3+';
     emsdk        = '3.1.51';

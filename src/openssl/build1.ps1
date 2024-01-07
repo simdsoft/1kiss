@@ -44,33 +44,23 @@ if ($target_os.StartsWith('win')) {
     }
 }
 else {
+    $target_uarch = if ($target_arch -eq 'x64') { 'x86_64' } else { $target_arch }
+    
     if ($target_os -eq 'osx') {
-        if ($target_arch -eq "x64") {
-            $TARGET_OPTIONS += 'darwin64-x86_64-cc'
-        }
-        elseif ( $target_arch -eq "arm64" ) {
-            $TARGET_OPTIONS += 'darwin64-arm64-cc'
-        }
+        $TARGET_OPTIONS += "darwin64-$target_uarch-cc"
     }
     elseif ($target_os -eq 'ios' -or $target_os -eq 'tvos') {
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-        $env:OPENSSL_LOCAL_CONFIG_DIR = "$_1k_root/1k" 
+        $env:OPENSSL_LOCAL_CONFIG_DIR = Join-Path $_1k_root '1k' 
 
-        $ios_plat_suffix = $null
-        # if ("$target_arch" = "arm") {
-        #     TARGET_OPTIONS=ios-cross-armv7s
-        # }
-        if ( $target_arch -eq "arm64" ) {
-            $TARGET_OPTIONS += "ios-cross-arm64"
-            $ios_plat_suffix = 'OS'
-        }
-        elseif ( $target_arch -eq "x64" ) {
-            $TARGET_OPTIONS += "ios-sim-cross-x86_64"
+        $ios_plat_suffix = 'OS'
+        if ( $target_arch -eq 'x64' ) {
+            # asume x64 as simulator
+            $TARGET_OPTIONS += "ios-sim-cross-$target_uarch"
             $ios_plat_suffix = 'Simulator'
         }
         else {
-            Write-Output "Unsupported arch: $target_arch"
-            return 1
+            $TARGET_OPTIONS += "ios-cross-$target_arch"
         }
 
         $IOS_PLAT = if ($target_os -eq 'ios') { "iPhone${ios_plat_suffix}" } else { "AppleTV${ios_plat_suffix}" }
@@ -79,17 +69,12 @@ else {
         $env:CROSS_SDK = "$IOS_PLAT.sdk"
     }
     elseif ($target_os -eq 'android') {
-        if ( "$target_arch" -eq "arm64" ) {
-            $TARGET_OPTIONS += "android-$target_arch", "-D__ANDROID_API__=$env:android_api_level_arm64"
-        }
-        elseif ( "$target_arch" -eq "x64" ) {
-            $TARGET_OPTIONS += "android-x86_64", "-D__ANDROID_API__=$env:android_api_level_x86_64"
-        }
-        else {
-            $TARGET_OPTIONS += "android-$($target_arch.TrimEnd('v7'))", "-D__ANDROID_API__=$env:android_api_level"
-            if ( "$target_arch" -eq "x86" ) {
-                $TARGET_OPTIONS += '-latomic'
-            }
+        if ($target_uarch.EndsWith('v7')) { $target_uarch = $target_uarch.TrimEnd('v7') }
+        $TARGET_OPTIONS += "android-$target_uarch"
+        $android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_arch]
+        $TARGET_OPTIONS += "-D__ANDROID_API__=$android_api_level"
+        if ( $target_arch -eq "x86" ) {
+            $TARGET_OPTIONS += '-latomic'
         }
     }
     elseif ($target_os -eq 'wasm') {
