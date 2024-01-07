@@ -71,7 +71,6 @@ else {
     elseif ($target_os -eq 'android') {
         if ($target_uarch.EndsWith('v7')) { $target_uarch = $target_uarch.TrimEnd('v7') }
         $TARGET_OPTIONS += "android-$target_uarch"
-        $android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_arch]
         $TARGET_OPTIONS += "-D__ANDROID_API__=$android_api_level"
         if ( $target_arch -eq "x86" ) {
             $TARGET_OPTIONS += '-latomic'

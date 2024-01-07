@@ -14,17 +14,17 @@ else {
         $NDKBIN = $env:ANDROID_NDK_BIN
         if ( "$target_arch" -eq "arm64" ) {
             $NDKCROSS = "$NDKBIN/aarch64-linux-android-"
-            $NDKCC = "$NDKBIN/aarch64-linux-android$env:android_api_level_arm64-clang"
+            $NDKCC = "$NDKBIN/aarch64-linux-android$android_api_level-clang"
             $HOST_CC = "`"gcc`""
         }
         elseif ( "$target_arch" -eq "armv7" ) {
             $NDKCROSS = "$NDKBIN/arm-linux-androideabi-"
-            $NDKCC = "$NDKBIN/armv7a-linux-androideabi$env:android_api_level-clang"
+            $NDKCC = "$NDKBIN/armv7a-linux-androideabi$android_api_level-clang"
             $HOST_CC = "`"gcc -m32`""
         }
         else {
             $NDKCROSS = "$NDKBIN/i686-linux-android-"
-            $NDKCC = "$NDKBIN/i686-linux-android$env:android_api_level-clang"
+            $NDKCC = "$NDKBIN/i686-linux-android$android_api_level-clang"
             $HOST_CC = "`"gcc -m32`""
         }
         # create symlink for cross commands: 'ar' and 'strip' used by luajit makefile
@@ -48,12 +48,12 @@ else {
         }
         println "SDK_NAME=$SDK_NAME"
 
-        $underlaying_arch = $target_arch
-        if ($target_arch -eq 'x64') { $underlaying_arch = 'x86_64' }
+        $target_uarch = $target_arch
+        if ($target_arch -eq 'x64') { $target_uarch = 'x86_64' }
 
         $ISDKP=$(xcrun --sdk $SDK_NAME --show-sdk-path)
         $ICC=$(xcrun --sdk $SDK_NAME --find clang)
-        $ISDKF="-arch $underlaying_arch -isysroot $ISDKP"
+        $ISDKF="-arch $target_uarch -isysroot $ISDKP"
         $TARGET_SYS = if ($target_os -eq 'osx') { 'Darwin' } else { 'iOS' }
         $CONFIG_TARGET="DEFAULT_CC=clang HOST_CC=`"$HOST_CC`" CROSS=`"$(dirname $ICC)/`" TARGET_FLAGS=`"$ISDKF`" TARGET_SYS=$TARGET_SYS XCFLAGS=`"$XCFLAGS`" LUAJIT_A=libluajit.a"
     }

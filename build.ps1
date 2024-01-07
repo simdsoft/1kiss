@@ -68,6 +68,7 @@ setup_nasm
 
 if ($target_os -eq 'android') {
     active_ndk_toolchain
+    $Global:android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_arch]
 }
 
 mkdirs $install_root
