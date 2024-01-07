@@ -45,10 +45,10 @@ if ($target_os.StartsWith('win')) {
 }
 else {
     if ($target_os -eq 'osx') {
-        if ("$target_os" -eq "x64") {
+        if ($target_arch -eq "x64") {
             $TARGET_OPTIONS += 'darwin64-x86_64-cc'
         }
-        elseif ( "$target_os" -eq "arm64" ) {
+        elseif ( $target_arch -eq "arm64" ) {
             $TARGET_OPTIONS += 'darwin64-arm64-cc'
         }
     }
@@ -60,11 +60,11 @@ else {
         # if ("$target_arch" = "arm") {
         #     TARGET_OPTIONS=ios-cross-armv7s
         # }
-        if ( "$target_arch" -eq "arm64" ) {
+        if ( $target_arch -eq "arm64" ) {
             $TARGET_OPTIONS += "ios-cross-arm64"
             $ios_plat_suffix = 'OS'
         }
-        elseif ( "$target_arch" -eq "x64" ) {
+        elseif ( $target_arch -eq "x64" ) {
             $TARGET_OPTIONS += "ios-sim-cross-x86_64"
             $ios_plat_suffix = 'Simulator'
         }
