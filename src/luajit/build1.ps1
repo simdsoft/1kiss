@@ -11,6 +11,15 @@ else {
     # config
     $CONFIG_TARGET = $null
     if ($target_os -eq 'android') {
+        if ($target_arch -eq 'armv7' -or $target_arch -eq 'x86') {
+            if ($IsLinux) {
+                sudo apt update
+                sudo apt install gcc-multilib --fix-missing
+            }
+            else {
+                throw "cann't build luajit 32bit on $HOST_OS_NAME"
+            }
+        }
         $NDKBIN = $env:ANDROID_NDK_BIN
         if ( "$target_arch" -eq "arm64" ) {
             $NDKCROSS = "$NDKBIN/aarch64-linux-android-"
