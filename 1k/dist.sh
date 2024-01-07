@@ -37,7 +37,8 @@ DISTF_WASM=128
 DISTF_APPL=$(($DISTF_MAC|$DISTF_IOS|$DISTF_TVOS))
 DISTF_NO_INC=1024
 DISTF_NO_WINRT=$(($DISTF_WIN32|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
-DISTF_ALL=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_NATIVES=$(($DISTF_WINALL|$DISTF_LINUX|$DISTF_ANDROID|$DISTF_APPL))
+DISTF_ALL=$(($DISTF_NATIVES|$DISTF_WASM))
 
 function parse_yaml {
    local prefix=$2
@@ -90,6 +91,7 @@ function dist_lib {
             mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-x86_64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/wasm/${INC_DIR}
         elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
             mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
@@ -137,7 +139,7 @@ function dist_lib {
     fi
 
     # create lib dirs
-    if [ ! $(($DIST_FLAGS & $DISTF_WIN32)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_WIN32)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/win32/x86
         copy1k "install_win32_x86/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/win32/x86/
         copy1k "install_win32_x86/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x86/
@@ -147,7 +149,7 @@ function dist_lib {
         copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_WINRT)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_WINRT)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/winrt/x64
         copy1k "install_winrt_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/winrt/x64/
         copy1k "install_winrt_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/winrt/x64/
@@ -157,13 +159,13 @@ function dist_lib {
         copy1k "install_winrt_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/winrt/arm64/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_LINUX)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_LINUX)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/linux
         copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/
         copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_ANDROID)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_ANDROID)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/android/armeabi-v7a
         mkdir -p ${DIST_DIR}/lib/android/arm64-v8a
         mkdir -p ${DIST_DIR}/lib/android/x86
@@ -176,19 +178,19 @@ function dist_lib {
 
     if [ $(($DIST_FLAGS & $DISTF_WASM)) != 0 ] ; then
         mkdir -p ${DIST_DIR}/lib/wasm
-        copy1k "install_wasm_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/wasm/
-        copy1k "install_wasm_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm/
+        copy1k "install_wasm/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/wasm/
+        copy1k "install_wasm/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm/
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_MAC)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_MAC)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/mac
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_IOS)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_IOS)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/ios
     fi
 
-    if [ ! $(($DIST_FLAGS & $DISTF_TVOS)) = 0 ]; then
+    if [ $(($DIST_FLAGS & $DISTF_TVOS)) != 0 ]; then
         mkdir -p ${DIST_DIR}/lib/tvos
     fi
 
