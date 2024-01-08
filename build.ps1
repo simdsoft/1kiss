@@ -14,15 +14,14 @@ function mkdirs($path) {
     }
 }
 
-println "env:NO_DLL=$env:NO_DLL"
+$_1k_root = $PSScriptRoot
+println "1kiss: _1k_root=$_1k_root"
+
+println "1kiss: env:NO_DLL=$env:NO_DLL"
 
 if ($target_arch -eq 'amd64_arm64') {
     $target_arch = 'arm64'
 }
-
-$_1k_root = $PSScriptRoot
-
-println "_1k_root=$_1k_root"
 
 $build_script = Join-Path "$_1k_root" "1k/build.ps1"
 $fetchd_script = Join-Path "$_1k_root" "1k/fetchd.ps1"
@@ -57,12 +56,21 @@ if ($target_os -eq 'android') {
     $Global:android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_arch]
 }
 elseif ($is_apple_family) {
-    # compile nsdk1k on macOS
-    echo "1kiss: XCODE_VERSION=$env:XCODE_VERSION"
-    $1kiss_bin = Join-Path ~/.1kiss "bin"
-    mkdirs $1kiss_bin
-    g++ -std=c++17 1k/nsdk1k.cpp -o $1kiss_bin/nsdk1k
-    $env:PATH = "${1kiss_bin}:${env:PATH}"
+    # query xcode version
+    $xcode_ver_str = xcodebuild -version | Select-Object -First 1
+    if ($xcode_ver_str) {
+        $matchInfo = [Regex]::Match($xcode_ver_str, '(\d+\.)+(\*|\d+)(\-[a-z]+[0-9]*)?')
+        $Global:XCODE_VERSION = $matchInfo.Value
+    }
+
+    if (!$Global:XCODE_VERSION) {
+        throw "1kiss: query XCODE_VERSION fail"
+    }
+
+    println "1kiss: XCODE_VERSION=$Global:XCODE_VERSION"
+
+    # require xcutils.ps1 for xcode_get_sdkname
+    . $(Join-Path $_1k_root '1k/xcutils.ps1')
 }
 
 mkdirs $install_root

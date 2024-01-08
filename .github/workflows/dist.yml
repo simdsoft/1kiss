@@ -99,4 +99,4 @@ jobs:
           ${{ env.DIST_VERLIST }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPOSITORY: axmolengine/buildware
+        GITHUB_REPOSITORY: simdsoft/1kiss

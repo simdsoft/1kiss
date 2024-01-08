@@ -51,17 +51,16 @@ else {
     }
     elseif ($target_os -eq 'ios' -or $target_os -eq 'tvos') {
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-        $env:OPENSSL_LOCAL_CONFIG_DIR = Join-Path $_1k_root '1k' 
+        $env:OPENSSL_LOCAL_CONFIG_DIR = Join-Path $_1k_root '1k'
 
+        $ossl_target_os = "$target_os-"
         $ios_plat_suffix = 'OS'
-        if ( $target_arch -eq 'x64' ) {
-            # asume x64 as simulator
-            $TARGET_OPTIONS += "ios-sim-cross-$target_uarch"
+        if ( $target_arch -eq 'x64' ) { # asume x64 as simulator
+            $ossl_target_os += 'sim-'
             $ios_plat_suffix = 'Simulator'
         }
-        else {
-            $TARGET_OPTIONS += "ios-cross-$target_arch"
-        }
+        $ossl_target_os += "cross-$target_uarch"
+        $TARGET_OPTIONS += $ossl_target_os
 
         $IOS_PLAT = if ($target_os -eq 'ios') { "iPhone${ios_plat_suffix}" } else { "AppleTV${ios_plat_suffix}" }
         

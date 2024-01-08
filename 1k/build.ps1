@@ -26,7 +26,7 @@
 # SOFTWARE.
 #
 #
-# The 1k/build.ps1, will be core script of project https://github.com/axmolengine/1k
+# The 1k/build.ps1, the core script of project 1kiss(1k)
 # options
 #  -p: build target platform: win32,winrt(winuwp),linux,android,osx(mac),ios,tvos,watchos,wasm
 #      for android: will search ndk in sdk_root which is specified by env:ANDROID_HOME first,
@@ -830,7 +830,7 @@ function setup_llvm() {
                 $7z_pkg_out = Join-Path $external_prefix '7z2301-x64.zip'
                 if (!(Test-Path $7z_prog -PathType Leaf)) {
                     # https://www.7-zip.org/download.html
-                    download_and_expand -url 'https://github.com/axmolengine/archive/releases/download/v1.0.0/7z2301-x64.zip' -out $7z_pkg_out $external_prefix/
+                    download_and_expand -url 'https://github.com/simdsoft/1kiss/releases/download/devtools/7z2301-x64.zip' -out $7z_pkg_out $external_prefix/
                 }
             }
 

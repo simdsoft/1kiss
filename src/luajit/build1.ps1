@@ -40,17 +40,12 @@ else {
         $CONFIG_TARGET = @("HOST_CC=$HOST_CC", "CROSS=$NDKCROSS", "STATIC_CC=$NDKCC", "DYNAMIC_CC=`"$NDKCC -fPIC`"", "TARGET_LD=$NDKCC", "TARGET_SYS=`"Linux`"")
     }
     elseif ($is_apple_family) {
-        if (!$env:XCODE_VERSION) { throw "Missing env var: XCODE_VERSION" }
         if ($target_os -eq 'osx') {
             $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
         }
         # regard ios,tvos x64 as simulator
-        if ($target_arch -eq 'x64' -and ($target_os -eq 'ios' -or $target_os -eq 'tvos')) {
-            $SDK_NAME = $(nsdk1k $env:XCODE_VERSION $target_os 1)
-        }
-        else {
-            $SDK_NAME = $(nsdk1k $env:XCODE_VERSION $target_os)
-        }
+        $use_simulator_sdk =  ($target_os -eq 'ios' -or $target_os -eq 'tvos') -and $target_arch -eq 'x64'
+        $SDK_NAME = $(xcode_get_sdkname $XCODE_VERSION $target_os $use_simulator_sdk)
         println "SDK_NAME=$SDK_NAME"
 
         $target_uarch = $target_arch

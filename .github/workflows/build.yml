@@ -7,7 +7,6 @@ on:
     paths:
       - .github/workflows/build.yml
       - 1k/build*
-      - 1k/nsdk1k.cpp
       - 1k/ios.cmake
       - src/**/build*
       - src/**/install*
@@ -78,9 +77,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: |
-          $env:XCODE_VERSION='${{ steps.setup-xcode.outputs.version }}'
-          ./build.ps1 osx $env:BUILD_ARCH
+        run: ./build.ps1 osx $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -114,9 +111,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: |
-          $env:XCODE_VERSION='${{ steps.setup-xcode.outputs.version }}'
-          ./build.ps1 ios $env:BUILD_ARCH
+        run: ./build.ps1 ios $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -150,9 +145,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: |
-          $env:XCODE_VERSION='${{ steps.setup-xcode.outputs.version }}'
-          ./build.ps1 tvos $env:BUILD_ARCH
+        run: ./build.ps1 tvos $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3

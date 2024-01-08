@@ -3,10 +3,10 @@
 A cross-platform one step build powershell script with auto setup general dependent tools.  
 Your programing life will relex if you're using 1k!
   
-[![Release](https://img.shields.io/github/v/release/axmolengine/buildware?include_prereleases&label=release)](../../releases/latest)
-[![build](https://github.com/axmolengine/buildware/actions/workflows/build.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/build.yml)
-[![dist](https://github.com/axmolengine/buildware/actions/workflows/dist.yml/badge.svg)](https://github.com/axmolengine/buildware/actions/workflows/dist.yml)
-[![Downloads](https://img.shields.io/github/downloads/axmolengine/buildware/total.svg?label=downloads&colorB=orange)](../../releases/latest)
+[![Release](https://img.shields.io/github/v/release/simdsoft/1kiss?include_prereleases&label=release)](../../releases/latest)
+[![build](https://github.com/simdsoft/1kiss/actions/workflows/build.yml/badge.svg)](https://github.com/simdsoft/1kiss/actions/workflows/build.yml)
+[![dist](https://github.com/simdsoft/1kiss/actions/workflows/dist.yml/badge.svg)](https://github.com/simdsoft/1kiss/actions/workflows/dist.yml)
+[![Downloads](https://img.shields.io/github/downloads/simdsoft/1kiss/total.svg?label=downloads&colorB=orange)](../../releases/latest)
 
 ## opensources
 - [![zlib](https://img.shields.io/badge/zlib-green.svg)](https://github.com/madler/zlib)

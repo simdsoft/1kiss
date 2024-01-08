@@ -212,23 +212,18 @@ function dist_lib {
 
     if [ "$verinfo_file" != "" ] ; then
         eval $(parse_yaml "$verinfo_file")
-        if [ "$ver" != "" ] ; then
+        if [ "$rev" = "" ] ; then # no rev, not a git repo
             echo "$LIB_NAME: $ver" >> "$DIST_VERLIST"
             echo "- $LIB_NAME: $ver" >> "$DIST_NOTES"
-        else
-           if [ "$branch" != "" ] && [ "$branch" != "master" ] ; then
-               eval $(parse_yaml "src/${LIB_NAME}/build.yml")
-               if [ "$ver" != "" ] ; then
-                  echo "$LIB_NAME: $ver-$rev" >> "$DIST_VERLIST"
-                  echo "- $LIB_NAME: $ver-$rev" >> "$DIST_NOTES"
-               else
-                  echo "$LIB_NAME: $branch-$rev" >> "$DIST_VERLIST"
-                  echo "- $LIB_NAME: $branch-$rev" >> "$DIST_NOTES"
-               fi
-           else
-               echo "$LIB_NAME: git $rev" >> "$DIST_VERLIST"
-               echo "- $LIB_NAME: git $rev" >> "$DIST_NOTES"
-           fi
+        else # have rev, is a git repo
+            if [ "$branch" != "" ] ; then
+                eval $(parse_yaml "src/${LIB_NAME}/build.yml")
+                echo "$LIB_NAME: $ver-$rev" >> "$DIST_VERLIST"
+                echo "- $LIB_NAME: $ver-$rev" >> "$DIST_NOTES"
+            else
+                echo "$LIB_NAME: git $rev" >> "$DIST_VERLIST"
+                echo "- $LIB_NAME: git $rev" >> "$DIST_NOTES"
+            fi
         fi
     else
         # read version from src/${LIB_NAME}/build.yml

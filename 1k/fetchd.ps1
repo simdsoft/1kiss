@@ -42,7 +42,7 @@ if ($folder_name.EndsWith('.tar')) {
 }
 $lib_src = Join-Path $prefix $folder_name
 
-function download_repo($url, $out) {
+function fetch_repo($url, $out) {
     if (!$url.EndsWith('.git')) {
         download_file $url $out
         if ($out.EndsWith('.zip')) {
@@ -75,11 +75,12 @@ if (!(Test-Path $sentry -PathType Leaf)) {
     }
     elseif ($url.EndsWith('.zip')) {
         $out_file = Join-Path $cache_dir "${folder_name}.zip"
-    } else {
+    }
+    else {
         $out_file = $null
     }
 
-    download_repo -url $url -out $out_file
+    fetch_repo -url $url -out $out_file
     
     if (Test-Path $lib_src -PathType Container) {
         New-Item $sentry -ItemType File
@@ -98,26 +99,26 @@ if ($is_git_repo) {
 
     $new_rev_hash = $(git -C $lib_src rev-parse HEAD)
 
-    if(!$is_rev_modified) {
+    if (!$is_rev_modified) {
         $is_rev_modified = $old_rev_hash -ne $new_rev_hash
     }
 }
 
 if ($is_rev_modified) {
-    $branch_name = $(git -C $lib_src branch --show-current)
     $sentry_content = "ver: $version"
-    if ($branch_name) {
-        git pull
-        $commits = $(git -C $lib_src rev-list --count HEAD)
-        $sentry_content += "`nbranch: $branch_name"
-        $sentry_content += "`ncommits: $commits"
 
-        # track branch change revision to latest short commit hash of branch
-        $revision = $(git -C $lib_src rev-parse --short=7 HEAD)
+    if ($is_git_repo) {
+        $branch_name = $(git -C $lib_src branch --show-current)
+        if ($branch_name) { # track branch
+            git pull
+            $commits = $(git -C $lib_src rev-list --count HEAD)
+            $sentry_content += "`nbranch: $branch_name"
+            $sentry_content += "`ncommits: $commits"
+            $revision = $(git -C $lib_src rev-parse --short=7 HEAD)
+            $sentry_content += "`nrev: $revision"
+        }
     }
-    if ($version -ne $revision) {
-        $sentry_content += "`nrev: $revision"
-    }
+
     [System.IO.File]::WriteAllText($sentry, $sentry_content)
 }
 
