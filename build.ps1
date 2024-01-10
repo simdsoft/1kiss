@@ -1,12 +1,8 @@
 $target_os = $args[0]
-$target_arch = $args[1]
+$target_cpu = $args[1]
 $build_libs = $args[2]
 
 Set-Alias println Write-Host
-
-function eval($str) {
-    return Invoke-Expression "`"$str`""
-}
 
 function mkdirs($path) {
     if (!(Test-Path $path -PathType Container)) {
@@ -14,23 +10,40 @@ function mkdirs($path) {
     }
 }
 
+# determine build lib list
+if (!$build_libs) {
+    $build_libs = @(
+        'zlib'
+        'openssl'
+        'cares'
+        'curl'
+        'jpeg-turbo'
+        'luajit'
+        'angle'
+    )
+} else {
+    if($build_libs -isnot [array]) { # not array, split by ','
+        $build_libs = $build_libs -split ","
+    }
+}
+Write-Output "building $($build_libs.Count) libs ...", $build_libs
+
 $_1k_root = $PSScriptRoot
 println "1kiss: _1k_root=$_1k_root"
 
 println "1kiss: env:NO_DLL=$env:NO_DLL"
 
-if ($target_arch -eq 'amd64_arm64') {
-    $target_arch = 'arm64'
+if ($target_cpu -eq 'amd64_arm64') {
+    $target_cpu = 'arm64'
 }
 
 $build_script = Join-Path "$_1k_root" "1k/build.ps1"
 $fetchd_script = Join-Path "$_1k_root" "1k/fetchd.ps1"
-$build_src = Join-Path $_1k_root "buildsrc_$target_os"
+$build_src = Join-Path $_1k_root "buildsrc"
 $install_path = "install_${target_os}"
 
-if ($target_arch -ne '*') {
-    $build_src = "${build_src}_$target_arch"
-    $install_path = "${install_path}_$target_arch"
+if ($target_cpu -ne '*') {
+    $install_path = "${install_path}_$target_cpu"
 }
 $install_root = Join-Path $_1k_root $install_path
 
@@ -42,20 +55,33 @@ if ((Get-Module -ListAvailable -Name powershell-yaml) -eq $null) {
     Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 }
 
-if (!$build_libs) {
-    $build_libs = "zlib,openssl,cares,curl,jpeg-turbo,luajit"
-}
-
-$build_libs = $build_libs -split ","
-
-. $build_script -p $target_os -a $target_arch -setupOnly -ndkOnly
+. $build_script -p $target_os -a $target_cpu -setupOnly -ndkOnly
 setup_nasm
 
-if ($target_os -eq 'android') {
-    active_ndk_toolchain
-    $Global:android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_arch]
+if ($IsWin) {
+    #relocate powershell.exe to opensource edition pwsh.exe to solve angle gclient execute issues:
+    # Get-FileHash is not recognized as a name of a cmdlet
+    $pwshPath = $(Get-Command pwsh).Path
+    $pwshDir =  Split-Path -Path $pwshPath
+
+    echo "Before relocate powershell"
+    powershell -Command {$pwshVSI='PowerShell ' + $PSVersionTable.PSVersion.ToString();echo $pwshVSI}
+
+    $eap = $ErrorActionPreference
+    $ErrorActionPreference = 'SilentlyContinue'
+    Copy-Item "$pwshDir\pwsh.exe" "$pwshDir\powershell.exe"
+    $ErrorActionPreference = $eap
+
+    $env:Path = "$pwshPath;$env:Path"
+    echo "After relocate powershell"
+    powershell -Command {$pwshVSI='PowerShell ' + $PSVersionTable.PSVersion.ToString();echo $pwshVSI}
 }
-elseif ($is_apple_family) {
+
+if ($Global:is_android) {
+    active_ndk_toolchain
+    $Global:android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_cpu]
+}
+elseif ($is_darwin_family) {
     # query xcode version
     $xcode_ver_str = xcodebuild -version | Select-Object -First 1
     if ($xcode_ver_str) {
@@ -82,9 +108,14 @@ if ($is_win_family) {
 }
 else {
     $os_family = 'unix'
-    if ($target_os -eq 'ios' -or $target_os -eq 'tvos' -or $target_os -eq 'android') {
+    if ($Global:is_ios -or $Global:is_tvos -or $Global:is_android) {
         $embed_family = 'embed'
     }
+}
+
+$darwin_family = ''
+if ($is_darwin_family) {
+    $darwin_family = 'darwin'
 }
 
 Foreach ($lib_name in $build_libs) {
@@ -118,10 +149,13 @@ Foreach ($lib_name in $build_libs) {
     if ($build_conf."options_$embed_family") {
         $build_conf.options += ($build_conf."options_$embed_family" -split ' ')
     }
+    if ($build_conf."options_$darwin_family") {
+        $build_conf.options += ($build_conf."options_$darwin_family" -split ' ')
+    }
     if ($build_conf."options_$target_os") {
         $build_conf.options += ($build_conf."options_$target_os" -split ' ')
     }
-
+    
     # fetch repo, return variable: $lib_src
     $rel_script = Join-Path $_1k_root "src/$lib_name/rel1.ps1"
     $version = $build_conf.ver
@@ -166,16 +200,16 @@ Foreach ($lib_name in $build_libs) {
 
             $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir"
         
-            &$build_script -p $target_os -a $target_arch -xc $_config_options -xb '--target', 'install'
+            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install'
         } elseif($is_gn) {
-            &$build_script -p $target_os -a $target_arch -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)"
+            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)"
         } else {
             throw "Unsupported cross build tool: $($build_conf.cb_tool)"
         }
     }
     else {
         $custom_build_script = Join-Path $_1k_root "src/$lib_name/build1.ps1"
-        . $custom_build_script $target_os $target_arch $install_dir
+        . $custom_build_script $target_os $target_cpu $install_dir
     }
     Pop-Location
 

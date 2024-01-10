@@ -1,8 +1,9 @@
 $target_os = $args[0]
-$target_arch = $args[1]
-$install_dir = $args[2]
+$target_cpu = $args[1]
+# $install_dir = $args[2]
 
 if ($is_win_family) {
+    setup_msvc
     Push-Location 'src'
     .\msvcbuild.bat
     Pop-Location
@@ -10,8 +11,8 @@ if ($is_win_family) {
 else {
     # config
     $CONFIG_TARGET = $null
-    if ($target_os -eq 'android') {
-        $is_32bit_target = $target_arch -eq 'armv7' -or $target_arch -eq 'x86'
+    if ($Global:is_android) {
+        $is_32bit_target = $target_cpu -eq 'armv7' -or $target_cpu -eq 'x86'
         if ($is_32bit_target) {
             if ($IsLinux) {
                 sudo apt update
@@ -24,7 +25,7 @@ else {
             x64   = 'x86_64-linux-android'; 
             armv7 = 'armv7a-linux-androideabi'; 
             x86   = 'i686-linux-android'
-        }[$target_arch]
+        }[$target_cpu]
 
         $NDKCROSS = "$NDKBIN/$cross_toolchain-"
         $NDKCC = "$NDKBIN/$cross_toolchain$android_api_level-clang" 
@@ -39,24 +40,24 @@ else {
         }
         $CONFIG_TARGET = @("HOST_CC=$HOST_CC", "CROSS=$NDKCROSS", "STATIC_CC=$NDKCC", "DYNAMIC_CC=`"$NDKCC -fPIC`"", "TARGET_LD=$NDKCC", "TARGET_SYS=`"Linux`"")
     }
-    elseif ($is_apple_family) {
-        if ($target_os -eq 'osx') {
+    elseif ($is_darwin_family) {
+        if ($Global:is_mac) {
             $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
         }
         # regard ios,tvos x64 as simulator
-        $use_simulator_sdk =  ($target_os -eq 'ios' -or $target_os -eq 'tvos') -and $target_arch -eq 'x64'
+        $use_simulator_sdk =  ($Global:is_ios -or $Global:is_tvos -or $Global:is_watchos) -and $target_cpu -eq 'x64'
         $SDK_NAME = $(xcode_get_sdkname $XCODE_VERSION $target_os $use_simulator_sdk)
         println "SDK_NAME=$SDK_NAME"
 
-        $target_uarch = $target_arch
-        if ($target_arch -eq 'x64') { $target_uarch = 'x86_64' }
+        $luajit_target_cpu = $target_cpu
+        if ($target_cpu -eq 'x64') { $luajit_target_cpu = 'x86_64' }
 
         $HOST_CC = "gcc -std=c99"
         $XCFLAGS = "-DLJ_NO_SYSTEM=1"
         $ISDKP = $(xcrun --sdk $SDK_NAME --show-sdk-path)
         $ICC = $(xcrun --sdk $SDK_NAME --find clang)
-        $ISDKF = "-arch $target_uarch -isysroot $ISDKP"
-        $TARGET_SYS = if ($target_os -eq 'osx') { 'Darwin' } else { 'iOS' }
+        $ISDKF = "-arch $luajit_target_cpu -isysroot $ISDKP"
+        $TARGET_SYS = if ($Global:is_mac) { 'Darwin' } else { 'iOS' }
         $CONFIG_TARGET = @('DEFAULT_CC=clang', "HOST_CC=`"$HOST_CC`"", "CROSS=`"$(dirname $ICC)/`"", "TARGET_FLAGS=`"$ISDKF`"", "TARGET_SYS=$TARGET_SYS", "XCFLAGS=`"$XCFLAGS`"", "LUAJIT_A=libluajit.a")
     }
 
