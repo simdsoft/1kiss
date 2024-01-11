@@ -1,5 +1,5 @@
 $target_os = $args[0]
-$target_arch = $args[1]
+$target_cpu = $args[1]
 $install_dir = $args[2]
 
 $CONFIG_ALL_OPTIONS = $build_conf.options
@@ -13,7 +13,7 @@ $env:CXX = $null
 
 if ($target_os.StartsWith('win')) {
     # require preinstalled perl interpreter: https://strawberryperl.com/releases.html
-    if ($target_arch -eq "x86") {
+    if ($target_cpu -eq "x86") {
         if (!$is_winrt) {
             $TARGET_OPTIONS += 'VC-WIN32'
         }
@@ -26,14 +26,14 @@ if ($target_os.StartsWith('win')) {
             $TARGET_OPTIONS += 'VC-WIN64A'
         }
         else {
-            if ($target_arch -eq 'x64') {
+            if ($target_cpu -eq 'x64') {
                 $TARGET_OPTIONS += 'VC-WIN64A-UWP'
             }
-            elseif ($target_arch -eq 'arm64') {
+            elseif ($target_cpu -eq 'arm64') {
                 $TARGET_OPTIONS += 'VC-WIN64-ARM-UWP'
             }
             else {
-                Write-Output "Unsupported arch: $target_arch"
+                Write-Output "Unsupported arch: $target_cpu"
                 return 1
             }
         }
@@ -44,38 +44,38 @@ if ($target_os.StartsWith('win')) {
     }
 }
 else {
-    $target_uarch = if ($target_arch -eq 'x64') { 'x86_64' } else { $target_arch }
+    $ossl_target_cpu = if ($target_cpu -eq 'x64') { 'x86_64' } else { $target_cpu }
     
-    if ($target_os -eq 'osx') {
-        $TARGET_OPTIONS += "darwin64-$target_uarch-cc"
+    if ($Global:is_mac) {
+        $TARGET_OPTIONS += "darwin64-$ossl_target_cpu-cc"
     }
-    elseif ($target_os -eq 'ios' -or $target_os -eq 'tvos') {
+    elseif ($Global:is_ios -or $Global:is_tvos) {
         # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
         $env:OPENSSL_LOCAL_CONFIG_DIR = Join-Path $_1k_root '1k'
 
         $ossl_target_os = "$target_os-"
         $ios_plat_suffix = 'OS'
-        if ( $target_arch -eq 'x64' ) { # asume x64 as simulator
+        if ( $target_cpu -eq 'x64' ) { # asume x64 as simulator
             $ossl_target_os += 'sim-'
             $ios_plat_suffix = 'Simulator'
         }
-        $ossl_target_os += "cross-$target_uarch"
+        $ossl_target_os += "cross-$ossl_target_cpu"
         $TARGET_OPTIONS += $ossl_target_os
 
-        $IOS_PLAT = if ($target_os -eq 'ios') { "iPhone${ios_plat_suffix}" } else { "AppleTV${ios_plat_suffix}" }
+        $IOS_PLAT = if ($Global:is_ios) { "iPhone${ios_plat_suffix}" } else { "AppleTV${ios_plat_suffix}" }
         
         $env:CROSS_TOP = "$(xcode-select -print-path)/Platforms/$IOS_PLAT.platform/Developer"
         $env:CROSS_SDK = "$IOS_PLAT.sdk"
     }
-    elseif ($target_os -eq 'android') {
-        if ($target_uarch.EndsWith('v7')) { $target_uarch = $target_uarch.TrimEnd('v7') }
-        $TARGET_OPTIONS += "android-$target_uarch"
+    elseif ($Global:is_android) {
+        if ($ossl_target_cpu.EndsWith('v7')) { $ossl_target_cpu = $ossl_target_cpu.TrimEnd('v7') }
+        $TARGET_OPTIONS += "android-$ossl_target_cpu"
         $TARGET_OPTIONS += "-D__ANDROID_API__=$android_api_level"
-        if ( $target_arch -eq "x86" ) {
+        if ( $target_cpu -eq "x86" ) {
             $TARGET_OPTIONS += '-latomic'
         }
     }
-    elseif ($target_os -eq 'wasm') {
+    elseif ($Global:is_wasm) {
         $env:CFLAGS = '-pthread -O3'
         $env:LDFLAGS = "-s FILESYSTEM=1 -s INVOKE_RUN=0` -s USE_ES6_IMPORT_META=0 -pthread"
         $env:CC = 'emcc'
@@ -88,6 +88,7 @@ $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
 Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
 if ($target_os.StartsWith('win')) {
+    setup_msvc
     perl Configure $CONFIG_ALL_OPTIONS
     perl configdata.pm --dump
     nmake install_sw

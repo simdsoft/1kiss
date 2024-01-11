@@ -1,0 +1,12 @@
+diff --git "a/gn.py" "b/gn.py"
+index 296042ed..6a181eac 100644
+--- "a/gn.py"
++++ "b/gn.py"
+@@ -90,6 +90,7 @@ def main(args):
+ 
+ if __name__ == '__main__':
+     try:
++        print(sys.argv)
+         sys.exit(main(sys.argv))
+     except KeyboardInterrupt:
+         sys.stderr.write('interrupted\n')

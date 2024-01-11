@@ -24,7 +24,7 @@ if ((Test-Path $install_dir -PathType Container)) {
         if ($TARGET_OS -eq "linux") {
             mv $install_dir/lib64 $install_dir/lib
         }
-        elseif($TARGET_OS -eq 'wasm') {
+        elseif($Global:is_wasm) {
             mv "$install_dir/libx32" "$install_dir/lib"
         }
 

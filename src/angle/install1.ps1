@@ -1,31 +1,44 @@
 $install_dir = $args[0]
 $buildsrc_dir  = $args[1]
 
-# copy includes
-if (!(Test-Path "$install_dir\include" -PathType Container)) {
-    mkdir "$install_dir\include"
-}
+$buildout = Join-Path $Global:BUILD_DIR '/'
 
-Copy-Item -Path "$buildsrc_dir\include\*" -Destination "$install_dir\include" -Recurse -Force
+println "list build output dir ..."
+Get-ChildItem $buildout
 
 # copy .lib
-if (!(Test-Path "$install_dir\lib" -PathType Container)) {
-    mkdir "$install_dir\lib"
+$inst_lib_dir = Join-Path $install_dir 'lib/'
+mkdirs $inst_lib_dir
+
+if ($Global:is_win_family) {
+    # copy includes
+    $inst_inc_dir = Join-Path $install_dir 'include'
+    mkdirs $inst_inc_dir
+    Copy-Item -Path $(Join-Path $buildsrc_dir 'include/*') -Destination $inst_inc_dir -Recurse -Force
+
+    # copy .lib
+    Copy-Item "${buildout}libGLESv2.dll.lib" "${inst_lib_dir}libGLESv2.dll.lib" -Force
+    Copy-Item "${buildout}libEGL.dll.lib" "${inst_lib_dir}libEGL.dll.lib" -Force
+
+    # copy .dll
+    $inst_bin_dir = Join-Path $install_dir 'bin/'
+    mkdirs $inst_bin_dir
+    Copy-Item "${buildout}libGLESv2.dll" "${inst_bin_dir}libGLESv2.dll" -Force
+    Copy-Item "${buildout}libEGL.dll" "${inst_bin_dir}libEGL.dll" -Force
+
+    if (Test-Path "${buildout}d3dcompiler_47.dll" -PathType Leaf) {
+        Copy-Item "${buildout}d3dcompiler_47.dll" "${inst_bin_dir}d3dcompiler_47.dll" -Force
+    }
+} elseif($Global:is_mac) {
+    Copy-Item "${buildout}libGLESv2.dylib" "${inst_lib_dir}libGLESv2.dylib" -Force
+    Copy-Item "${buildout}libEGL.dylib" "${inst_lib_dir}libEGL.dylib" -Force
+} elseif($Global:is_android) {
+    Copy-Item "${buildout}libGLESv2_angle.so" "${inst_lib_dir}libGLESv2_angle.so" -Force
+    Copy-Item "${buildout}libEGL_angle.so" "${inst_lib_dir}libEGL_angle.so" -Force
+} elseif($Global:is_darwin_embed_family) {
+    Copy-Item "${buildout}libGLESv2.Framework" "${inst_lib_dir}libGLESv2.Framework" -Recurse -Force
+    Copy-Item "${buildout}libEGL.Framework" "${inst_lib_dir}libEGL.Framework" -Recurse -Force
 }
 
-Copy-Item "$buildsrc_dir\out\release\libGLESv2.dll.lib" "$install_dir\lib\libGLESv2.dll.lib" -Force
-Copy-Item "$buildsrc_dir\out\release\libEGL.dll.lib" "$install_dir\lib\libEGL.dll.lib" -Force
-
-# copy .dll
-if (!(Test-Path "$install_dir\bin" -PathType Container)) {
-    mkdir "$install_dir\bin"
-}
-Copy-Item "$buildsrc_dir\out\release\libGLESv2.dll" "$install_dir\bin\libGLESv2.dll" -Force
-Copy-Item "$buildsrc_dir\out\release\libEGL.dll" "$install_dir\bin\libEGL.dll" -Force
-
-if (Test-Path "$buildsrc_dir\out\release\d3dcompiler_47.dll" -PathType Leaf) {
-    Copy-Item "$buildsrc_dir\out\release\d3dcompiler_47.dll" "$install_dir\bin\d3dcompiler_47.dll" -Force
-}
-
-Write-Output "[windows] list ${install_dir}..."
+println "list install dir ..."
 Get-ChildItem -R "$install_dir"
