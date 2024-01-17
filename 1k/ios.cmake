@@ -136,16 +136,15 @@ endif()
 # by default, we want find host program only when cross-compiling
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER CACHE STRING "")
 
-# Sets CMAKE_SYSTEM_PROCESSOR for device and simulator properly
-string(TOLOWER "${CMAKE_OSX_SYSROOT}" lowercase_CMAKE_OSX_SYSROOT)
-if("${lowercase_CMAKE_OSX_SYSROOT}" MATCHES ".*simulator")
-    if("${CMAKE_OSX_ARCHITECTURES}" MATCHES "i386")
-        set(CMAKE_SYSTEM_PROCESSOR i386)
-    elseif()
-        set(CMAKE_SYSTEM_PROCESSOR ${ARCHS})
-    endif()
-else()
-    set(CMAKE_SYSTEM_PROCESSOR arm64)
+# Sets CMAKE_SYSTEM_PROCESSOR properly
+if(ARCHS MATCHES "((arm64|arm64e|x86_64)(^|;|, )?)+")
+  set(CMAKE_C_SIZEOF_DATA_PTR 8)
+  set(CMAKE_CXX_SIZEOF_DATA_PTR 8)
+  if(ARCHS MATCHES "((arm64|arm64e)(^|;|, )?)+")
+    set(CMAKE_SYSTEM_PROCESSOR "arm64")
+  else()
+    set(CMAKE_SYSTEM_PROCESSOR "x86_64")
+  endif()
 endif()
 
 # This little function lets you set any XCode specific property, refer to: ios.toolchain.cmake
