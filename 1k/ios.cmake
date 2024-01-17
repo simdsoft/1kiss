@@ -1,6 +1,6 @@
 #
 # The minimal ios toolchain file: https://github.com/yasio/yasio/blob/dev/cmake/ios.cmake
-# version: 4.1.2
+# version: 4.1.3
 #
 # The supported params:
 #   PLAT: iOS, tvOS, default: iOS
@@ -141,14 +141,8 @@ string(TOLOWER "${CMAKE_OSX_SYSROOT}" lowercase_CMAKE_OSX_SYSROOT)
 if("${lowercase_CMAKE_OSX_SYSROOT}" MATCHES ".*simulator")
     if("${CMAKE_OSX_ARCHITECTURES}" MATCHES "i386")
         set(CMAKE_SYSTEM_PROCESSOR i386)
-    elseif("${CMAKE_OSX_ARCHITECTURES}" MATCHES "x86_64")
-        set(CMAKE_SYSTEM_PROCESSOR x86_64)
-    else() # Since xcode12, default arch for simulator is arm64
-        if(${XCODE_VERSION} LESS "12.0.0")
-            set(CMAKE_SYSTEM_PROCESSOR x86_64)
-        else()
-            set(CMAKE_SYSTEM_PROCESSOR arm64)
-        endif()
+    elseif()
+        set(CMAKE_SYSTEM_PROCESSOR ${ARCHS})
     endif()
 else()
     set(CMAKE_SYSTEM_PROCESSOR arm64)
