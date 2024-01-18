@@ -11,5 +11,3 @@ if ($IsWindows) {
 } else {
     $manifest['nasm'] = '2.15.05+'
 }
-
-# [void]$manifest

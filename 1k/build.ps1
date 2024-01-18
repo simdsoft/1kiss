@@ -93,6 +93,9 @@ $exeSuffix = if ($HOST_OS -eq 0) { '.exe' } else { '' }
 
 $Script:cmake_generator = $null
 
+# import VersionEx
+. (Join-Path $PSScriptRoot 'extensions.ps1')
+
 class build1k {
     [void] println($msg) {
         Write-Host "1kiss: $msg"
@@ -203,6 +206,11 @@ $channels = @{}
 # refer to: https://developer.android.com/studio#command-line-tools-only
 $cmdlinetools_rev = '10406996'
 
+$android_sdk_tools = @{
+    'build-tools' = '34.0.0'
+    'platforms' = 'android-34'
+}
+
 $options = @{
     p      = $null
     a      = $null
@@ -244,7 +252,7 @@ if ($options.xb.GetType() -eq [string]) {
 }
 
 $pwsh_ver = $PSVersionTable.PSVersion.ToString()
-if ([System.Version]$pwsh_ver -lt [System.Version]"7.0.0") {
+if ([VersionEx]$pwsh_ver -lt [VersionEx]"7.0") {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 }
 
@@ -292,6 +300,8 @@ $Global:is_win_family = $Global:is_winrt -or $Global:is_win32
 $Global:is_darwin_embed_family = $Global:is_ios -or $Global:is_tvos -or $Global:is_watchos
 $Global:is_darwin_family = $Global:is_mac -or $Global:is_darwin_embed_family
 $Global:is_gh_act = "$env:GITHUB_ACTIONS" -eq 'true'
+
+$Script:cmake_ver = ''
 
 if (!$is_wasm) {
     $TARGET_CPU = $options.a
@@ -371,7 +381,7 @@ function version_eq($ver1, $ver2) {
 function version_ge($ver1, $ver2) {
     $validatedVer = [Regex]::Match($ver1, '(\d+\.)+(-)?(\*|\d+)')
     if ($validatedVer.Success) {
-        return [System.Version]$validatedVer.Value -ge [System.Version]$ver2
+        return [VersionEx]$validatedVer.Value -ge [VersionEx]$ver2
     }
     return $false
 }
@@ -380,9 +390,9 @@ function version_ge($ver1, $ver2) {
 function version_in_range($ver1, $verMin, $verMax) {
     $validatedVer = [Regex]::Match($ver1, '(\d+\.)+(-)?(\*|\d+)')
     if ($validatedVer.Success) {
-        $typedVer1 = [System.Version]$validatedVer.Value
-        $typedVerMin = [System.Version]$verMin
-        $typedVerMax = [System.Version]$verMax
+        $typedVer1 = [VersionEx]$validatedVer.Value
+        $typedVerMin = [VersionEx]$verMin
+        $typedVerMax = [VersionEx]$verMax
         return $typedVer1 -ge $typedVerMin -and $typedVer1 -le $typedVerMax
     }
     return $false
@@ -498,8 +508,8 @@ function find_prog($name, $path = $null, $mode = 'ONLY', $cmd = $null, $params =
                 $verStr = "$($verInfo.Major).$($verInfo.Minor).$($verInfo.Build)"
             }
 
-            # full pattern: '(\d+\.)+(\*|\d+)(\-[a-z]+[0-9]*)?' can match x.y.z-rc3, but not require for us
-            $matchInfo = [Regex]::Match($verStr, '(\d+\.)+(\*|\d+)(\-[a-z]+[0-9]*)?')
+            # can match x.y.z-rc3 or x.y.z-65a239b
+            $matchInfo = [Regex]::Match($verStr, '(\d+\.)+(\*|\d+)(\-[a-z0-9]+)?')
             $foundVer = $matchInfo.Value
         } else {
             $foundVer = "$($cmd_info.Version)"
@@ -657,7 +667,7 @@ function setup_ninja() {
 function setup_cmake($skipOS = $false) {
     $cmake_prog, $cmake_ver = find_prog -name 'cmake'
     if ($cmake_prog -and (!$skipOS -or $cmake_prog.IndexOf($myRoot) -ne -1)) {
-        return $cmake_prog
+        return $cmake_prog, $cmake_ver
     }
 
     $cmake_root = $(Join-Path $external_prefix 'cmake')
@@ -667,11 +677,6 @@ function setup_cmake($skipOS = $false) {
         $b1k.rmdirs($cmake_root)
 
         $cmake_suffix = @(".zip", ".sh", ".tar.gz").Get($HOST_OS)
-        $cmake_dev_hash = $channels['cmake']
-        if ($cmake_dev_hash) {
-            $cmake_ver = "$cmake_ver-$cmake_dev_hash"
-        }
-
         if ($HOST_OS -ne $HOST_MAC) {
             $cmake_pkg_name = "cmake-$cmake_ver-$HOST_OS_NAME-x86_64"
         }
@@ -681,11 +686,12 @@ function setup_cmake($skipOS = $false) {
 
         $cmake_pkg_path = Join-Path $external_prefix "$cmake_pkg_name$cmake_suffix"
 
-        if (!$cmake_dev_hash) {
+        $assemble_url = $channels['cmake']
+        if (!$assemble_url) {
             $cmake_url = "https://github.com/Kitware/CMake/releases/download/v$cmake_ver/$cmake_pkg_name$cmake_suffix"
         }
         else {
-            $cmake_url = "https://cmake.org/files/dev/$cmake_pkg_name$cmake_suffix"
+            $cmake_url = & $assemble_url -FileName "$cmake_pkg_name$cmake_suffix"
         }
 
         $cmake_dir = Join-Path $external_prefix $cmake_pkg_name
@@ -713,7 +719,7 @@ function setup_cmake($skipOS = $false) {
         }
         elseif ($IsLinux) {
             $b1k.mkdirs($cmake_root)
-            & "$cmake_pkg_path" '--skip-license' '--exclude-subdir' "--prefix=$cmake_root"
+            & "$cmake_pkg_path" '--skip-license' '--exclude-subdir' "--prefix=$cmake_root" 1>$null 2>$null
         }
 
         $cmake_prog, $_ = find_prog -name 'cmake' -path $cmake_bin -silent $true
@@ -727,7 +733,7 @@ function setup_cmake($skipOS = $false) {
     if (($null -ne $cmake_bin) -and ($env:PATH.IndexOf($cmake_bin) -eq -1)) {
         $env:PATH = "$cmake_bin$ENV_PATH_SEP$env:PATH"
     }
-    return $cmake_prog
+    return $cmake_prog, $cmake_ver
 }
 
 function ensure_cmake_ninja($cmake_prog, $ninja_prog) {
@@ -738,6 +744,12 @@ function ensure_cmake_ninja($cmake_prog, $ninja_prog) {
         $ninja_symlink_target = Join-Path $cmake_bin (Split-Path $ninja_prog -Leaf)
         # try link ninja exist cmake bin directory
         & "$myRoot\fsync.ps1" -s $ninja_prog -d $ninja_symlink_target -l $true 2>$null
+
+        if(!$? -and $IsWin) { # try runas admin again
+            $mklink_args = "-Command ""& ""$myRoot\fsync.ps1"" -s '$ninja_prog' -d '$ninja_symlink_target' -l `$true 2>`$null"""
+            Write-Host "mklink_args={$mklink_args}"
+            Start-Process powershell -ArgumentList $mklink_args -WindowStyle Hidden -Wait -Verb runas
+        }
     }
     return $?
 }
@@ -1014,7 +1026,7 @@ function setup_android_sdk() {
 
             ((1..10 | ForEach-Object { "yes"; Start-Sleep -Milliseconds 100 }) | . $sdkmanager_prog --licenses --sdk_root=$sdk_root) | Out-Host
             if (!$ndkOnly) {
-                exec_prog -prog $sdkmanager_prog -params '--verbose', "--sdk_root=$sdk_root", 'platform-tools', 'cmdline-tools;latest', 'platforms;android-33', 'build-tools;30.0.3', 'cmake;3.22.1', $ndkFullVer | Out-Host
+                exec_prog -prog $sdkmanager_prog -params '--verbose', "--sdk_root=$sdk_root", 'platform-tools', 'cmdline-tools;latest', "platforms;$($android_sdk_tools['platforms'])", "build-tools;$($android_sdk_tools['build-tools'])", $ndkFullVer | Out-Host
             }
             else {
                 exec_prog -prog $sdkmanager_prog -params '--verbose', "--sdk_root=$sdk_root", $ndkFullVer | Out-Host
@@ -1112,6 +1124,7 @@ function setup_gclient() {
         } else {
             git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git $gclient_dir
         }
+
     }
 
     if ($env:PATH.IndexOf($gclient_dir) -eq -1) {
@@ -1133,7 +1146,7 @@ $Global:VS_VERSION = $null
 $Global:VS_PATH = $null
 $Global:VS_INST = $null
 function find_vs_latest() {
-    $vs_version = [System.Version]'12.0.0.0'
+    $vs_version = [VersionEx]'12.0'
     if (!$Global:VS_INST) {
         $VSWHERE_EXE = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $eap = $ErrorActionPreference
@@ -1145,7 +1158,7 @@ function find_vs_latest() {
         if($vs_installs) {
             $vs_inst_latest = $null
             foreach($vs_inst in $vs_installs) {
-                $inst_ver = [System.Version]$vs_inst.installationVersion
+                $inst_ver = [VersionEx]$vs_inst.installationVersion
                 if ($vs_version -lt $inst_ver) {
                     $vs_version = $inst_ver
                     $vs_inst_latest = $vs_inst
@@ -1173,7 +1186,7 @@ function preprocess_win([string[]]$inputOptions) {
         $arch = if ($options.a -eq 'x86') { 'Win32' } else { $options.a }
 
         # arch
-        if ($VS_VERSION -ge [System.Version]'16.0.0.0') {
+        if ($VS_VERSION -ge [VersionEx]'16.0') {
             $outputOptions += '-A', $arch
             if ($TOOLCHAIN_VER) {
                 $outputOptions += "-Tv$TOOLCHAIN_VER"
@@ -1243,7 +1256,7 @@ function preprocess_andorid([string[]]$inputOptions) {
 
         $archs = $archlist -join ':' # TODO: modify gradle, split by ';'
 
-        $outputOptions += "-P__1K_CMAKE_VERSION=$($manifest['cmake'])"
+        $outputOptions += "-P__1K_CMAKE_VERSION=$($Script:cmake_ver.TrimLast('-'))"
         $outputOptions += "-P__1K_ARCHS=$archs"
         $outputOptions += '--parallel', '--info'
     }
@@ -1363,7 +1376,7 @@ validHostAndToolchain
 
 $null = setup_glslcc
 
-$cmake_prog = setup_cmake
+$cmake_prog,$Script:cmake_ver = setup_cmake
 
 if ($Global:is_win_family) {
     find_vs_latest
@@ -1381,6 +1394,14 @@ if ($Global:is_win32) {
 }
 elseif ($Global:is_android) {
     $ninja_prog = setup_ninja
+    # ensure ninja in cmake_bin
+    if (!(ensure_cmake_ninja $cmake_prog $ninja_prog)) {
+        $cmake_prog,$Script:cmake_ver = setup_cmake -Force
+        if (!(ensure_cmake_ninja $cmake_prog $ninja_prog)) {
+            $b1k.println("Ensure ninja in cmake bin directory fail")
+        }
+    }
+
     $null = setup_jdk # setup android sdk cmdlinetools require jdk
     $sdk_root, $ndk_root = setup_android_sdk
     $env:ANDROID_HOME = $sdk_root
@@ -1393,15 +1414,6 @@ elseif ($Global:is_android) {
 
     $ndk_host = @('windows', 'linux', 'darwin').Get($HOST_OS)
     $env:ANDROID_NDK_BIN = Join-Path $ndk_root "toolchains/llvm/prebuilt/$ndk_host-x86_64/bin"
-
-    # ensure ninja in cmake_bin
-    if (!(ensure_cmake_ninja $cmake_prog $ninja_prog)) {
-        $cmake_prog = setup_cmake -Force
-        if (!(ensure_cmake_ninja $cmake_prog $ninja_prog)) {
-            $b1k.println("Ensure ninja in cmake bin directory fail")
-        }
-    }
-
     function active_ndk_toolchain() {
         if ($env:PATH.IndexOf($env:ANDROID_NDK_BIN) -eq -1) {
             $env:PATH = "$env:ANDROID_NDK_BIN$ENV_PATH_SEP$env:PATH"
@@ -1692,7 +1704,7 @@ if (!$setupOnly) {
             cmd /c "gn $gn_gen_args"
         }
         else {
-            if ([System.Version]$pwsh_ver -ge [System.Version]'7.3.0') {
+            if ([VersionEx]$pwsh_ver -ge [VersionEx]'7.3') {
                 bash -c "gn $gn_gen_args"
             } else {
                 gn $gn_gen_args
