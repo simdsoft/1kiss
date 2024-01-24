@@ -1,0 +1,10 @@
+repo: https://dawn.googlesource.com/dawn.git
+ver: 121
+tag_prefix: ''
+tag_dot2ul: false
+targets: win32,winrt
+cb_tool: gn
+cb_target: ''
+options: is_debug=false treat_warnings_as_errors=false
+options_darwin: 
+options_msw: is_clang=false
