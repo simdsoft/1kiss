@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 2.4.4)
+cmake_minimum_required(VERSION 2.4.4...3.15.0)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION "1.3")
+set(VERSION "1.3.1.1")
 
 option(ZLIB_BUILD_SHARED "Build zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Build zlib static library" ON)
-option(ZLIB_BUILD_EXAMPLES "Build zlib examples" ON)
+option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")
@@ -67,7 +67,8 @@ if(MSVC)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 endif()
 
-if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR)
+option(RENAME_ZCONF "Rename the zconf when building out of source" ON)
+if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR AND RENAME_ZCONF)
     # If we're doing an out of source build and the user has a zconf.h
     # in their source tree...
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h)
@@ -206,7 +207,7 @@ endif()
 #============================================================================
 # Example binaries
 #============================================================================
-if (ZLIB_BUILD_EXAMPLES AND ZLIB_BUILD_SHARED)
+if(ZLIB_BUILD_EXAMPLES)
     add_executable(example test/example.c)
     target_link_libraries(example zlib)
     add_test(example example)
