@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 2.8.12...3.28)
 # When using CMake 3.4 and later, don't export symbols from executables unless
 # the CMAKE_ENABLE_EXPORTS variable is set.
 if(POLICY CMP0065)
@@ -10,8 +10,8 @@ if(CMAKE_EXECUTABLE_SUFFIX)
 endif()
 
 project(libjpeg-turbo C)
-set(VERSION 3.0.1)
-set(COPYRIGHT_YEAR "1991-2023")
+set(VERSION 3.0.2)
+set(COPYRIGHT_YEAR "1991-2024")
 string(REPLACE "." ";" VERSION_TRIPLET ${VERSION})
 list(GET VERSION_TRIPLET 0 VERSION_MAJOR)
 list(GET VERSION_TRIPLET 1 VERSION_MINOR)
@@ -468,6 +468,15 @@ if(UNIX)
   endif()
 endif()
 
+if(NOT MSVC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+  check_c_source_compiles("const int __attribute__((visibility(\"hidden\"))) table[1] = { 0 }; int main(void) { return table[0]; }"
+    HIDDEN_WORKS)
+  if(HIDDEN_WORKS)
+    set(HIDDEN "__attribute__((visibility(\"hidden\")))")
+    message(STATUS "HIDDEN = ${HIDDEN}")
+  endif()
+endif()
+
 if(MSVC)
   set(INLINE_OPTIONS "__inline;inline")
 else()
@@ -572,7 +581,7 @@ set(JPEG_SOURCES ${JPEG12_SOURCES} jcapimin.c jchuff.c jcicc.c jcinit.c
   jclhuff.c jcmarker.c jcmaster.c jcomapi.c jcparam.c jcphuff.c jctrans.c
   jdapimin.c jdatadst.c jdatasrc.c jdhuff.c jdicc.c jdinput.c jdlhuff.c
   jdmarker.c jdmaster.c jdphuff.c jdtrans.c jerror.c jfdctflt.c jmemmgr.c
-  jmemnobs.c)
+  jmemnobs.c jpeg_nbits.c)
 
 if(WITH_ARITH_ENC OR WITH_ARITH_DEC)
   set(JPEG_SOURCES ${JPEG_SOURCES} jaricom.c)
@@ -701,6 +710,9 @@ if(WITH_TURBOJPEG)
 
     add_executable(tjexample tjexample.c)
     target_link_libraries(tjexample turbojpeg)
+
+    add_custom_target(tjdoc COMMAND doxygen -s doxygen.config
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
   endif()
 
   if(ENABLE_STATIC)
