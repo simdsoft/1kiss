@@ -30,7 +30,7 @@ else {
         $NDKCROSS = "$NDKBIN/$cross_toolchain-"
         $NDKCC = "$NDKBIN/$cross_toolchain$android_api_level-clang" 
 
-        $HOST_CC = @("`"gcc`"", "`"gcc -m32`"")[$is_32bit_target]
+        $HOST_CC = @('gcc', 'gcc -m32')[$is_32bit_target]
         # create symlink for cross commands: 'ar' and 'strip' used by luajit makefile
         if ( !(Test-Path "${NDKCROSS}ar" -PathType Leaf)) {
             ln $NDKBIN/llvm-ar ${NDKCROSS}ar
