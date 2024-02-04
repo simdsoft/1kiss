@@ -1659,9 +1659,8 @@ if (!$setupOnly) {
                     # step4. build
                     # apply additional build options
                     $BUILD_ALL_OPTIONS += "--parallel"
-                    if ($Global:is_linux) {
-                        $BUILD_ALL_OPTIONS += "$(nproc)"
-                    }
+                    $BUILD_ALL_OPTIONS += "$([Environment]::ProcessorCount)"
+                    
                     if (($cmake_generator -eq 'Xcode') -and ($BUILD_ALL_OPTIONS.IndexOf('--verbose') -eq -1)) {
                         $BUILD_ALL_OPTIONS += '--', '-quiet'
                     }
