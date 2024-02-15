@@ -4,6 +4,9 @@ $target_cpu = $args[1]
 
 if ($is_win_family) {
     setup_msvc
+    if ($rebuild) {
+        git clean -d -fx
+    }
     Push-Location 'src'
     .\msvcbuild.bat
     Pop-Location

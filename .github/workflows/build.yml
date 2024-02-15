@@ -43,7 +43,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 linux $env:BUILD_ARCH
+        run: ./build.ps1 -p linux -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -82,7 +82,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 osx $env:BUILD_ARCH
+        run: ./build.ps1 -p osx -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -121,7 +121,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 ios $env:BUILD_ARCH
+        run: ./build.ps1 -p ios -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -160,7 +160,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 tvos $env:BUILD_ARCH
+        run: ./build.ps1 -p tvos -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -194,7 +194,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 android $env:BUILD_ARCH
+        run: ./build.ps1 -p android -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -228,7 +228,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: .\build.ps1 win32 $env:BUILD_ARCH
+        run: .\build.ps1 -p win32 -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -263,7 +263,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: .\build.ps1 winrt $env:BUILD_ARCH 'zlib,openssl,cares,curl,jpeg-turbo,luajit,angle'
+        run: .\build.ps1 -p winrt -a $env:BUILD_ARCH -libs 'zlib,openssl,cares,curl,jpeg-turbo,luajit,angle'
 
       - name: Upload
         uses: actions/upload-artifact@v3
@@ -281,7 +281,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 wasm '*' 'openssl'
+        run: ./build.ps1 -p wasm -a '*' -libs 'openssl'
 
       - name: Upload
         uses: actions/upload-artifact@v3

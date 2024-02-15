@@ -1,6 +1,14 @@
-$target_os = $args[0]
-$target_cpu = $args[1]
-$build_libs = $args[2]
+# $target_os = $args[0]
+# $target_cpu = $args[1]
+# $libs = $args[2]
+param(
+    [Alias('p')]
+    $target_os,
+    [Alias('a')]
+    $target_cpu,
+    $libs,
+    [switch]$rebuild
+)
 
 Set-Alias println Write-Host
 
@@ -11,8 +19,8 @@ function mkdirs($path) {
 }
 
 # determine build lib list
-if (!$build_libs) {
-    $build_libs = @(
+if (!$libs) {
+    $libs = @(
         'zlib'
         'openssl'
         'cares'
@@ -22,11 +30,11 @@ if (!$build_libs) {
         'angle'
     )
 } else {
-    if($build_libs -isnot [array]) { # not array, split by ','
-        $build_libs = $build_libs -split ","
+    if($libs -isnot [array]) { # not array, split by ','
+        $libs = $libs -split ","
     }
 }
-Write-Output "building $($build_libs.Count) libs ...", $build_libs
+Write-Output "building $($libs.Count) libs ...", $libs
 
 $_1k_root = $PSScriptRoot
 println "1kiss: _1k_root=$_1k_root"
@@ -38,7 +46,7 @@ if ($target_cpu -eq 'amd64_arm64') {
 }
 
 $build_script = Join-Path "$_1k_root" "1k/build.ps1"
-$fetchd_script = Join-Path "$_1k_root" "1k/fetchd.ps1"
+$fetch_script = Join-Path "$_1k_root" "1k/fetch.ps1"
 $build_src = Join-Path $_1k_root "buildsrc"
 $install_path = "install_${target_os}"
 
@@ -118,7 +126,12 @@ if ($is_darwin_family) {
     $darwin_family = 'darwin'
 }
 
-Foreach ($lib_name in $build_libs) {
+$forward_args = @{}
+if($rebuild) {
+    $forward_args['rebuild'] = $true
+}
+
+Foreach ($lib_name in $libs) {
     $build_conf_path = Join-Path $_1k_root "src/$lib_name/build.yml"
     $build_conf = ConvertFrom-Yaml -Yaml (Get-Content $build_conf_path -raw)
     if ($build_conf.targets -and !$build_conf.targets.contains($target_os)) {
@@ -173,7 +186,7 @@ Foreach ($lib_name in $build_libs) {
     if ($is_gn) {
         setup_gclient
     }
-    . $fetchd_script -url $build_conf.repo -ver $version -rev $revision -prefix $build_src
+    . $fetch_script -uri $build_conf.repo -ver $version -rev $revision -prefix $build_src
 
     println "Building $lib_name in $lib_src..."
     println "build_conf.options: $($build_conf.options)"
@@ -200,16 +213,16 @@ Foreach ($lib_name in $build_libs) {
 
             $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir"
         
-            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install'
+            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args
         } elseif($is_gn) {
-            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)"
+            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)" @forward_args
         } else {
             throw "Unsupported cross build tool: $($build_conf.cb_tool)"
         }
     }
     else {
         $custom_build_script = Join-Path $_1k_root "src/$lib_name/build1.ps1"
-        . $custom_build_script $target_os $target_cpu $install_dir
+        . $custom_build_script $target_os $target_cpu $install_dir @forward_args
     }
     Pop-Location
 
