@@ -103,21 +103,23 @@ if (!$cfg) {
         $old_rev_hash = $(git -C $lib_src rev-parse HEAD)
 
         $pred_rev_hash = $(git -C $lib_src rev-parse --verify --quiet "$revision^{}")
-        if(!$pred_rev_hash) { $pred_rev_hash = $(git -C $lib_src rev-parse --verify --quiet $revision) }
 
         if(!$pred_rev_hash) {
-            git -C $lib_src pull
+            git -C $lib_src fetch
             $pred_rev_hash = $(git -C $lib_src rev-parse --verify --quiet "$revision^{}")
             if(!$pred_rev_hash) {
                 throw "Could not found commit hash of $revision"
             }
         }
-        git -C $lib_src checkout $revision 1>$null 2>$null
 
-        $new_rev_hash = $(git -C $lib_src rev-parse HEAD)
-        
-        if (!$is_rev_modified) {
-            $is_rev_modified = $old_rev_hash -ne $new_rev_hash
+        if ($old_rev_hash -ne $pred_rev_hash) {
+            git -C $lib_src checkout $revision 1>$null 2>$null
+
+            $new_rev_hash = $(git -C $lib_src rev-parse HEAD)
+            
+            if (!$is_rev_modified) {
+                $is_rev_modified = $old_rev_hash -ne $new_rev_hash
+            }
         }
     }
 
