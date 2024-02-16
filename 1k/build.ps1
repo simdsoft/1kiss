@@ -203,6 +203,7 @@ $manifest = @{
     gcc          = '9.0.0+';
     cmake        = '3.28.1+';
     ninja        = '1.11.1+';
+    python       = '3.9.0+';
     jdk          = '17.0.3+';
     emsdk        = '3.1.51';
     cmdlinetools = '7.0+'; # android cmdlinetools
@@ -302,6 +303,18 @@ function eval($str, $raw = $false) {
     }
     else {
         return Invoke-Expression $str
+    }
+}
+
+function create_symlink($sourcePath, $destPath) {
+    # try link ninja exist cmake bin directory
+    & "$myRoot\fsync.ps1" -s $sourcePath -d $destPath -l $true 2>$null
+
+    if (!$? -and $IsWin) {
+        # try runas admin again
+        $mklink_args = "-Command ""& ""$myRoot\fsync.ps1"" -s '$sourcePath' -d '$destPath' -l `$true 2>`$null"""
+        Write-Host "mklink_args={$mklink_args}"
+        Start-Process powershell -ArgumentList $mklink_args -WindowStyle Hidden -Wait -Verb runas
     }
 }
 
@@ -653,6 +666,25 @@ function setup_nuget() {
     return $nuget_prog
 }
 
+# setup python3, not install automatically
+# ensure python3.exe is python.exe to solve unexpected error, i.e. 
+# google gclient require python3.exe, on windows 10/11 will locate to
+# a dummy C:\Users\halx99\AppData\Local\Microsoft\WindowsApps\python3.exe cause
+# shit strange error
+function setup_python3() {
+    if (!$manifest['python']) { return $null }
+    $python_prog, $python_ver = find_prog -name 'python'
+    if(!$python_prog) {
+        throw "python $($manifest['python']) required!"
+    }
+
+    $python3_prog, $_ = find_prog -name 'python' -cmd 'python3' -silent $true
+    if(!$python3_prog) {
+        $python3_prog = Join-Path (Split-Path $python_prog -Parent) (Split-Path $python_prog -Leaf).Replace('python', 'python3')
+        create_symlink $python_prog $python3_prog
+    }
+}
+
 # setup glslcc, not add to path
 function setup_glslcc() {
     if (!$manifest['glslcc']) { return $null }
@@ -786,14 +818,7 @@ function ensure_cmake_ninja($cmake_prog, $ninja_prog) {
     if (!$cmake_ninja_prog) {
         $ninja_symlink_target = Join-Path $cmake_bin (Split-Path $ninja_prog -Leaf)
         # try link ninja exist cmake bin directory
-        & "$myRoot\fsync.ps1" -s $ninja_prog -d $ninja_symlink_target -l $true 2>$null
-
-        if (!$? -and $IsWin) {
-            # try runas admin again
-            $mklink_args = "-Command ""& ""$myRoot\fsync.ps1"" -s '$ninja_prog' -d '$ninja_symlink_target' -l `$true 2>`$null"""
-            Write-Host "mklink_args={$mklink_args}"
-            Start-Process powershell -ArgumentList $mklink_args -WindowStyle Hidden -Wait -Verb runas
-        }
+        create_symlink $ninja_prog $ninja_symlink_target
     }
     return $?
 }
@@ -1157,6 +1182,8 @@ function setup_gclient() {
     if ($Global:is_win_family) {
         setup_msvc
     }
+
+    setup_python3
 
     # setup gclient tool
     # download depot_tools
@@ -1737,7 +1764,7 @@ if (!$setupOnly) {
 
         Write-Output ("gn_buildargs_overrides=$gn_buildargs_overrides, Count={0}" -f $gn_buildargs_overrides.Count)
         
-        $BUILD_DIR = resolve_out_dir $null 'build'
+        $BUILD_DIR = resolve_out_dir $null 'out/'
 
         if ($rebuild) {
             $b1k.rmdirs($BUILD_DIR)
