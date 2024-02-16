@@ -63,6 +63,11 @@ if ((Get-Module -ListAvailable -Name powershell-yaml) -eq $null) {
     Install-Module -Name powershell-yaml -Force -Repository PSGallery -Scope CurrentUser
 }
 
+$forward_args = @{}
+if($rebuild) {
+    $forward_args['rebuild'] = $true
+}
+
 . $build_script -p $target_os -a $target_cpu -setupOnly -ndkOnly
 setup_nasm
 
@@ -124,11 +129,6 @@ else {
 $darwin_family = ''
 if ($is_darwin_family) {
     $darwin_family = 'darwin'
-}
-
-$forward_args = @{}
-if($rebuild) {
-    $forward_args['rebuild'] = $true
 }
 
 Foreach ($lib_name in $libs) {

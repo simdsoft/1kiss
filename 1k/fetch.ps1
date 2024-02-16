@@ -103,6 +103,7 @@ if (!$cfg) {
         $old_rev_hash = $(git -C $lib_src rev-parse HEAD)
 
         $pred_rev_hash = $(git -C $lib_src rev-parse --verify --quiet "$revision^{}")
+        if(!$pred_rev_hash) { $pred_rev_hash = $(git -C $lib_src rev-parse --verify --quiet $revision) }
 
         if(!$pred_rev_hash) {
             git -C $lib_src pull
