@@ -1175,6 +1175,8 @@ function setup_msvc() {
 
 # google gn build system, current windows only for build angleproject/dawn on windows
 function setup_gclient() {
+    $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
+    
     if (!$ninja_prog) {
         $ninja_prog = setup_ninja
     }
