@@ -112,7 +112,7 @@ if (!$cfg) {
                 throw "Could not found commit hash of $revision"
             }
         }
-        git -C $lib_src checkout $revision --force 1>$null 2>$null
+        git -C $lib_src checkout $revision 1>$null 2>$null
 
         $new_rev_hash = $(git -C $lib_src rev-parse HEAD)
         
@@ -190,10 +190,10 @@ else {
         $revision = $pkg_ver[$use_hash].Trim()
         $tag_info = git -C $lib_src tag | Select-String $revision
         if ($tag_info) {
-            git -C $lib_src checkout ([array]$tag_info.Line)[0] --force 1>$null 2>$null
+            git -C $lib_src checkout ([array]$tag_info.Line)[0] 1>$null 2>$null
         }
         else {
-            git -C $lib_src checkout $revision --force 1>$null 2>$null
+            git -C $lib_src checkout $revision 1>$null 2>$null
         }
         git -C $lib_src add '_1kiss'
     }

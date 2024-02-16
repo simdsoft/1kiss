@@ -339,6 +339,9 @@ $Global:is_gh_act = "$env:GITHUB_ACTIONS" -eq 'true'
 
 $Script:cmake_ver = ''
 
+$Script:use_msvcr14x = $null
+$null = [bool]::TryParse($env:use_msvcr14x, [ref]$Script:use_msvcr14x)
+
 if (!$is_wasm) {
     $TARGET_CPU = $options.a
     if (!$TARGET_CPU) {
@@ -674,12 +677,12 @@ function setup_nuget() {
 function setup_python3() {
     if (!$manifest['python']) { return $null }
     $python_prog, $python_ver = find_prog -name 'python'
-    if(!$python_prog) {
+    if (!$python_prog) {
         throw "python $($manifest['python']) required!"
     }
 
     $python3_prog, $_ = find_prog -name 'python' -cmd 'python3' -silent $true
-    if(!$python3_prog) {
+    if (!$python3_prog) {
         $python3_prog = Join-Path (Split-Path $python_prog -Parent) (Split-Path $python_prog -Leaf).Replace('python', 'python3')
         create_symlink $python_prog $python3_prog
     }
@@ -1152,24 +1155,23 @@ function setup_msvc() {
             Import-Module "$VS_PATH\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
             Enter-VsDevShell -VsInstanceId $VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments "-arch=$target_cpu -host_arch=x64 -no_logo"
 
-            # msvc14x support
-            $use_msvcr14x = $null
-            if ([bool]::TryParse($env:use_msvcr14x, [ref]$use_msvcr14x) -and $use_msvcr14x) {
-                if ("$env:LIB".IndexOf('msvcr14x') -eq -1) {
-                    $msvcr14x_root = $env:msvcr14x_ROOT
-                    $env:Platform = $target_cpu
-                    Invoke-Expression -Command "$msvcr14x_root\msvcr14x_nmake.ps1"
-                }
-            
-                println "LIB=$env:LIB"
-            }
-
             $cl_prog, $cl_ver = find_prog -name 'msvc' -cmd 'cl' -silent $true -usefv $true
             $b1k.println("Using msvc: $cl_prog, version: $cl_ver")
         }
         else {
             throw "Visual Studio not installed!"
         }
+    }
+
+    # msvc14x support
+    if ($Script:use_msvcr14x) {
+        if ("$env:LIB".IndexOf('msvcr14x') -eq -1) {
+            $msvcr14x_root = $env:msvcr14x_ROOT
+            $env:Platform = $target_cpu
+            Invoke-Expression -Command "$msvcr14x_root\msvcr14x_nmake.ps1"
+        }
+
+        println "LIB=$env:LIB"
     }
 }
 
@@ -1507,15 +1509,15 @@ $is_host_target = $Global:is_win32 -or $Global:is_linux -or $Global:is_mac
 if (!$setupOnly) {
     $BUILD_DIR = $null
 
-    function resolve_out_dir($prefix, $category) {
+    function resolve_out_dir($prefix, $sub_prefix) {
         if (!$prefix) {
-            $prefix = $category
+            $prefix = $sub_prefix
         }
         if ($is_host_target) {
-            $out_dir = "${prefix}_${TARGET_CPU}"
+            $out_dir = "${prefix}${TARGET_CPU}"
         }
         else {
-            $out_dir = "${prefix}_${TARGET_OS}"
+            $out_dir = "${prefix}${TARGET_OS}"
             if ($TARGET_CPU -ne '*') {
                 $out_dir += "_$TARGET_CPU"
             }
@@ -1624,10 +1626,10 @@ if (!$setupOnly) {
             }
             
             if (!$BUILD_DIR) {
-                $BUILD_DIR = resolve_out_dir $cmake_build_prefix 'build'
+                $BUILD_DIR = resolve_out_dir $cmake_build_prefix 'build_'
             }
             if (!$INST_DIR) {
-                $INST_DIR = resolve_out_dir $cmake_install_prefix 'install'
+                $INST_DIR = resolve_out_dir $cmake_install_prefix 'install_'
                 $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$INST_DIR"
             }
 
@@ -1762,6 +1764,10 @@ if (!$setupOnly) {
 
         if ($Global:is_darwin_embed_device) {
             $gn_buildargs_overrides += 'ios_enable_code_signing=false'
+        }
+
+        if ($Script:use_msvcr14x) {
+            $gn_buildargs_overrides += 'use_msvcr14x=true'
         }
 
         Write-Output ("gn_buildargs_overrides=$gn_buildargs_overrides, Count={0}" -f $gn_buildargs_overrides.Count)
