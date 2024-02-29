@@ -203,7 +203,7 @@ $manifest = @{
     gcc          = '9.0.0+';
     cmake        = '3.28.1+';
     ninja        = '1.11.1+';
-    python       = '3.9.0+';
+    python       = '3.8.0+';
     jdk          = '17.0.3+';
     emsdk        = '3.1.51';
     cmdlinetools = '7.0+'; # android cmdlinetools
@@ -1206,7 +1206,7 @@ function setup_gclient() {
     }
 
     if ($env:PATH.IndexOf($gclient_dir) -eq -1) {
-        $env:PATH = "${gclient_dir}$ENV_PATH_SEP${env:PATH}"
+        $env:PATH = "${env:PATH}$ENV_PATH_SEP${gclient_dir}"
     }
     $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
 }
@@ -1530,23 +1530,23 @@ if (!$setupOnly) {
         Set-Location $options.d
     }
 
-    if ($options.xt -ne 'gn') {
-        # parsing build optimize flag from build_options
-        $buildOptions = [array]$options.xb
-        $nopts = $buildOptions.Count
-        $optimize_flag = $null
-        for ($i = 0; $i -lt $nopts; ++$i) {
-            $optv = $buildOptions[$i]
-            switch ($optv) {
-                '--config' {
-                    $optimize_flag = $buildOptions[$i++ + 1]
-                }
-                '--target' {
-                    $cmake_target = $buildOptions[$i++ + 1]
-                }
+    # parsing build optimize flag from build_options
+    $buildOptions = [array]$options.xb
+    $nopts = $buildOptions.Count
+    $optimize_flag = $null
+    for ($i = 0; $i -lt $nopts; ++$i) {
+        $optv = $buildOptions[$i]
+        switch ($optv) {
+            '--config' {
+                $optimize_flag = $buildOptions[$i++ + 1]
+            }
+            '--target' {
+                $cmake_target = $buildOptions[$i++ + 1]
             }
         }
-
+    }
+    
+    if ($options.xt -ne 'gn') {
         $BUILD_ALL_OPTIONS = @()
         $BUILD_ALL_OPTIONS += $buildOptions
         if (!$optimize_flag) {
@@ -1770,6 +1770,12 @@ if (!$setupOnly) {
             $gn_buildargs_overrides += 'use_msvcr14x=true'
         }
 
+        if($optimize_flag -eq 'Debug') {
+            $gn_buildargs_overrides += 'is_debug=true'
+        } else {
+            $gn_buildargs_overrides += 'is_debug=false'
+        }
+
         Write-Output ("gn_buildargs_overrides=$gn_buildargs_overrides, Count={0}" -f $gn_buildargs_overrides.Count)
         
         $BUILD_DIR = resolve_out_dir $null 'out/'
@@ -1780,7 +1786,7 @@ if (!$setupOnly) {
 
         $gn_gen_args = @('gen', $BUILD_DIR)
         if ($Global:is_win_family) {
-            $gn_gen_args += '--ide=vs2022', '--sln=angle-release'
+            $gn_gen_args += '--ide=vs2022', '--sln=angle'
         }
 
         if ($gn_buildargs_overrides) {

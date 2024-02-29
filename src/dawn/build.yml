@@ -1,5 +1,5 @@
 repo: https://dawn.googlesource.com/dawn.git
-ver: 121
+ver: 122
 tag_prefix: ''
 tag_dot2ul: false
 targets: win32,winrt
