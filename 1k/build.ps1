@@ -1786,7 +1786,8 @@ if (!$setupOnly) {
 
         $gn_gen_args = @('gen', $BUILD_DIR)
         if ($Global:is_win_family) {
-            $gn_gen_args += '--ide=vs2022', '--sln=angle'
+            $sln_name = Split-Path $(Get-Location).Path -Leaf
+            $gn_gen_args += '--ide=vs2022', '--sln=$sln_name'
         }
 
         if ($gn_buildargs_overrides) {
