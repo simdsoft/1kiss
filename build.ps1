@@ -143,31 +143,6 @@ Foreach ($lib_name in $libs) {
         println "Skip build $lib_name which is not allow for arch: $target_os"
         continue
     }
-
-    # preprocess $build_conf.options
-    if ($build_conf.options) {
-        $build_conf.options = (eval $build_conf.options).Split(' ')
-    }
-    else {
-        $build_conf.options = @()
-    }
-
-    if (!$is_host_target -and $build_conf.options_cross) {
-        $build_conf.options += (eval $build_conf.options_cross).Split(' ')
-    }
-    
-    if ($build_conf."options_$os_family") {
-        $build_conf.options += ($build_conf."options_$os_family" -split ' ')
-    }
-    if ($build_conf."options_$embed_family") {
-        $build_conf.options += ($build_conf."options_$embed_family" -split ' ')
-    }
-    if ($build_conf."options_$darwin_family") {
-        $build_conf.options += ($build_conf."options_$darwin_family" -split ' ')
-    }
-    if ($build_conf."options_$target_os") {
-        $build_conf.options += ($build_conf."options_$target_os" -split ' ')
-    }
     
     # fetch repo, return variable: $lib_src
     $rel_script = Join-Path $_1k_root "src/$lib_name/rel1.ps1"
@@ -186,7 +161,32 @@ Foreach ($lib_name in $libs) {
     if ($is_gn) {
         setup_gclient
     }
-    . $fetch_script -uri $build_conf.repo -ver $version -rev $revision -prefix $build_src
+    . $fetch_script -uri $build_conf.repo -ver $version -rev $revision -prefix $build_src -name $lib_name
+
+    # preprocess $build_conf.options
+    if ($build_conf.options) {
+        $build_conf.options = (eval $build_conf.options).Split(' ')
+    }
+    else {
+        $build_conf.options = @()
+    }
+
+    if (!$is_host_target -and $build_conf.options_cross) {
+        $build_conf.options += (eval $build_conf.options_cross).Split(' ')
+    }
+    
+    if ($build_conf."options_$os_family") {
+        $build_conf.options += (eval $build_conf."options_$os_family") -split ' '
+    }
+    if ($build_conf."options_$embed_family") {
+        $build_conf.options += (eval $build_conf."options_$embed_family") -split ' '
+    }
+    if ($build_conf."options_$darwin_family") {
+        $build_conf.options += (eval $build_conf."options_$darwin_family") -split ' '
+    }
+    if ($build_conf."options_$target_os") {
+        $build_conf.options += (eval $build_conf."options_$target_os") -split ' '
+    }
 
     println "Building $lib_name in $lib_src..."
     println "build_conf.options: $($build_conf.options)"

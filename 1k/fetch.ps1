@@ -1,8 +1,8 @@
 # fetch repo directly
 param(
-    [Alias("name")]
-    $uri, # uri
+    $name,
     $prefix, # fetch dest repo prefix
+    $uri = $null, # uri
     $version = $null, # version hint
     $revision = $null, # revision
     $cfg = $null
@@ -49,6 +49,7 @@ if (!$cfg) {
 
     $lib_src = Join-Path $prefix $folder_name
 
+    Set-Variable -Name "${name}_src" -Value $lib_src -Scope global
     function fetch_repo($url, $out) {
         if (!$url.EndsWith('.git')) {
             download_file $url $out
@@ -161,7 +162,6 @@ if (!$cfg) {
 }
 else {
     # fetch by config file
-    $name = $uri
     $lib_src = Join-Path $prefix $name
     $mirror = if (!(Test-Path (Join-Path $PSScriptRoot '.gitee') -PathType Leaf)) { 'github' } else { 'gitee' }
     $url_base = @{'github' = 'https://github.com/'; 'gitee' = 'https://gitee.com/' }[$mirror]

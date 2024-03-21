@@ -46,16 +46,17 @@ if ($target_os.StartsWith('win')) {
 else {
     $ossl_target_cpu = if ($target_cpu -eq 'x64') { 'x86_64' } else { $target_cpu }
     
+    # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
+    $env:OPENSSL_LOCAL_CONFIG_DIR = Join-Path $_1k_root '1k'
+
     if ($Global:is_mac) {
         $TARGET_OPTIONS += "darwin64-$ossl_target_cpu-cc"
     }
     elseif ($Global:is_ios -or $Global:is_tvos) {
-        # Export OPENSSL_LOCAL_CONFIG_DIR for perl script file 'openssl/Configure' 
-        $env:OPENSSL_LOCAL_CONFIG_DIR = Join-Path $_1k_root '1k'
-
         $ossl_target_os = "$target_os-"
         $ios_plat_suffix = 'OS'
-        if ( $target_cpu -eq 'x64' ) { # asume x64 as simulator
+        if ( $target_cpu -eq 'x64' ) {
+            # asume x64 as simulator
             $ossl_target_os += 'sim-'
             $ios_plat_suffix = 'Simulator'
         }
@@ -85,7 +86,7 @@ else {
 
 $CONFIG_ALL_OPTIONS += $TARGET_OPTIONS
 $CONFIG_ALL_OPTIONS += "--prefix=$install_dir", "--openssldir=$install_dir"
-Write-Output ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
+Write-Host ("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
 
 if ($target_os.StartsWith('win')) {
     setup_msvc
@@ -103,6 +104,7 @@ else {
                 ./Configure $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
             }
         }
+        throw 'abort'
         make VERBOSE=1
         make install_sw
     }
