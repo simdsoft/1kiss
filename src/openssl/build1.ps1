@@ -104,7 +104,6 @@ else {
                 ./Configure $CONFIG_ALL_OPTIONS && perl configdata.pm --dump
             }
         }
-        throw 'abort'
         make VERBOSE=1
         make install_sw
     }
