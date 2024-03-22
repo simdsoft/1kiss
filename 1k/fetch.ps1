@@ -38,7 +38,8 @@ if (!(Test-Path $cache_dir -PathType Container)) {
     mkdirs $cache_dir
 }
 
-if (($uri -match '^[a-z]+://') -or $uri.StartsWith('git@')) {
+# simple match url/ssh schema
+if ($uri -match '^([a-z]+://|git@)') {
     # fetch by url directly
     $url = $uri
     $folder_name = (Split-Path $url -leafbase)
