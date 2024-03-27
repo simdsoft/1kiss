@@ -68,15 +68,8 @@ function(_1kfetch uri)
     set(oneValueArgs NAME)
     cmake_parse_arguments(opt "" "${oneValueArgs}" "" ${ARGN})
 
-    set(_pkg_name)
-    if(opt_NAME)
-        set(_pkg_name ${opt_NAME})
-    else()
-        # parse pkg name for pkg_store due to we can't get from execute_process properly
-        string(REGEX REPLACE "#.*" "" _trimmed_uri ${uri})
-        get_filename_component(_pkg_name ${_trimmed_uri} NAME_WE)
-    endif()
-
+    _1kparse_name(${uri} "${opt_NAME}")
+    
     set(_pkg_store "${_1kfetch_cache_dir}/${_pkg_name}")
     execute_process(COMMAND ${PWSH_COMMAND} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/fetch.ps1
         -uri "${uri}"
@@ -95,28 +88,32 @@ endfunction()
 # simple cmake pkg management:
 # for example: _1kadd_pkg("gh:yasio/yasio#4.2.1")
 function(_1kadd_pkg uri)
-    _1kfetch(${uri} ${ARGN})
-
     set(optValueArgs EXCLUDE_FROM_ALL)
-    set(oneValueArgs BINARY_DIR)
+    set(oneValueArgs BINARY_DIR NAME)
     set(multiValueArgs OPTIONS)
     cmake_parse_arguments(opt "${optValueArgs}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-    foreach(OPTION ${opt_OPTIONS})
-        _1kparse_option("${OPTION}")
-        set(${OPTION_KEY} "${OPTION_VALUE}" CACHE BOOL "" FORCE)
-    endforeach()
 
-    get_filename_component(_path ${source_dir} NAME)
-    if(opt_BINARY_DIR)
-        set(binary_dir "${opt_BINARY_DIR}/${_path}")
-    else()
-        set(binary_dir "${CMAKE_BINARY_DIR}/1kiss/${_path}")
-    endif()
-    
-    if (opt_EXCLUDE_FROM_ALL)
-        add_subdirectory(${source_dir} ${binary_dir} EXCLUDE_FROM_ALL)
-    else()
-        add_subdirectory(${source_dir} ${binary_dir})
+    _1kparse_name(${uri} "${opt_NAME}")
+
+    if(NOT TARGET ${_pkg_name})
+        _1kfetch(${uri} ${ARGN} NAME ${_pkg_name})
+
+        foreach(OPTION ${opt_OPTIONS})
+            _1kparse_option("${OPTION}")
+            set(${OPTION_KEY} "${OPTION_VALUE}" CACHE BOOL "" FORCE)
+        endforeach()
+
+        if(opt_BINARY_DIR)
+            set(binary_dir "${opt_BINARY_DIR}/${_pkg_name}")
+        else()
+            set(binary_dir "${CMAKE_BINARY_DIR}/1kiss/${_pkg_name}")
+        endif()
+        
+        if (opt_EXCLUDE_FROM_ALL)
+            add_subdirectory(${source_dir} ${binary_dir} EXCLUDE_FROM_ALL)
+        else()
+            add_subdirectory(${source_dir} ${binary_dir})
+        endif()
     endif()
 endfunction()
 
@@ -125,6 +122,18 @@ function(_1klink src dest)
     file(TO_NATIVE_PATH "${dest}" _dstDir)
     execute_process(COMMAND ${PWSH_COMMAND} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/fsync.ps1 -s "${_srcDir}" -d "${_dstDir}" -l 1)
 endfunction()
+
+macro(_1kparse_name uri opt_NAME)
+    if(opt_NAME)
+        set(_pkg_name ${opt_NAME})
+    else()
+        set(_trimmed_uri "")
+        # parse pkg name for pkg_store due to we can't get from execute_process properly
+        string(REGEX REPLACE "#.*" "" _trimmed_uri "${uri}")
+        get_filename_component(_pkg_name ${_trimmed_uri} NAME_WE)
+        set(_pkg_name ${_pkg_name})
+    endif()
+endmacro()
 
 function(_1kparse_option OPTION)
   string(REGEX MATCH "^[^ ]+" OPTION_KEY "${OPTION}")
