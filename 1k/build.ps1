@@ -230,8 +230,7 @@ $options = @{
     xc     = @()
     xb     = @()
     j      = -1
-    sdk    = $null
-    env    = ''
+    sdk    = ''
     dll    = $false
 }
 

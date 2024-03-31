@@ -178,6 +178,7 @@ if ($is_git_repo) {
     
     $cur_rev_hash = $(git -C $lib_src rev-parse --verify --quiet "$revision^{}")
     if (!$cur_rev_hash) {
+        git -C $lib_src fetch
         $cur_rev_hash = $(git -C $lib_src rev-parse --verify --quiet "$revision^{}")
         if (!$cur_rev_hash) {
             throw "fetch.ps1: Could not found commit hash of $revision"
