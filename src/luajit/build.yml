@@ -1,4 +1,4 @@
-repo: https://github.com/LuaJIT/LuaJIT.git
+repo: https://github.com/luajit/luajit.git
 ver: 2.1
 tag_prefix: v
 tag_dot2ul: false

@@ -1765,7 +1765,7 @@ if (!$setupOnly) {
         }
         elseif ($Global:is_ios) {
             $gn_buildargs_overrides += 'target_os=\"ios\"'
-            if ($TARGET_CPU -eq 'x64' -or $Global:is_ios_sim) {
+            if ($Global:is_ios_sim) {
                 $gn_buildargs_overrides += 'target_environment=\"simulator\"'
             }
         }
