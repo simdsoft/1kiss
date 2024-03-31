@@ -67,10 +67,16 @@ function(_1kfetch_dist package_name)
 endfunction()
 
 function(_1kfetch uri)
-    set(oneValueArgs NAME)
+    set(oneValueArgs NAME REV)
     cmake_parse_arguments(opt "" "${oneValueArgs}" "" ${ARGN})
 
     _1kparse_name(${uri} "${opt_NAME}")
+
+    # rev: the explicit rev to checkout, i.e. git release tag name
+    set(_pkg_rev "")
+    if(opt_REV)
+        set(_pkg_rev ${opt_REV})
+    endif()
     
     set(_pkg_store "${_1kfetch_cache_dir}/${_pkg_name}")
     execute_process(COMMAND ${PWSH_PROG} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/fetch.ps1
@@ -78,6 +84,7 @@ function(_1kfetch uri)
         -prefix "${_1kfetch_cache_dir}"
         -manifest "${_1kfetch_manifest}"
         -name "${_pkg_name}"
+        -rev "${_pkg_rev}"
         RESULT_VARIABLE _errorcode
         )
     if (_errorcode)
@@ -91,7 +98,7 @@ endfunction()
 function(_1kfetch_fast uri)
     _1kperf_start("_1kfetch: ${uri}")
 
-    set(oneValueArgs NAME)
+    set(oneValueArgs NAME REV)
     cmake_parse_arguments(opt "" "${oneValueArgs}" "" ${ARGN})
 
     _1kparse_name(${uri} "${opt_NAME}")

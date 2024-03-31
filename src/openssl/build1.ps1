@@ -59,6 +59,7 @@ else {
             # asume x64 as simulator
             $ossl_target_os += 'sim-'
             $ios_plat_suffix = 'Simulator'
+            $TARGET_OPTIONS += 'no-asm'
         }
         $ossl_target_os += "cross-$ossl_target_cpu"
         $TARGET_OPTIONS += $ossl_target_os

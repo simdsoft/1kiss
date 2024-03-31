@@ -240,6 +240,9 @@ foreach ($arg in $args) {
     if (!$optName) {
         if ($arg.StartsWith('-')) {
             $optName = $arg.SubString(1)
+            if($optName.EndsWith(':')) { 
+                $optName = $optName.TrimEnd(':') 
+            }
             if ($optName.startsWith('j')) {
                 $job_count = $null
                 if ([int]::TryParse($optName.substring(1), [ref] $job_count)) {
@@ -359,11 +362,12 @@ else {
 }
 
 $Global:darwin_sim_suffix = $null
-$Global:is_ios_sim = $Global:is_darwin_embed_family -and ($options.env.StartsWith('sim') -or $TARGET_CPU -eq 'x64')
-if ($options.env.StartsWith('sim')) {
-    $Global:darwin_sim_suffix = '_sim'
+if ($Global:is_darwin_embed_family) {
+    if ($options.sdk.StartsWith('sim')) {
+        $Global:darwin_sim_suffix = '_sim'
+    }
+    $Global:is_ios_sim = $Global:darwin_sim_suffix -or ($TARGET_CPU -eq 'x64')
 }
-
 $Global:is_darwin_embed_device = $Global:is_darwin_embed_family -and !$Global:is_ios_sim
 
 if (!$setupOnly) {

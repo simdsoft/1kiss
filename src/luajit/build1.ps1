@@ -46,6 +46,8 @@ else {
     elseif ($is_darwin_family) {
         if ($Global:is_mac) {
             $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
+        } else {
+            $env:MACOSX_DEPLOYMENT_TARGET = ''
         }
         # regard ios,tvos x64 as simulator
         $SDK_NAME = $(xcode_get_sdkname $XCODE_VERSION $target_os $Global:is_ios_sim)
@@ -60,7 +62,7 @@ else {
         $ICC = $(xcrun --sdk $SDK_NAME --find clang)
         $ISDKF = "-arch $luajit_target_cpu -isysroot $ISDKP"
         $TARGET_SYS = if ($Global:is_mac) { 'Darwin' } else { 'iOS' }
-        $CONFIG_TARGET = @('DEFAULT_CC=clang', "HOST_CC=`"$HOST_CC`"", "CROSS=`"$(dirname $ICC)/`"", "TARGET_FLAGS=`"$ISDKF`"", "TARGET_SYS=$TARGET_SYS", "XCFLAGS=`"$XCFLAGS`"", "LUAJIT_A=libluajit.a")
+        $CONFIG_TARGET = @('DEFAULT_CC=clang', "HOST_CC=$HOST_CC", "CROSS=$(dirname $ICC)/", "TARGET_FLAGS=$ISDKF", "TARGET_SYS=$TARGET_SYS", "XCFLAGS=$XCFLAGS", "LUAJIT_A=libluajit.a")
     }
 
     # build

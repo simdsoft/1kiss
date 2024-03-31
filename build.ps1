@@ -7,8 +7,7 @@ param(
     [Alias('a')]
     $target_cpu,
     $libs,
-    [Alias('env')]
-    $target_environment = '',
+    $sdk = '',
     [switch]$rebuild
 )
 
@@ -70,11 +69,11 @@ $forward_args = @{}
 if($rebuild) {
     $forward_args['rebuild'] = $true
 }
-if($target_environment) {
-    $forward_args['env'] = $target_environment
+if($sdk) {
+    $forward_args['sdk'] = $sdk
 }
 
-. $build_script -p $target_os -a $target_cpu -setupOnly -ndkOnly
+. $build_script -p $target_os -a $target_cpu @forward_args -setupOnly -ndkOnly
 setup_nasm
 
 if ($IsWin) {
@@ -193,7 +192,6 @@ Foreach ($lib_name in $libs) {
     if ($build_conf."options_$target_os") {
         $build_conf.options += (eval $build_conf."options_$target_os") -split ' '
     }
-
     println "Building $lib_name in $lib_src..."
     println "build_conf.options: $($build_conf.options)"
     # patch before build
