@@ -128,6 +128,30 @@ jobs:
         with:
           path: ./${{ env.install_path }}/**
           name: ${{ env.install_path }}
+  ios-arm64-sim:
+    # The type of runner that the job will run on
+    runs-on: macos-12
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        id: setup-xcode
+        with: 
+          xcode-version: '${{ env.GH_XCODE_VER }}'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 -p ios -a arm64 -sdk simulator
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}
 
   tvos:
     # The type of runner that the job will run on
@@ -167,7 +191,30 @@ jobs:
         with:
           path: ./${{ env.install_path }}/**
           name: ${{ env.install_path }}
-
+  tvos-arm64-sim:
+    # The type of runner that the job will run on
+    runs-on: macos-12
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        id: setup-xcode
+        with: 
+          xcode-version: '${{ env.GH_XCODE_VER }}'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 -p tvos -a arm64 -sdk simulator
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}
   android:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
