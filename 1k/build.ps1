@@ -231,6 +231,7 @@ $options = @{
     xb     = @()
     j      = -1
     sdk    = $null
+    env    = ''
     dll    = $false
 }
 
@@ -321,11 +322,6 @@ function create_symlink($sourcePath, $destPath) {
     }
 }
 
-$darwin_sim_suffix = ''
-if ($TARGET_OS.EndsWith('-sim')) {
-    $TARGET_OS = $TARGET_OS.TrimEnd('-sim')
-    $darwin_sim_suffix = '-sim'
-}
 $Global:is_wasm = $TARGET_OS -eq 'wasm'
 $Global:is_win32 = $TARGET_OS -eq 'win32'
 $Global:is_winrt = $TARGET_OS -eq 'winrt'
@@ -362,7 +358,13 @@ else {
     $TARGET_CPU = $options.a = '*'
 }
 
-$Global:is_darwin_embed_device = $Global:is_darwin_embed_family -and $TARGET_CPU -ne 'x64' -and !$darwin_sim_suffix
+$Global:darwin_sim_suffix = $null
+$Global:is_ios_sim = $Global:is_darwin_embed_family -and ($options.env.StartsWith('sim') -or $TARGET_CPU -eq 'x64')
+if ($options.env.StartsWith('sim')) {
+    $Global:darwin_sim_suffix = '_sim'
+}
+
+$Global:is_darwin_embed_device = $Global:is_darwin_embed_family -and !$Global:is_ios_sim
 
 if (!$setupOnly) {
     $b1k.println("$(Out-String -InputObject $options)")
@@ -1393,6 +1395,9 @@ function preprocess_ios([string[]]$inputOptions) {
         elseif ($Global:is_watchos) {
             $outputOptions += '-DPLAT=watchOS'
         }
+        if($Global:is_ios_sim) {
+            $outputOptions += '-DSIMULATOR=TRUE'
+        }
     }
     return $outputOptions
 }
@@ -1528,6 +1533,9 @@ if (!$setupOnly) {
             if ($TARGET_CPU -ne '*') {
                 $out_dir += "_$TARGET_CPU"
             }
+        }
+        if ($Global:is_ios_sim) {
+            $out_dir += $Global:darwin_sim_suffix
         }
         return $b1k.realpath($out_dir)
     }
@@ -1753,7 +1761,7 @@ if (!$setupOnly) {
         }
         elseif ($Global:is_ios) {
             $gn_buildargs_overrides += 'target_os=\"ios\"'
-            if ($TARGET_CPU -eq 'x64') {
+            if ($TARGET_CPU -eq 'x64' -or $Global:is_ios_sim) {
                 $gn_buildargs_overrides += 'target_environment=\"simulator\"'
             }
         }
@@ -1795,7 +1803,7 @@ if (!$setupOnly) {
         $gn_gen_args = @('gen', $BUILD_DIR)
         if ($Global:is_win_family) {
             $sln_name = Split-Path $(Get-Location).Path -Leaf
-            $gn_gen_args += '--ide=vs2022', '--sln=$sln_name'
+            $gn_gen_args += '--ide=vs2022', "--sln=$sln_name"
         }
 
         if ($gn_buildargs_overrides) {

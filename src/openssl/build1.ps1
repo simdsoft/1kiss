@@ -55,7 +55,7 @@ else {
     elseif ($Global:is_ios -or $Global:is_tvos) {
         $ossl_target_os = "$target_os-"
         $ios_plat_suffix = 'OS'
-        if ( $target_cpu -eq 'x64' ) {
+        if ($Global:is_ios_sim) {
             # asume x64 as simulator
             $ossl_target_os += 'sim-'
             $ios_plat_suffix = 'Simulator'

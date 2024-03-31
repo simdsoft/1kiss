@@ -48,8 +48,7 @@ else {
             $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
         }
         # regard ios,tvos x64 as simulator
-        $use_simulator_sdk =  ($Global:is_ios -or $Global:is_tvos -or $Global:is_watchos) -and $target_cpu -eq 'x64'
-        $SDK_NAME = $(xcode_get_sdkname $XCODE_VERSION $target_os $use_simulator_sdk)
+        $SDK_NAME = $(xcode_get_sdkname $XCODE_VERSION $target_os $Global:is_ios_sim)
         println "SDK_NAME=$SDK_NAME"
 
         $luajit_target_cpu = $target_cpu

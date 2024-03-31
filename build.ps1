@@ -7,6 +7,8 @@ param(
     [Alias('a')]
     $target_cpu,
     $libs,
+    [Alias('env')]
+    $target_environment = '',
     [switch]$rebuild
 )
 
@@ -53,6 +55,7 @@ $install_path = "install_${target_os}"
 if ($target_cpu -ne '*') {
     $install_path = "${install_path}_$target_cpu"
 }
+if($target_environment.StartsWith('sim')) { $install_path += '_sim' }
 $install_root = Join-Path $_1k_root $install_path
 
 # Create buildsrc tmp dir for build libs
@@ -66,6 +69,9 @@ if ((Get-Module -ListAvailable -Name powershell-yaml) -eq $null) {
 $forward_args = @{}
 if($rebuild) {
     $forward_args['rebuild'] = $true
+}
+if($target_environment) {
+    $forward_args['env'] = $target_environment
 }
 
 . $build_script -p $target_os -a $target_cpu -setupOnly -ndkOnly
