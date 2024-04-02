@@ -84,8 +84,11 @@ function dist_lib {
             mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
             # mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/ios-arm64-sim/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
+            # Note: tvos can share ios configuration safety for openssl
             mkdir -p ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/tvos-arm64-sim/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/tvos-x64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
@@ -122,8 +125,10 @@ function dist_lib {
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
                 # cp install_ios_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
                 cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+                cp install_ios_arm64_sim/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64-sim/${INC_DIR}
                 cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
                 cp install_tvos_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
+                cp install_tvos_arm64_sim/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64-sim/${INC_DIR}
                 cp install_tvos_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-x64/${INC_DIR}
                 cp install_android_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
                 cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
@@ -182,18 +187,6 @@ function dist_lib {
         copy1k "install_wasm/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm/
     fi
 
-    if [ $(($DIST_FLAGS & $DISTF_MAC)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/mac
-    fi
-
-    if [ $(($DIST_FLAGS & $DISTF_IOS)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/ios
-    fi
-
-    if [ $(($DIST_FLAGS & $DISTF_TVOS)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/tvos
-    fi
-
     ver=
     branch=
     commits=
@@ -233,6 +226,39 @@ function dist_lib {
     fi
 }
 
+function create_fat {
+    LIB_NAME=$1
+    LIB_FILE=$2
+    # create fat lib for ios-sim
+    mkdir -p fat_tmp/${LIB_NAME}/lib/ios_sim/
+    mkdir -p fat_tmp/${LIB_NAME}/lib/tvos_sim/
+    mkdir -p fat_tmp/${LIB_NAME}/lib/mac/
+    lipo -create install_ios_arm64_sim/${LIB_NAME}/lib/$LIB_FILE install_ios_x64/${LIB_NAME}/lib/$LIB_FILE -output fat_tmp/${LIB_NAME}/lib/ios_sim/$LIB_FILE
+    lipo -create install_tvos_arm64_sim/${LIB_NAME}/lib/$LIB_FILE install_tvos_x64/${LIB_NAME}/lib/$LIB_FILE -output fat_tmp/${LIB_NAME}/lib/tvos_sim/$LIB_FILE
+    lipo -create install_osx_arm64/${LIB_NAME}/lib/$LIB_FILE install_osx_x64/${LIB_NAME}/lib/$LIB_FILE -output fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE
+
+    lipo -info fat_tmp/${LIB_NAME}/lib/ios_sim/$LIB_FILE
+    lipo -info fat_tmp/${LIB_NAME}/lib/tvos_sim/$LIB_FILE
+    lipo -info fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE
+}
+
+function create_xcfraemwork {
+    NAME=$1
+    LIB_NAME=$2
+    LIB_FILE=$3
+    
+    create_fat $LIB_NAME $LIB_FILE
+
+    # create xcframework
+    xcodebuild -create-xcframework \
+        -library install_ios_arm64/${LIB_NAME}/lib/$LIB_FILE \
+        -library fat_tmp/${LIB_NAME}/lib/ios_sim/$LIB_FILE \
+        -library install_tvos_arm64/${LIB_NAME}/lib/$LIB_FILE \
+        -library fat_tmp/${LIB_NAME}/lib/tvos_sim/$LIB_FILE \
+        -library fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE \
+        -output ${DIST_DIR}/lib/$NAME.xcframework
+}
+
 # dist libs
 if [ "$DIST_LIBS" = "" ] ; then
     DIST_LIBS="zlib,jpeg-turbo,openssl,cares,curl,luajit,angle"
@@ -248,6 +274,7 @@ echo "Dist $libs_count libs ..."
 mkdir ./seprate
 for (( i=0; i<${libs_count}; ++i )); do
   lib_name=${libs_arr[$i]}
+  echo "dist $lib_name ..."
   source src/$lib_name/dist1.sh $DIST_ROOT
   cd ${DIST_NAME}
   zip -q -r ../seprate/$lib_name.zip ./$lib_name
