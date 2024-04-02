@@ -182,18 +182,6 @@ function dist_lib {
         copy1k "install_wasm/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm/
     fi
 
-    if [ $(($DIST_FLAGS & $DISTF_MAC)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/mac
-    fi
-
-    if [ $(($DIST_FLAGS & $DISTF_IOS)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/ios
-    fi
-
-    if [ $(($DIST_FLAGS & $DISTF_TVOS)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/tvos
-    fi
-
     ver=
     branch=
     commits=
@@ -263,7 +251,7 @@ function create_xcfraemwork {
         -library install_tvos_arm64/${LIB_NAME}/lib/$LIB_FILE \
         -library fat_tmp/${LIB_NAME}/lib/tvos_sim/$LIB_FILE \
         -library fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE \
-        -output ${DIST_DIR}/lib/ios/$NAME.xcframework
+        -output ${DIST_DIR}/lib/$NAME.xcframework
 }
 
 # dist libs
