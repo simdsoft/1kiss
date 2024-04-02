@@ -363,3 +363,5 @@ MigrationBackup/
 
 /tools
 /cache
+
+fat_tmp

@@ -4,56 +4,18 @@ DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
 dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_ALL configuration.h config.h.in openssl/
 
-# # create flat lib for ios
-# if [ -f "install_ios_arm/${LIB_NAME}/lib/libssl.a" ] ; then
-#   lipo -create install_ios_arm/${LIB_NAME}/lib/libssl.a install_ios_arm64/${LIB_NAME}/lib/libssl.a install_ios_x64/${LIB_NAME}/lib/libssl.a -output ${DIST_DIR}/lib/ios/libssl.a
-#   lipo -create install_ios_arm/${LIB_NAME}/lib/libcrypto.a install_ios_arm64/${LIB_NAME}/lib/libcrypto.a install_ios_x64/${LIB_NAME}/lib/libcrypto.a -output ${DIST_DIR}/lib/ios/libcrypto.a
-# else
-#   lipo -create install_ios_arm64/${LIB_NAME}/lib/libssl.a install_ios_x64/${LIB_NAME}/lib/libssl.a -output ${DIST_DIR}/lib/ios/libssl.a
-#   lipo -create install_ios_arm64/${LIB_NAME}/lib/libcrypto.a install_ios_x64/${LIB_NAME}/lib/libcrypto.a -output ${DIST_DIR}/lib/ios/libcrypto.a
-# fi
-
-# # create flat lib for tvos
-# if [ -f "install_tvos_arm/${LIB_NAME}/lib/libssl.a" ] ; then
-#   lipo -create install_tvos_arm/${LIB_NAME}/lib/libssl.a install_tvos_arm64/${LIB_NAME}/lib/libssl.a install_tvos_x64/${LIB_NAME}/lib/libssl.a -output ${DIST_DIR}/lib/tvos/libssl.a
-#   lipo -create install_tvos_arm/${LIB_NAME}/lib/libcrypto.a install_tvos_arm64/${LIB_NAME}/lib/libcrypto.a install_tvos_x64/${LIB_NAME}/lib/libcrypto.a -output ${DIST_DIR}/lib/tvos/libcrypto.a
-# else
-#   lipo -create install_tvos_arm64/${LIB_NAME}/lib/libssl.a install_tvos_x64/${LIB_NAME}/lib/libssl.a -output ${DIST_DIR}/lib/tvos/libssl.a
-#   lipo -create install_tvos_arm64/${LIB_NAME}/lib/libcrypto.a install_tvos_x64/${LIB_NAME}/lib/libcrypto.a -output ${DIST_DIR}/lib/tvos/libcrypto.a
-# fi
-
-# # check the flat lib
-# lipo -info ${DIST_DIR}/lib/ios/libssl.a
-# lipo -info ${DIST_DIR}/lib/ios/libcrypto.a
-
-# # check the flat lib
-# lipo -info ${DIST_DIR}/lib/tvos/libssl.a
-# lipo -info ${DIST_DIR}/lib/tvos/libcrypto.a
-
-# # create fat lib for mac
-# lipo -create install_osx_arm64/${LIB_NAME}/lib/libssl.a install_osx_x64/${LIB_NAME}/lib/libssl.a -output ${DIST_DIR}/lib/mac/libssl.a
-# lipo -create  install_osx_arm64/${LIB_NAME}/lib/libcrypto.a install_osx_x64/${LIB_NAME}/lib/libcrypto.a -output ${DIST_DIR}/lib/mac/libcrypto.a
-
-# # check the fat lib
-# lipo -info ${DIST_DIR}/lib/mac/libssl.a
-# lipo -info ${DIST_DIR}/lib/mac/libcrypto.a
-
+create_fat ${LIB_NAME} libssl.a
+create_fat ${LIB_NAME} libcrypto.a
 
 xcodebuild -create-xcframework \
-  -library install_ios_arm64/${LIB_NAME}/lib/libssl.a \
-  -library install_ios_x64/${LIB_NAME}/lib/libssl.a \
-  -library install_ios_arm64_sim/${LIB_NAME}/lib/libssl.a \
-  -library install_tvos_arm64/${LIB_NAME}/lib/libssl.a \
-  -library install_tvos_x64/${LIB_NAME}/lib/libssl.a \
-  -library install_tvos_arm64_sim/${LIB_NAME}/lib/libssl.a \
-  -library install_osx_x64/${LIB_NAME}/lib/libssl.a \
-  -library install_osx_arm64/${LIB_NAME}/lib/libssl.a \
-  -library install_ios_arm64/${LIB_NAME}/lib/libcrypto.a \
-  -library install_ios_x64/${LIB_NAME}/lib/libcrypto.a \
-  -library install_ios_arm64_sim/${LIB_NAME}/lib/libcrypto.a \
-  -library install_tvos_arm64/${LIB_NAME}/lib/libcrypto.a \
-  -library install_tvos_x64/${LIB_NAME}/lib/libcrypto.a \
-  -library install_tvos_arm64_sim/${LIB_NAME}/lib/libcrypto.a \
-  -library install_osx_x64/${LIB_NAME}/lib/libcrypto.a \
-  -library install_osx_arm64/${LIB_NAME}/lib/libcrypto.a \
-  -output ${DIST_DIR}/lib/openssl.xcframework
+    -library install_ios_arm64/${LIB_NAME}/lib/libssl.a \
+    -library fat_tmp/${LIB_NAME}/lib/ios_sim/libssl.a \
+    -library install_tvos_arm64/${LIB_NAME}/lib/libssl.a \
+    -library fat_tmp/${LIB_NAME}/lib/tvos_sim/libssl.a \
+    -library fat_tmp/${LIB_NAME}/lib/mac/libssl.a \
+    -library install_ios_arm64/${LIB_NAME}/lib/libcrypto.a \
+    -library fat_tmp/${LIB_NAME}/lib/ios_sim/libcrypto.a \
+    -library install_tvos_arm64/${LIB_NAME}/lib/libcrypto.a \
+    -library fat_tmp/${LIB_NAME}/lib/tvos_sim/libcrypto.a \
+    -library fat_tmp/${LIB_NAME}/lib/mac/libcrypto.a \
+    -output ${DIST_DIR}/lib/ios/$NAME.xcframework
