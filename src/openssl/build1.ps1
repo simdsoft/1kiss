@@ -51,6 +51,9 @@ else {
 
     if ($Global:is_mac) {
         $TARGET_OPTIONS += "darwin64-$ossl_target_cpu-cc"
+        if ($Global:target_minsdk) {
+            $TARGET_OPTIONS += "-mmacosx-version-min=$Global:target_minsdk"
+        }
     }
     elseif ($Global:is_ios -or $Global:is_tvos) {
         $ossl_target_os = "$target_os-"
