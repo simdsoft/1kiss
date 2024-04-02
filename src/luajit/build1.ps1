@@ -45,7 +45,7 @@ else {
     }
     elseif ($is_darwin_family) {
         if ($Global:is_mac) {
-            $env:MACOSX_DEPLOYMENT_TARGET = '10.12'
+            $env:MACOSX_DEPLOYMENT_TARGET = $Global:target_minsdk
         } else {
             $env:MACOSX_DEPLOYMENT_TARGET = ''
         }
