@@ -16,7 +16,11 @@
 #  include <TargetConditionals.h>
 
 #  if TARGET_IPHONE_SIMULATOR == 1
-#    include "ios-x64/@INC_DIR@@CONF_HEADER@"
+#    if defined(__arm64__)
+#        include "ios-x64/@INC_DIR@@CONF_HEADER@"
+#    else
+#        include "ios-arm64-sim/@INC_DIR@@CONF_HEADER@"
+#    endif
 #  elif TARGET_OS_IPHONE == 1
 #    if defined(__arm64__)
 #      include "ios-arm64/@INC_DIR@@CONF_HEADER@"

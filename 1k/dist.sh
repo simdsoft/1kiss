@@ -84,8 +84,11 @@ function dist_lib {
             mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
             # mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/ios-arm64-sim/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
+            # Note: tvos can share ios configuration safety for openssl
             mkdir -p ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/tvos-arm64-sim/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/tvos-x64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
@@ -122,8 +125,10 @@ function dist_lib {
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
                 # cp install_ios_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
                 cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
+                cp install_ios_arm64_sim/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64-sim/${INC_DIR}
                 cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
                 cp install_tvos_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
+                cp install_tvos_arm64_sim/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64-sim/${INC_DIR}
                 cp install_tvos_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-x64/${INC_DIR}
                 cp install_android_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
                 cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
