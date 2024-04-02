@@ -73,6 +73,10 @@ if($sdk) {
     $forward_args['sdk'] = $sdk
 }
 
+if($target_os -eq 'osx') {
+    $forward_args['minsdk'] = '10.13'
+}
+
 . $build_script -p $target_os -a $target_cpu @forward_args -setupOnly -ndkOnly
 setup_nasm
 
