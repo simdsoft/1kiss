@@ -1,3 +1,4 @@
+#!/bin/bash
 # Install powershell 7 on macOS, Ubuntu, ArchLinux
 # usage: ./install-pwsh [pwsh_ver]
 #
