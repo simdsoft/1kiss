@@ -17,10 +17,9 @@ Your programing life will relex if you're using 1k!
 - [![angle](https://img.shields.io/badge/angle-green.svg)](https://github.com/google/angle) - Windows Only
 - [![c-ares](https://img.shields.io/badge/c--ares-green.svg)](https://github.com/c-ares/c-ares)
 
+## Notes
 
-## 
-
-https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&num=1
+- *Since v81, use xcframework for apple platforms*
 
 ## Build Targets:
 
@@ -30,9 +29,11 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
 - linux: x86_64
 - ios:
   - arm64
+  - arm64 simulator
   - x86_64 simulator
 - tvos:
   - arm64
+  - arm64 simulator
   - x86_64 simulator
 - android
   - armv7
@@ -46,6 +47,7 @@ https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&
   - x86_64
   - arm64
 
-## cppwinrt
+## refers
 
-Since axmol-2.1-`LTS`: migrate from `C++/CX` to [`cppwinrt`](https://learn.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/move-to-winrt-from-wrl) for breaking c++ standard limition, benefits to use c++20 on all target platforms.
+- cppwinrt: Since axmol-2.1-`LTS`: migrate from `C++/CX` to [`cppwinrt`](https://learn.microsoft.com/en-us/windows/uwp/cpp-and-winrt-apis/move-to-winrt-from-wrl) for breaking c++ standard limition, benefits to use c++20 on all target platforms.
+- chrome releases: https://chromiumdash.appspot.com/fetch_releases?channel=Stable&platform=Windows&num=1
