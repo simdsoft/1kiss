@@ -6,8 +6,7 @@ if [ "$cmake_ver" = "" ] ; then
     cmake_ver='3.29.1'
 fi
 
-myRoot=$(dirname "$0")
-cacheDir=$myRoot/.cache
+cacheDir=~/.1kiss
 mkdir -p $cacheDir
 
 install_script=$cacheDir/cmake-${cmake_ver}-linux-x86_64.sh
