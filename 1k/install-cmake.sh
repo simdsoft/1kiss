@@ -1,4 +1,5 @@
 #!/bin/bash
+# Install cmake to system path
 
 cmake_ver=$1
 if [ "$cmake_ver" = "" ] ; then
