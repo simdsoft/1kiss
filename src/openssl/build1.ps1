@@ -84,9 +84,13 @@ else {
     }
     elseif ($Global:is_wasm) {
         $env:CFLAGS = '-pthread -O3'
-        $env:LDFLAGS = "-s FILESYSTEM=1 -s INVOKE_RUN=0` -s USE_ES6_IMPORT_META=0 -pthread"
+        $env:LDFLAGS = "-sFILESYSTEM=1 -sINVOKE_RUN=0 -sUSE_ES6_IMPORT_META=0 -pthread"
         $env:CC = 'emcc'
         $env:CXX = 'emcc'
+        if ($target_os.EndsWith('wasm64')) {
+            $env:CFLAGS = "$env:CFLAGS -sMEMORY64 -Wno-experimental"
+            $env:LDFLAGS = "$env:LDFLAGS -sMEMORY64" # may don't require
+        }
     }
 }
 

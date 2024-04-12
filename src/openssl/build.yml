@@ -8,3 +8,4 @@ options_unix: no-comp no-async no-shared
 options_embed: no-dso no-engine no-hw
 options_msw: no-comp enable-md4
 options_wasm: no-asm no-threads no-ssl3 no-dtls no-engine no-dso linux-x32 -static
+options_wasm64: no-asm no-threads no-ssl3 no-dtls no-engine no-dso linux-generic64 -static

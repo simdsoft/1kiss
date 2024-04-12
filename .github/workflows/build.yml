@@ -335,3 +335,21 @@ jobs:
         with:
           path: ./${{ env.install_path }}/**
           name: ${{ env.install_path }}
+  wasm64:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 -p wasm64 -a '*' -libs 'openssl'
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}

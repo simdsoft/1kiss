@@ -95,6 +95,7 @@ function dist_lib {
             mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-x86_64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/wasm/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/wasm64/${INC_DIR}
         elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
             mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/unix/${INC_DIR}
@@ -135,6 +136,7 @@ function dist_lib {
                 cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
                 cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
                 try_copy_file install_wasm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/wasm/${INC_DIR}
+                try_copy_file install_wasm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/wasm64/${INC_DIR}
 
             elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
                 cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
@@ -185,6 +187,10 @@ function dist_lib {
         mkdir -p ${DIST_DIR}/lib/wasm
         copy1k "install_wasm/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/wasm/
         copy1k "install_wasm/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm/
+
+        mkdir -p ${DIST_DIR}/lib/wasm64
+        copy1k "install_wasm64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/wasm64/
+        copy1k "install_wasm64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/wasm64/
     fi
 
     ver=

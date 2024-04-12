@@ -205,7 +205,7 @@ $manifest = @{
     ninja        = '1.11.1+';
     python       = '3.8.0+';
     jdk          = '17.0.10+';
-    emsdk        = '3.1.51';
+    emsdk        = '3.1.57';
     cmdlinetools = '7.0+'; # android cmdlinetools
 }
 
@@ -233,6 +233,7 @@ $options = @{
     sdk    = ''
     minsdk = $null
     dll    = $false
+    u      = $false # whether delete 1kdist cross-platform prebuilt folder: path/to/_x
 }
 
 $optName = $null
@@ -240,8 +241,8 @@ foreach ($arg in $args) {
     if (!$optName) {
         if ($arg.StartsWith('-')) {
             $optName = $arg.SubString(1)
-            if($optName.EndsWith(':')) { 
-                $optName = $optName.TrimEnd(':') 
+            if ($optName.EndsWith(':')) {
+                $optName = $optName.TrimEnd(':')
             }
             if ($optName.startsWith('j')) {
                 $job_count = $null
@@ -304,8 +305,8 @@ else {
 }
 
 $Global:target_minsdk = $options.minsdk
-if(!$Global:target_minsdk) {
-    $Global:target_minsdk = @{osx = '10.15'; winrt = '10.0.17763.0'}[$TARGET_OS]
+if (!$Global:target_minsdk) {
+    $Global:target_minsdk = @{osx = '10.15'; winrt = '10.0.17763.0' }[$TARGET_OS]
 }
 
 # define some useful global vars
@@ -330,7 +331,7 @@ function create_symlink($sourcePath, $destPath) {
     }
 }
 
-$Global:is_wasm = $TARGET_OS -eq 'wasm'
+$Global:is_wasm = $TARGET_OS.StartsWith('wasm')
 $Global:is_win32 = $TARGET_OS -eq 'win32'
 $Global:is_winrt = $TARGET_OS -eq 'winrt'
 $Global:is_mac = $TARGET_OS -eq 'osx'
@@ -393,6 +394,7 @@ $toolchains = @{
     'tvos'    = 'clang'; # xcode clang
     'watchos' = 'clang'; # xcode clang
     'wasm'    = 'clang'; # emcc clang
+    'wasm64'  = 'clang'; # emcc clang
 }
 if (!$TOOLCHAIN) {
     $TOOLCHAIN = $toolchains[$TARGET_OS]
@@ -687,7 +689,7 @@ function setup_nuget() {
 }
 
 # setup python3, not install automatically
-# ensure python3.exe is python.exe to solve unexpected error, i.e. 
+# ensure python3.exe is python.exe to solve unexpected error, i.e.
 # google gclient require python3.exe, on windows 10/11 will locate to
 # a dummy C:\Users\halx99\AppData\Local\Microsoft\WindowsApps\python3.exe cause
 # shit strange error
@@ -718,7 +720,7 @@ function setup_glslcc() {
     $b1k.rmdirs($glslcc_bin)
     $glslcc_pkg = Join-Path $external_prefix "glslcc-$suffix"
     $b1k.del($glslcc_pkg)
-    
+
     $glscc_url = devtool_url glslcc-$glslcc_ver-$suffix
 
     download_and_expand $glscc_url "$glslcc_pkg" $glslcc_bin
@@ -854,7 +856,7 @@ function setup_nsis() {
     $nsis_prog, $nsis_ver = find_prog -name 'nsis' -cmd 'makensis' -params '/VERSION' -path $nsis_bin -silent $true
     if (!$nsis_prog) {
         $b1k.rmdirs($nsis_bin)
-        
+
         download_and_expand "https://nchc.dl.sourceforge.net/project/nsis/NSIS%203/$nsis_ver/nsis-$nsis_ver.zip" "$external_prefix/nsis-$nsis_ver.zip" "$external_prefix"
         $nsis_dir = "$nsis_bin-$nsis_ver"
         if ($b1k.isdir($nsis_dir)) {
@@ -1196,7 +1198,7 @@ function setup_msvc() {
 # google gn build system, current windows only for build angleproject/dawn on windows
 function setup_gclient() {
     $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
-    
+
     if (!$ninja_prog) {
         $ninja_prog = setup_ninja
     }
@@ -1306,7 +1308,7 @@ function preprocess_win([string[]]$inputOptions) {
         # platform
         if ($Global:is_winrt) {
             $outputOptions += '-DCMAKE_SYSTEM_NAME=WindowsStore', '-DCMAKE_SYSTEM_VERSION=10.0'
-            if($Global:target_minsdk) {
+            if ($Global:target_minsdk) {
                 $outputOptions += "-DCMAKE_VS_WINDOWS_TARGET_PLATFORM_MIN_VERSION=$Global:target_minsdk"
             }
         }
@@ -1388,7 +1390,7 @@ function preprocess_osx([string[]]$inputOptions) {
     }
 
     $outputOptions += "-DCMAKE_OSX_ARCHITECTURES=$arch"
-    if($Global:target_minsdk) {
+    if ($Global:target_minsdk) {
         $outputOptions += "-DCMAKE_OSX_DEPLOYMENT_TARGET=$Global:target_minsdk"
     }
     return $outputOptions
@@ -1410,7 +1412,7 @@ function preprocess_ios([string[]]$inputOptions) {
         elseif ($Global:is_watchos) {
             $outputOptions += '-DPLAT=watchOS'
         }
-        if($Global:is_ios_sim) {
+        if ($Global:is_ios_sim) {
             $outputOptions += '-DSIMULATOR=TRUE'
         }
     }
@@ -1418,6 +1420,7 @@ function preprocess_ios([string[]]$inputOptions) {
 }
 
 function preprocess_wasm([string[]]$inputOptions) {
+    if ($options.p -eq 'wasm64') { $inputOptions += '-DCMAKE_C_FLAGS="-sMEMORY64 -Wno-experimental"', '-DCMAKE_CXX_FLAGS=-sMEMORY64 -Wno-experimental'}
     return $inputOptions
 }
 
@@ -1451,6 +1454,10 @@ function validHostAndToolchain() {
             'host'      = @{'windows' = $True; 'linux' = $True; 'macos' = $True };
             'toolchain' = @{'clang' = $True; };
         };
+        'wasm64'    = @{
+            'host'      = @{'windows' = $True; 'linux' = $True; 'macos' = $True };
+            'toolchain' = @{'clang' = $True; };
+        };
     }
     $validInfo = $validTable[$TARGET_OS]
     $validOS = $validInfo.host[$HOST_OS_NAME]
@@ -1473,6 +1480,7 @@ $proprocessTable = @{
     'tvos'    = ${function:preprocess_ios};
     'watchos' = ${function:preprocess_ios};
     'wasm'    = ${Function:preprocess_wasm};
+    'wasm64'    = ${Function:preprocess_wasm};
 }
 
 validHostAndToolchain
@@ -1575,7 +1583,7 @@ if (!$setupOnly) {
             }
         }
     }
-    
+
     if ($options.xt -ne 'gn') {
         $BUILD_ALL_OPTIONS = @()
         $BUILD_ALL_OPTIONS += $buildOptions
@@ -1599,6 +1607,10 @@ if (!$setupOnly) {
             $CONFIG_ALL_OPTIONS = @()
         }
 
+        if ($options.u) {
+            $CONFIG_ALL_OPTIONS += '-D_1KFETCH_DIST_UPGRADE=TRUE'
+        }
+
         # determine generator, build_dir, inst_dir for non gradlew projects
         if (!$is_gradlew) {
             if (!$cmake_generator -and !$TARGET_OS.StartsWith('win')) {
@@ -1608,6 +1620,7 @@ if (!$setupOnly) {
                         'linux'   = 'Unix Makefiles'
                         'android' = 'Ninja'
                         'wasm'    = 'Ninja'
+                        'wasm64'  = 'Ninja'
                         'osx'     = 'Xcode'
                         'ios'     = 'Xcode'
                         'tvos'    = 'Xcode'
@@ -1654,7 +1667,7 @@ if (!$setupOnly) {
                     break
                 }
             }
-            
+
             if (!$BUILD_DIR) {
                 $BUILD_DIR = resolve_out_dir $cmake_build_prefix 'build_'
             }
@@ -1703,7 +1716,12 @@ if (!$setupOnly) {
                 }
             }
             else {
-                & $build_tool tasks
+                if ($optimize_flag -eq 'Debug') {
+                    & $build_tool configureCMakeDebug prepareKotlinBuildScriptModel $CONFIG_ALL_OPTIONS | Out-Host
+                }
+                else {
+                    & $build_tool configureCMakeRelWithDebInfo prepareKotlinBuildScriptModel $CONFIG_ALL_OPTIONS | Out-Host
+                }
             }
             Pop-Location
         }
@@ -1748,7 +1766,7 @@ if (!$setupOnly) {
                     # apply additional build options
                     $BUILD_ALL_OPTIONS += "--parallel"
                     $BUILD_ALL_OPTIONS += "$($options.j)"
-                    
+
                     if (($cmake_generator -eq 'Xcode') -and !$BUILD_ALL_OPTIONS.Contains('--verbose')) {
                         $BUILD_ALL_OPTIONS += '--', '-quiet'
                     }
@@ -1767,10 +1785,10 @@ if (!$setupOnly) {
     else {
         # google gclient/gn build system
         # refer: https://chromium.googlesource.com/chromium/src/+/eca97f87e275a7c9c5b7f13a65ff8635f0821d46/tools/gn/docs/reference.md#args_specifies-build-arguments-overrides-examples
-        
+
         $stored_env_path = $null
         $gn_buildargs_overrides = @()
-        
+
         if ($Global:is_winrt) {
             $gn_buildargs_overrides += 'target_os=\"winuwp\"'
         }
@@ -1808,7 +1826,7 @@ if (!$setupOnly) {
         }
 
         Write-Output ("gn_buildargs_overrides=$gn_buildargs_overrides, Count={0}" -f $gn_buildargs_overrides.Count)
-        
+
         $BUILD_DIR = resolve_out_dir $null 'out/'
 
         if ($rebuild) {
