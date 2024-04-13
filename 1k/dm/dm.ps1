@@ -6,7 +6,7 @@ $IsWin = $IsWindows -or ("$env:OS" -eq 'Windows_NT')
 
 echo "cflags=${cflags}"
 
-if($cflags) { $cflags = $cflags.Split(' ') }
+if($cflags) { $cflags = Invoke-Expression -Command "echo $cflags" }
 
 if($cc.EndsWith('cl.exe')) {
     # vs2019+ support: 
