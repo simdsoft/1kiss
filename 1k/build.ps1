@@ -1425,7 +1425,7 @@ function preprocess_ios([string[]]$inputOptions) {
 }
 
 function preprocess_wasm([string[]]$inputOptions) {
-    if ($options.p -eq 'wasm64') { $inputOptions += '-DCMAKE_C_FLAGS="-sMEMORY64 -Wno-experimental"', '-DCMAKE_CXX_FLAGS=-sMEMORY64 -Wno-experimental' }
+    if ($options.p -eq 'wasm64') { $inputOptions += '-DCMAKE_C_FLAGS="-Wno-experimental -sMEMORY64"', '-DCMAKE_CXX_FLAGS="-Wno-experimental -sMEMORY64"', '-DEMSCRIPTEN_SYSTEM_PROCESSOR=x86_64' }
     return $inputOptions
 }
 
@@ -1750,15 +1750,19 @@ if (!$setupOnly) {
                 $cmakeCachePath = $b1k.realpath("$BUILD_DIR/CMakeCache.txt")
 
                 if ($mainDepChanged -or !$b1k.isfile($cmakeCachePath) -or $forceConfig) {
-                    $config_cmd = if (!$is_wasm) { 'cmake' } else { 'emcmake' }
+                    $config_cmd = if(!$is_wasm) { 'cmake' } else { 'emcmake' }
+                    if($is_wasm) {
+                        $CONFIG_ALL_OPTIONS = @('cmake') + $CONFIG_ALL_OPTIONS
+                    }
+
                     if ($options.dm) {
                         $b1k.println("Dumping compiler preprocessors ...")
                         $dmcp_dir = Join-Path $PSScriptRoot 'dmcp'
                         $dmcp_build_dir = Join-Path $dmcp_dir 'build'
-                        &$config_cmd -S $dmcp_dir -B $dmcp_build_dir $CONFIG_ALL_OPTIONS | Out-Host ; Remove-Item $dmcp_build_dir -Recurse -Force
+                        &$config_cmd $CONFIG_ALL_OPTIONS -S $dmcp_dir -B $dmcp_build_dir | Out-Host ; Remove-Item $dmcp_build_dir -Recurse -Force
                         $b1k.println("Finish dump compiler preprocessors")
                     }
-                    &$config_cmd -B $BUILD_DIR $CONFIG_ALL_OPTIONS | Out-Host
+                    &$config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR | Out-Host
                     Set-Content $tempFile $hashValue -NoNewline
                 }
 
