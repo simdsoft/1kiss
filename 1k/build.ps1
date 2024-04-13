@@ -234,6 +234,7 @@ $options = @{
     minsdk = $null
     dll    = $false
     u      = $false # whether delete 1kdist cross-platform prebuilt folder: path/to/_x
+    dm     = $false # dump compiler preprocessors
 }
 
 $optName = $null
@@ -251,6 +252,10 @@ foreach ($arg in $args) {
                     $options.j = $job_count
                     continue
                 }
+            }
+            if($options[$optName] -is [bool]) {
+                $options[$optName] = $true
+                $optName = $null
             }
         }
     }
@@ -878,7 +883,7 @@ function setup_nasm() {
     $nasm_prog, $nasm_ver = find_prog -name 'nasm' -path "$external_prefix/nasm" -mode 'BOTH' -silent $true
 
     if (!$nasm_prog) {
-        if ($IsWindows) {
+        if ($IsWin) {
             $nasm_bin = Join-Path $external_prefix "nasm-$nasm_ver"
 
             if (!$b1k.isdir($nasm_bin)) {
@@ -1420,7 +1425,7 @@ function preprocess_ios([string[]]$inputOptions) {
 }
 
 function preprocess_wasm([string[]]$inputOptions) {
-    if ($options.p -eq 'wasm64') { $inputOptions += '-DCMAKE_C_FLAGS="-sMEMORY64 -Wno-experimental"', '-DCMAKE_CXX_FLAGS=-sMEMORY64 -Wno-experimental'}
+    if ($options.p -eq 'wasm64') { $inputOptions += '-DCMAKE_C_FLAGS="-sMEMORY64 -Wno-experimental"', '-DCMAKE_CXX_FLAGS=-sMEMORY64 -Wno-experimental' }
     return $inputOptions
 }
 
@@ -1454,7 +1459,7 @@ function validHostAndToolchain() {
             'host'      = @{'windows' = $True; 'linux' = $True; 'macos' = $True };
             'toolchain' = @{'clang' = $True; };
         };
-        'wasm64'    = @{
+        'wasm64'  = @{
             'host'      = @{'windows' = $True; 'linux' = $True; 'macos' = $True };
             'toolchain' = @{'clang' = $True; };
         };
@@ -1480,7 +1485,7 @@ $proprocessTable = @{
     'tvos'    = ${function:preprocess_ios};
     'watchos' = ${function:preprocess_ios};
     'wasm'    = ${Function:preprocess_wasm};
-    'wasm64'    = ${Function:preprocess_wasm};
+    'wasm64'  = ${Function:preprocess_wasm};
 }
 
 validHostAndToolchain
@@ -1745,12 +1750,15 @@ if (!$setupOnly) {
                 $cmakeCachePath = $b1k.realpath("$BUILD_DIR/CMakeCache.txt")
 
                 if ($mainDepChanged -or !$b1k.isfile($cmakeCachePath) -or $forceConfig) {
-                    if (!$is_wasm) {
-                        cmake -B $BUILD_DIR $CONFIG_ALL_OPTIONS | Out-Host
+                    $config_cmd = if (!$is_wasm) { 'cmake' } else { 'emcmake' }
+                    if ($options.dm) {
+                        $b1k.println("Dumping compiler preprocessors ...")
+                        $dmcp_dir = Join-Path $PSScriptRoot 'dmcp'
+                        $dmcp_build_dir = Join-Path $dmcp_dir 'build'
+                        &$config_cmd -S $dmcp_dir -B $dmcp_build_dir $CONFIG_ALL_OPTIONS | Out-Host ; Remove-Item $dmcp_build_dir -Recurse -Force
+                        $b1k.println("Finish dump compiler preprocessors")
                     }
-                    else {
-                        emcmake cmake -B $BUILD_DIR $CONFIG_ALL_OPTIONS | Out-Host
-                    }
+                    &$config_cmd -B $BUILD_DIR $CONFIG_ALL_OPTIONS | Out-Host
                     Set-Content $tempFile $hashValue -NoNewline
                 }
 

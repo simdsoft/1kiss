@@ -30,8 +30,10 @@ if (!$libs) {
         'luajit'
         'angle'
     )
-} else {
-    if($libs -isnot [array]) { # not array, split by ','
+}
+else {
+    if ($libs -isnot [array]) {
+        # not array, split by ','
         $libs = $libs -split ","
     }
 }
@@ -54,7 +56,7 @@ $install_path = "install_${target_os}"
 if ($target_cpu -ne '*') {
     $install_path = "${install_path}_$target_cpu"
 }
-if($sdk.StartsWith('sim')) { $install_path += '_sim' }
+if ($sdk.StartsWith('sim')) { $install_path += '_sim' }
 $install_root = Join-Path $_1k_root $install_path
 
 # Create buildsrc tmp dir for build libs
@@ -66,14 +68,14 @@ if ((Get-Module -ListAvailable -Name powershell-yaml) -eq $null) {
 }
 
 $forward_args = @{}
-if($rebuild) {
+if ($rebuild) {
     $forward_args['rebuild'] = $true
 }
-if($sdk) {
+if ($sdk) {
     $forward_args['sdk'] = $sdk
 }
 
-if($target_os -eq 'osx') {
+if ($target_os -eq 'osx') {
     $forward_args['minsdk'] = '10.13'
 }
 
@@ -84,10 +86,10 @@ if ($IsWin) {
     #relocate powershell.exe to opensource edition pwsh.exe to solve angle gclient execute issues:
     # Get-FileHash is not recognized as a name of a cmdlet
     $pwshPath = $(Get-Command pwsh).Path
-    $pwshDir =  Split-Path -Path $pwshPath
+    $pwshDir = Split-Path -Path $pwshPath
 
     echo "Before relocate powershell"
-    powershell -Command {$pwshVSI='PowerShell ' + $PSVersionTable.PSVersion.ToString();echo $pwshVSI}
+    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI }
 
     $eap = $ErrorActionPreference
     $ErrorActionPreference = 'SilentlyContinue'
@@ -96,12 +98,12 @@ if ($IsWin) {
 
     $env:Path = "$pwshPath;$env:Path"
     echo "After relocate powershell"
-    powershell -Command {$pwshVSI='PowerShell ' + $PSVersionTable.PSVersion.ToString();echo $pwshVSI}
+    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI }
 }
 
 if ($Global:is_android) {
     active_ndk_toolchain
-    $Global:android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16}[$target_cpu]
+    $Global:android_api_level = @{arm64 = 21; x64 = 22; armv7 = 16; x86 = 16 }[$target_cpu]
 }
 elseif ($is_darwin_family) {
     # query xcode version
@@ -140,6 +142,8 @@ if ($is_darwin_family) {
     $darwin_family = 'darwin'
 }
 
+$compiler_dumped = $false
+
 Foreach ($lib_name in $libs) {
     $build_conf_path = Join-Path $_1k_root "src/$lib_name/build.yml"
     $build_conf = ConvertFrom-Yaml -Yaml (Get-Content $build_conf_path -raw)
@@ -158,8 +162,9 @@ Foreach ($lib_name in $libs) {
     $version = $build_conf.ver
     $revision = $null # commit_hash
     if (Test-Path $rel_script -PathType Leaf) {
-        $version,$revision = &$rel_script $build_conf.ver
-    } else {
+        $version, $revision = &$rel_script $build_conf.ver
+    }
+    else {
         $revision = "$($build_conf.tag_prefix)$version"
         if ($build_conf.tag_dot2ul) {
             $revision = $revision.Replace('.', '_')
@@ -220,11 +225,19 @@ Foreach ($lib_name in $libs) {
             }
 
             $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir"
-        
-            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args
-        } elseif($is_gn) {
+
+            if ($compiler_dumped) {
+                &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args
+            }
+            else {
+                &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args -dm
+                $compiler_dumped = $true
+            }
+        }
+        elseif ($is_gn) {
             &$build_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)" @forward_args
-        } else {
+        }
+        else {
             throw "Unsupported cross build tool: $($build_conf.cb_tool)"
         }
     }
