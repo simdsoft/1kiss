@@ -1757,9 +1757,9 @@ if (!$setupOnly) {
 
                     if ($options.dm) {
                         $b1k.println("Dumping compiler preprocessors ...")
-                        $dmcp_dir = Join-Path $PSScriptRoot 'dmcp'
-                        $dmcp_build_dir = Join-Path $dmcp_dir 'build'
-                        &$config_cmd $CONFIG_ALL_OPTIONS -S $dmcp_dir -B $dmcp_build_dir | Out-Host ; Remove-Item $dmcp_build_dir -Recurse -Force
+                        $dm_dir = Join-Path $PSScriptRoot 'dm'
+                        $dm_build_dir = Join-Path $dm_dir 'build'
+                        &$config_cmd $CONFIG_ALL_OPTIONS -S $dm_dir -B $dm_build_dir | Out-Host ; Remove-Item $dm_build_dir -Recurse -Force
                         $b1k.println("Finish dump compiler preprocessors")
                     }
                     &$config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR | Out-Host
