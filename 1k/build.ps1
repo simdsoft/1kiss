@@ -197,15 +197,15 @@ $manifest = @{
     # C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Redist\MSVC\14.36.32532\vc_redist.x64.exe
     msvc         = '14.39+'; # cl.exe @link.exe 14.39 VS2022 17.9.x
     ndk          = 'r23c';
-    xcode        = '13.0.0~15.0.0'; # range
+    xcode        = '13.0.0+'; # range
     # _EMIT_STL_ERROR(STL1000, "Unexpected compiler version, expected Clang 16.0.0 or newer.");
     llvm         = '16.0.6+'; # clang-cl msvc14.37 require 16.0.0+
     gcc          = '9.0.0+';
-    cmake        = '3.28.1+';
+    cmake        = '3.29.2+';
     ninja        = '1.11.1+';
     python       = '3.8.0+';
     jdk          = '17.0.10+';
-    emsdk        = '3.1.57';
+    emsdk        = '3.1.59';
     cmdlinetools = '7.0+'; # android cmdlinetools
 }
 
@@ -766,7 +766,7 @@ function setup_ninja() {
 }
 
 # setup cmake
-function setup_cmake($skipOS = $false) {
+function setup_cmake($skipOS = $false, $scope = 'local') {
     $cmake_prog, $cmake_ver = find_prog -name 'cmake'
     if ($cmake_prog -and (!$skipOS -or $cmake_prog.Contains($myRoot))) {
         return $cmake_prog, $cmake_ver
@@ -820,8 +820,12 @@ function setup_cmake($skipOS = $false) {
             }
         }
         elseif ($IsLinux) {
-            $b1k.mkdirs($cmake_root)
-            & "$cmake_pkg_path" '--skip-license' '--exclude-subdir' "--prefix=$cmake_root" 1>$null 2>$null
+            if($scope -ne 'global') {
+                $b1k.mkdirs($cmake_root)
+                & "$cmake_pkg_path" '--skip-license' '--exclude-subdir' "--prefix=$cmake_root" 1>$null 2>$null
+            } else {
+                & "$cmake_pkg_path" '--skip-license' '--prefix=/usr/local' 1>$null 2>$null
+            }
         }
 
         $cmake_prog, $_ = find_prog -name 'cmake' -path $cmake_bin -silent $true
@@ -1197,6 +1201,13 @@ function setup_msvc() {
         }
 
         println "LIB=$env:LIB"
+    }
+}
+
+function setup_xcode() {
+    $xcode_prog, $xcode_ver = find_prog -name 'xcode' -cmd "xcodebuild" -params @('-version')
+    if (!$xcode_prog) {
+        throw "Missing Xcode, please install"
     }
 }
 
@@ -1652,6 +1663,10 @@ if (!$setupOnly) {
                 if ($using_ninja -and $Global:is_android) {
                     $CONFIG_ALL_OPTIONS += "-DCMAKE_MAKE_PROGRAM=$ninja_prog"
                 }
+
+                if($cmake_generator -eq 'Xcode') {
+                    setup_xcode
+                }
             }
 
             $INST_DIR = $null
@@ -1762,6 +1777,7 @@ if (!$setupOnly) {
                         &$config_cmd $CONFIG_ALL_OPTIONS -S $dm_dir -B $dm_build_dir | Out-Host ; Remove-Item $dm_build_dir -Recurse -Force
                         $b1k.println("Finish dump compiler preprocessors")
                     }
+                    $b1k.println("Build Command: $config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR")
                     &$config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR | Out-Host
                     Set-Content $tempFile $hashValue -NoNewline
                 }
@@ -1784,6 +1800,7 @@ if (!$setupOnly) {
                     }
                     $b1k.println("BUILD_ALL_OPTIONS=$BUILD_ALL_OPTIONS, Count={0}" -f $BUILD_ALL_OPTIONS.Count)
 
+                    $b1k.println("cmake --build $BUILD_DIR $BUILD_ALL_OPTIONS")
                     cmake --build $BUILD_DIR $BUILD_ALL_OPTIONS | Out-Host
                 }
             }
