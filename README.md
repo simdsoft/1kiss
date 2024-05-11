@@ -3,9 +3,9 @@
 A cross-platform one step build toolset with auto setup general dependent tools(cmake,google gn,ndk,android-sdk,ninja,llvm,msvc,xcodebuild,...) write in powershell 5.x+
 Your programing life will relex if you're using 1k!
 
-## best practice：[Axmol Engine](https://axmol.dev)
+## Best practice：[Axmol Engine](https://axmol.dev)
 
-## used by
+## Used by
 
 - [yasio](https://github.com/yasio/yasio)
   
@@ -14,7 +14,8 @@ Your programing life will relex if you're using 1k!
 [![dist](https://github.com/simdsoft/1kiss/actions/workflows/dist.yml/badge.svg)](https://github.com/simdsoft/1kiss/actions/workflows/dist.yml)
 [![Downloads](https://img.shields.io/github/downloads/simdsoft/1kiss/total.svg?label=downloads&colorB=orange)](../../releases/latest)
 
-## opensources
+## OpenSources
+
 - [![zlib](https://img.shields.io/badge/zlib-green.svg)](https://github.com/madler/zlib)
 - [![openssl](https://img.shields.io/badge/openssl-green.svg)](https://github.com/openssl/openssl)
 - [![jpeg-turbo](https://img.shields.io/badge/jpeg%2d%2dturbo-green.svg)](https://github.com/libjpeg-turbo/libjpeg-turbo)
@@ -22,6 +23,7 @@ Your programing life will relex if you're using 1k!
 - [![luajit](https://img.shields.io/badge/luajit-green.svg)](https://github.com/LuaJIT/LuaJIT)
 - [![angle](https://img.shields.io/badge/angle-green.svg)](https://github.com/google/angle) - Windows Only
 - [![c-ares](https://img.shields.io/badge/c--ares-green.svg)](https://github.com/c-ares/c-ares)
+- [![dawn](https://img.shields.io/badge/darn-green.svg)]([https://github.com/c-ares/c-ares](https://dawn.googlesource.com/dawn.git)) - The google WebGPU c++ implementation, test on Windows only, not built on Github Actions
 
 ## Notes
 
