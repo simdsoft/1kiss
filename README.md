@@ -14,7 +14,7 @@ Your programing life will relex if you're using 1k!
 [![dist](https://github.com/simdsoft/1kiss/actions/workflows/dist.yml/badge.svg)](https://github.com/simdsoft/1kiss/actions/workflows/dist.yml)
 [![Downloads](https://img.shields.io/github/downloads/simdsoft/1kiss/total.svg?label=downloads&colorB=orange)](../../releases/latest)
 
-## OpenSources
+## OSS
 
 - [![zlib](https://img.shields.io/badge/zlib-green.svg)](https://github.com/madler/zlib)
 - [![openssl](https://img.shields.io/badge/openssl-green.svg)](https://github.com/openssl/openssl)
