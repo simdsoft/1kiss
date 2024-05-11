@@ -23,7 +23,7 @@ Your programing life will relex if you're using 1k!
 - [![luajit](https://img.shields.io/badge/luajit-green.svg)](https://github.com/LuaJIT/LuaJIT)
 - [![angle](https://img.shields.io/badge/angle-green.svg)](https://github.com/google/angle) - Windows Only
 - [![c-ares](https://img.shields.io/badge/c--ares-green.svg)](https://github.com/c-ares/c-ares)
-- [![dawn](https://img.shields.io/badge/darn-green.svg)]([https://github.com/c-ares/c-ares](https://dawn.googlesource.com/dawn.git)) - The google WebGPU c++ implementation, test on Windows only, not built on Github Actions
+- [![dawn](https://img.shields.io/badge/dawn-green.svg)]([https://github.com/c-ares/c-ares](https://dawn.googlesource.com/dawn.git)) - The google WebGPU c++ implementation, test on Windows only, not built on Github Actions
 
 ## Notes
 
