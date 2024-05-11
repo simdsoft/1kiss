@@ -1,6 +1,6 @@
 # 1kiss (1k)
 
-A cross-platform one step build powershell script with auto setup general dependent tools.  
+A cross-platform one step build powershell script with auto setup general dependent tools(ndk,android-sdk,ninja,llvm,msvc,xcodebuild,...)  
 Your programing life will relex if you're using 1k!
   
 [![Release](https://img.shields.io/github/v/release/simdsoft/1kiss?include_prereleases&label=release)](../../releases/latest)
