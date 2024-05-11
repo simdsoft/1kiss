@@ -1,6 +1,6 @@
 # 1kiss (1k)
 
-A cross-platform one step build toolset with auto setup general dependent tools(cmake,google gn,ndk,android-sdk,ninja,llvm,msvc,xcodebuild,...) write in powershell 5.x+  
+A cross-platform one step build toolset with auto setup general dependent tools(cmake,google gn,ndk,android-sdk,emsdk,ninja,llvm,msvc,xcodebuild,...) write in powershell 5.x+  
 *Your programing life will relex if you're using 1k!*
 
 ## Best practice：[Axmol Engine](https://axmol.dev)
