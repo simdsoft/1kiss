@@ -5,7 +5,7 @@ A cross-platform one-click build tool written in PowerShell thats support auto s
 
 ## Best practice：[Axmol Engine](https://axmol.dev)
 
-for example, if you download axmol and run it's `setup.ps1`, then goto root directory of your cmake based project and run:
+for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then goto root directory of your cmake based project and run:
 
 `axmol -p android -a arm64` can build android on any host OS(macOS, Linux, Windows)
 
