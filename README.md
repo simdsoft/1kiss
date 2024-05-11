@@ -1,9 +1,13 @@
 # 1kiss (1k)
 
 A cross-platform one-click build tool written in PowerShell thats support auto setup general dependent tools(cmake,google gn,ndk,android-sdk,emsdk,ninja,llvm,msvc,xcodebuild,emsdk,...)  
-*Your programing life will relex if you're using 1k!*
+*The cross-platform build become so easy if you're using 1k!*
 
 ## Best practice：[Axmol Engine](https://axmol.dev)
+
+for example, if you download axmol and run it's setup.ps1, then:
+
+`axmol -p android -a arm64` can build any cmake based project in it's root directory
 
 ## Used by
 
