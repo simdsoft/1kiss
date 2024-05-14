@@ -3,7 +3,7 @@
 A cross-platform one-click build tool written in PowerShell thats support auto setup general dependent tools(cmake,google gn,ndk,android-sdk,emsdk,ninja,llvm,msvc,xcodebuild,emsdk,...)  
 *The cross-platform build become so easy if you're using 1k!*
 
-## Best practice：[Axmol Engine](https://axmol.dev)
+## Best practice：[Axmol](https://axmol.dev)
 
 for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then goto root directory of your cmake based project and run:
 
