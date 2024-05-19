@@ -27,7 +27,7 @@ for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then
 - [![luajit](https://img.shields.io/badge/luajit-green.svg)](https://github.com/LuaJIT/LuaJIT)
 - [![angle](https://img.shields.io/badge/angle-green.svg)](https://github.com/google/angle) - Windows Only
 - [![c-ares](https://img.shields.io/badge/c--ares-green.svg)](https://github.com/c-ares/c-ares)
-- [![dawn](https://img.shields.io/badge/dawn-green.svg)](https://dawn.googlesource.com/dawn.git)) - The google WebGPU c++ implementation, test on Windows only, not built on Github Actions
+- [![dawn](https://img.shields.io/badge/dawn-green.svg)](https://dawn.googlesource.com/dawn.git) - The google WebGPU c++ implementation, test on Windows only, not built on Github Actions
 
 ## Notes
 
