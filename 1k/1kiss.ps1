@@ -1695,13 +1695,23 @@ if (!$setupOnly) {
             $xopt_presets = 0
             $xprefix_optname = '-DCMAKE_INSTALL_PREFIX='
             $xopts = [array]$options.xc
-            foreach ($opt in $xopts) {
+            for ($opti = 0; $opti -lt $xopts.Count; ++$opti) {
+                $opt = $xopts[$opti]
                 if ($opt.StartsWith('-B')) {
-                    $BUILD_DIR = $opt.Substring(2).Trim()
+                    if ($opt.Length -gt 2) {
+                        $BUILD_DIR = $opt.Substring(2).Trim()
+                    }
+                    elseif(++$opti -lt $xopts.Count) {
+                        $BUILD_DIR = $xopts[$opti]
+                    }
                     ++$xopt_presets
                 }
                 elseif($opt.StartsWith('-S')) {
-                    $SOURCE_DIR = $opt.Substring(2).Trim()
+                    if ($opt.Length -gt 2) {
+                        $SOURCE_DIR = $opt.Substring(2).Trim()
+                    } elseif(++$opti -lt $xopts.Count) {
+                        $SOURCE_DIR = $xopts[$opti]
+                    }
                     ++$xopt_presets
                 }
                 elseif ($opt.StartsWith($xprefix_optname)) {
@@ -1774,7 +1784,7 @@ if (!$setupOnly) {
             # step3. configure
             $workDir = $(Get-Location).Path
             $cmakeEntryFile = 'CMakeLists.txt'
-            $mainDep = if (!$SOURCE_DIR) { Join-Path $workDir $cmakeEntryFile } else { realpath (Join-Path $SOURCE_DIR $cmakeEntryFile) }
+            $mainDep = if (!$SOURCE_DIR) { Join-Path $workDir $cmakeEntryFile } else { $1k.realpath($(Join-Path $SOURCE_DIR $cmakeEntryFile)) }
             if ($1k.isfile($mainDep)) {
                 $mainDepChanged = $false
                 # A Windows file time is a 64-bit value that represents the number of 100-nanosecond
