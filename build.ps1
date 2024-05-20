@@ -153,8 +153,8 @@ Foreach ($lib_name in $libs) {
         continue
     }
     
-    if ($build_conf.archs -and !$build_conf.archs.contains($target_os)) {
-        println "Skip build $lib_name which is not allow for arch: $target_os"
+    if ($build_conf.archs -and !$build_conf.archs.contains($target_cpu)) {
+        println "Skip build $lib_name which is not allow for arch: $target_cpu"
         continue
     }
     
