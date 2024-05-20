@@ -1580,7 +1580,7 @@ $is_host_target = $Global:is_win32 -or $Global:is_linux -or $Global:is_mac
 
 if (!$setupOnly) {
     $BUILD_DIR = $null
-    $SOURCE_DIR = '.'
+    $SOURCE_DIR = $null
 
     function resolve_out_dir($prefix, $sub_prefix) {
         if (!$prefix) {
@@ -1791,7 +1791,7 @@ if (!$setupOnly) {
             # step3. configure
             $workDir = $(Get-Location).Path
             $cmakeEntryFile = 'CMakeLists.txt'
-            $mainDep = if ($SOURCE_DIR -eq '.') { Join-Path $workDir $cmakeEntryFile } else { $(Join-Path $SOURCE_DIR $cmakeEntryFile) }
+            $mainDep = if (!$SOURCE_DIR) { Join-Path $workDir $cmakeEntryFile } else { $(Join-Path $SOURCE_DIR $cmakeEntryFile) }
             if ($1k.isfile($mainDep)) {
                 $mainDepChanged = $false
                 # A Windows file time is a 64-bit value that represents the number of 100-nanosecond
@@ -1821,7 +1821,7 @@ if (!$setupOnly) {
                         $1k.println("Finish dump compiler preprocessors")
                     }
                     $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$INST_DIR", '-B', $BUILD_DIR 
-                    if ($SOURCE_DIR -ne '.') { $CONFIG_ALL_OPTIONS += '-S', $SOURCE_DIR }
+                    if ($SOURCE_DIR) { $CONFIG_ALL_OPTIONS += '-S', $SOURCE_DIR }
                     $1k.println("CMake config command: $config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR")
                     &$config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR | Out-Host
                     Set-Content $tempFile $hashValue -NoNewline
