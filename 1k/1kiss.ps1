@@ -438,18 +438,26 @@ if ($1k.isfile($manifest_file)) {
     . $manifest_file
 }
 
-# choose mirror for 1kiss/devtools
+# 1kdist
 $sentry_file = Join-Path $myRoot '.gitee'
 $mirror = if ($1k.isfile($sentry_file)) { 'gitee' } else { 'github' }
 $mirror_url_base = @{'github' = 'https://github.com/'; 'gitee' = 'https://gitee.com/' }[$mirror]
-$devtools_url_base = $mirror_url_base
+$1kdist_url_base = $mirror_url_base
 $mirror_conf_file = $1k.realpath("$myRoot/../manifest.json")
 $mirror_current = $null
+$devtools_url_base = $null
+$1kdist_ver = $null
 if ($1k.isfile($mirror_conf_file)) {
     $mirror_conf = ConvertFrom-Json (Get-Content $mirror_conf_file -raw)
     $mirror_current = $mirror_conf.mirrors.$mirror
-    $devtools_url_base += $mirror_current.'1kdist'
-    $devtools_url_base += '/devtools'
+    $1kdist_url_base += $mirror_current.'1kdist'
+    $devtools_url_base += "$1kdist_url_base/devtools"
+    $1kdist_ver = $mirror_conf.versions.'1kdist'
+    $1kdist_url_base += "/$1kdist_ver"
+}
+
+function 1kdist_url($filename) {
+    return "$1kdist_url_base/$filename"
 }
 
 function devtool_url($filename) {
