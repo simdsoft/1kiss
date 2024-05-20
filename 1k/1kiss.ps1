@@ -1580,7 +1580,7 @@ $is_host_target = $Global:is_win32 -or $Global:is_linux -or $Global:is_mac
 
 if (!$setupOnly) {
     $BUILD_DIR = $null
-    $SOURCE_DIR = $null
+    $SOURCE_DIR = '.'
 
     function resolve_out_dir($prefix, $sub_prefix) {
         if (!$prefix) {
@@ -1699,10 +1699,10 @@ if (!$setupOnly) {
             }
 
             $INST_DIR = $null
-            $xopts_hints = 3
             $xopt_presets = 0
             $xprefix_optname = '-DCMAKE_INSTALL_PREFIX='
             $xopts = [array]$options.xc
+            $evaluated_xopts = @()
             for ($opti = 0; $opti -lt $xopts.Count; ++$opti) {
                 $opt = $xopts[$opti]
                 if ($opt.StartsWith('-B')) {
@@ -1726,8 +1726,8 @@ if (!$setupOnly) {
                     ++$xopt_presets
                     $INST_DIR = $opt.SubString($xprefix_optname.Length)
                 }
-                if ($xopt_presets -eq $xopts_hints) {
-                    break
+                else {
+                    $evaluated_xopts += $opt
                 }
             }
 
@@ -1736,7 +1736,6 @@ if (!$setupOnly) {
             }
             if (!$INST_DIR) {
                 $INST_DIR = resolve_out_dir $cmake_install_prefix 'install_'
-                $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$INST_DIR"
             }
 
             if ($rebuild) {
@@ -1747,21 +1746,21 @@ if (!$setupOnly) {
         else {
             # android gradle
             # replace all cmake config options -DXXX to -P_1K_XXX
-            $xopts = @()
+            $evaluated_xopts = @()
             foreach ($opt in $options.xc) {
                 if ($opt.startsWith('-D')) {
-                    $xopts += "-P_1K_$($opt.substring(2))"
+                    $evaluated_xopts += "-P_1K_$($opt.substring(2))"
                 }
                 elseif ($opt.startsWith('-P')) {
-                    $xopts += $opt
+                    $evaluated_xopts += $opt
                 } # ignore unknown option type
             }
         }
 
         # step2. apply additional cross make options
-        if ($xopts.Count -gt 0) {
-            $1k.println("Apply additional cross make options: $($xopts), Count={0}" -f $xopts.Count)
-            $CONFIG_ALL_OPTIONS += $xopts
+        if ($evaluated_xopts.Count -gt 0) {
+            $1k.println("Apply additional cross make options: $($evaluated_xopts), Count={0}" -f $evaluated_xopts.Count)
+            $CONFIG_ALL_OPTIONS += $evaluated_xopts
         }
 
         $1k.println("CONFIG_ALL_OPTIONS=$CONFIG_ALL_OPTIONS, Count={0}" -f $CONFIG_ALL_OPTIONS.Count)
@@ -1792,7 +1791,7 @@ if (!$setupOnly) {
             # step3. configure
             $workDir = $(Get-Location).Path
             $cmakeEntryFile = 'CMakeLists.txt'
-            $mainDep = if (!$SOURCE_DIR) { Join-Path $workDir $cmakeEntryFile } else { $1k.realpath($(Join-Path $SOURCE_DIR $cmakeEntryFile)) }
+            $mainDep = if ($SOURCE_DIR -eq '.') { Join-Path $workDir $cmakeEntryFile } else { $(Join-Path $SOURCE_DIR $cmakeEntryFile) }
             if ($1k.isfile($mainDep)) {
                 $mainDepChanged = $false
                 # A Windows file time is a 64-bit value that represents the number of 100-nanosecond
@@ -1821,7 +1820,9 @@ if (!$setupOnly) {
                         &$config_cmd $CONFIG_ALL_OPTIONS -S $dm_dir -B $dm_build_dir | Out-Host ; Remove-Item $dm_build_dir -Recurse -Force
                         $1k.println("Finish dump compiler preprocessors")
                     }
-                    $1k.println("Build Command: $config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR")
+                    $CONFIG_ALL_OPTIONS += "-DCMAKE_INSTALL_PREFIX=$INST_DIR", '-B', $BUILD_DIR 
+                    if ($SOURCE_DIR -ne '.') { $CONFIG_ALL_OPTIONS += '-S', $SOURCE_DIR }
+                    $1k.println("CMake config command: $config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR")
                     &$config_cmd $CONFIG_ALL_OPTIONS -B $BUILD_DIR | Out-Host
                     Set-Content $tempFile $hashValue -NoNewline
                 }
