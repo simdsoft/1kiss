@@ -1,11 +1,10 @@
 repo: https://github.com/llvm/llvm-project.git
-ver: 18.1.1
+ver: 18.1.6
 tag_prefix: llvmorg-
 tag_dot2ul: false
 cb_tool: cmake
 cb_target: libclang
 targets: win32,linux,osx
-archs: x64
 options: -S llvm -DLLVM_ENABLE_PROJECTS=clang
 options_unix: -DCMAKE_BUILD_TYPE=Release -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=1
 options_msw: -Thost=x64

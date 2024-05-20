@@ -237,7 +237,7 @@ jobs:
 
       - name: Setup NDK
         shell: pwsh
-        run: ./1k/build.ps1 -p android -a $env:BUILD_ARCH -setupOnly -ndkOnly
+        run: ./1k/1kiss.ps1 -p android -a $env:BUILD_ARCH -setupOnly -ndkOnly
 
       - name: Build
         shell: pwsh

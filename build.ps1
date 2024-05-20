@@ -29,6 +29,7 @@ if (!$libs) {
         'jpeg-turbo'
         'luajit'
         'angle'
+        'llvm'
     )
 }
 else {
@@ -48,7 +49,7 @@ if ($target_cpu -eq 'amd64_arm64') {
     $target_cpu = 'arm64'
 }
 
-$build_script = Join-Path "$_1k_root" "1k/build.ps1"
+$1k_script = Join-Path "$_1k_root" "1k/1kiss.ps1"
 $fetch_script = Join-Path "$_1k_root" "1k/fetch.ps1"
 $build_src = Join-Path $_1k_root "buildsrc"
 $install_path = "install_${target_os}"
@@ -79,7 +80,7 @@ if ($target_os -eq 'osx') {
     $forward_args['minsdk'] = '10.13'
 }
 
-. $build_script -p $target_os -a $target_cpu @forward_args -setupOnly -ndkOnly
+. $1k_script -p $target_os -a $target_cpu @forward_args -setupOnly -ndkOnly
 setup_nasm
 
 if ($IsWin) {
@@ -227,15 +228,15 @@ Foreach ($lib_name in $libs) {
             $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir"
 
             if ($compiler_dumped) {
-                &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args
+                &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args
             }
             else {
-                &$build_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args -dm
+                &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args -dm
                 $compiler_dumped = $true
             }
         }
         elseif ($is_gn) {
-            &$build_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)" @forward_args
+            &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)" @forward_args
         }
         else {
             throw "Unsupported cross build tool: $($build_conf.cb_tool)"
