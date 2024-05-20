@@ -90,7 +90,7 @@ if ($IsWin) {
     $pwshDir = Split-Path -Path $pwshPath
 
     echo "Before relocate powershell"
-    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI }
+    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI } | Out-Host
 
     $eap = $ErrorActionPreference
     $ErrorActionPreference = 'SilentlyContinue'
@@ -99,7 +99,7 @@ if ($IsWin) {
 
     $env:Path = "$pwshPath;$env:Path"
     echo "After relocate powershell"
-    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI }
+    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI } | Out-Host
 }
 
 if ($Global:is_android) {
