@@ -29,7 +29,6 @@ if (!$libs) {
         'jpeg-turbo'
         'luajit'
         'angle'
-        'llvm'
     )
 }
 else {

@@ -17,14 +17,19 @@ on:
     # Inputs the workflow accepts.
     inputs:
       no_dll:
-         # actions run ID
-         description: 'Do not build windows lib as dll'
-         # Default value if no value is explicitly provided
-         default: ''
-         # Input has to be provided for the workflow to run
-         required: false
+        # actions run ID
+        description: 'Do not build windows lib as dll'
+        # Default value if no value is explicitly provided
+        default: ''
+        # Input has to be provided for the workflow to run
+        required: false
+      libs:
+        description: "build libs, split by ','"
+        default: ''
+        required: false
+         
 env:
-  GH_XCODE_VER: 14.2
+  GH_XCODE_VER: 14.3
   VS_DEPLOYMENT_TARGET: 10.0.17763.0 # for Windows Store(UWP) Apps only
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -43,7 +48,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 -p linux -a $env:BUILD_ARCH
+        run: ./build.ps1 -p linux -a $env:BUILD_ARCH -libs '${{ github.event.inputs.libs }}'
 
       - name: Upload
         uses: actions/upload-artifact@v4
@@ -51,18 +56,12 @@ jobs:
           path: ./${{ env.install_path }}/**
           name: ${{ env.install_path }}
 
-  osx:
+  osx-x64:
     # The type of runner that the job will run on
     runs-on: macos-13
     
-    strategy:
-      matrix:
-        arch:
-          - x64
-          - arm64
-    
     env:
-      BUILD_ARCH: ${{ matrix.arch }}
+      BUILD_ARCH: 'x64'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -76,7 +75,34 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: ./build.ps1 -p osx -a $env:BUILD_ARCH
+        run: ./build.ps1 -p osx -a $env:BUILD_ARCH -libs '${{ github.event.inputs.libs }}'
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}
+
+  osx-arm64:
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    
+    env:
+      BUILD_ARCH: 'arm64'
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 -p osx -a $env:BUILD_ARCH -libs '${{ github.event.inputs.libs }}'
 
       - name: Upload
         uses: actions/upload-artifact@v4
@@ -86,7 +112,7 @@ jobs:
 
   ios:
     # The type of runner that the job will run on
-    runs-on: macos-12
+    runs-on: macos-13
     
     strategy:
       matrix:
@@ -124,7 +150,7 @@ jobs:
           name: ${{ env.install_path }}
   ios-arm64-sim:
     # The type of runner that the job will run on
-    runs-on: macos-12
+    runs-on: macos-13
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -149,7 +175,7 @@ jobs:
 
   tvos:
     # The type of runner that the job will run on
-    runs-on: macos-12
+    runs-on: macos-13
     
     strategy:
       matrix:
@@ -187,7 +213,7 @@ jobs:
           name: ${{ env.install_path }}
   tvos-arm64-sim:
     # The type of runner that the job will run on
-    runs-on: macos-12
+    runs-on: macos-13
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -269,7 +295,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: .\build.ps1 -p win32 -a $env:BUILD_ARCH
+        run: .\build.ps1 -p win32 -a $env:BUILD_ARCH -libs '${{ github.event.inputs.libs }}'
 
       - name: Upload
         uses: actions/upload-artifact@v4
@@ -304,7 +330,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: .\build.ps1 -p winrt -a $env:BUILD_ARCH -libs 'zlib,openssl,cares,curl,jpeg-turbo,luajit,angle'
+        run: .\build.ps1 -p winrt -a $env:BUILD_ARCH
 
       - name: Upload
         uses: actions/upload-artifact@v4

@@ -267,7 +267,7 @@ function create_xcfraemwork {
 
 # dist libs
 if [ "$DIST_LIBS" = "" ] ; then
-    DIST_LIBS="zlib,jpeg-turbo,openssl,cares,curl,luajit,angle,llvm"
+    DIST_LIBS="zlib,jpeg-turbo,openssl,cares,curl,luajit,angle"
 fi
 
 if [ -f "$DIST_VERLIST" ] ; then
