@@ -68,7 +68,7 @@ jobs:
     - name: Prepare dist package
       run: |
         ls
-        source 1k/dist.sh $RELEASE_TAG_NAME ${{github.event.inputs.package_suffix}} ${{github.event.inputs.libs}}
+        source 1k/dist.sh $RELEASE_TAG_NAME '${{github.event.inputs.package_suffix}}' '${{github.event.inputs.libs}}'
         ls
 
     - name: Upload dist package to release page
