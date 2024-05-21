@@ -19,6 +19,10 @@ function mkdirs($path) {
     }
 }
 
+function sremove($path) {
+    if (Test-Path $path) { Remove-Item $path -Recurse -Force } 
+}
+
 # determine build lib list
 if (!$libs) {
     $libs = @(
@@ -209,6 +213,9 @@ Foreach ($lib_name in $libs) {
         &$patch_script $lib_src
     }
 
+    $install_script = Join-Path $_1k_root "src/$lib_name/install1.ps1"
+    $has_custom_install = (Test-Path $install_script)
+
     # build
     Push-Location $lib_src
     $install_dir = Join-Path $install_root $lib_name
@@ -225,14 +232,19 @@ Foreach ($lib_name in $libs) {
             }
 
             $_config_options += "-DCMAKE_INSTALL_PREFIX=$install_dir"
-
-            if ($compiler_dumped) {
-                &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args
+            $evaluated_args = @()
+            if ($build_conf.cb_target) {
+                $evaluated_args += '-t', $build_conf.cb_target
             }
-            else {
-                &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xb '--target', 'install' @forward_args -dm
+            if (!$has_custom_install) {
+                $evaluated_args += '-i'
+            }
+            if (!$compiler_dumped) {
+                $evaluated_args += '-dm'
                 $compiler_dumped = $true
             }
+
+            &$1k_script -p $target_os -a $target_cpu -xc $_config_options @forward_args @evaluated_args
         }
         elseif ($is_gn) {
             &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($build_conf.cb_target)" @forward_args
@@ -248,8 +260,7 @@ Foreach ($lib_name in $libs) {
     Pop-Location
 
     # custom install step
-    $install_script = Join-Path $_1k_root "src/$lib_name/install1.ps1"
-    if (Test-Path $install_script) {
+    if ($has_custom_install) {
         &$install_script $install_dir $lib_src
     }
     # clean unnecessary files

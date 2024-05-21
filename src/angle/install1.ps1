@@ -1,5 +1,5 @@
 $install_dir = $args[0]
-$buildsrc_dir  = $args[1]
+$libsrc_dir  = $args[1]
 
 $buildout = Join-Path $Global:BUILD_DIR '/'
 
@@ -14,7 +14,7 @@ if ($Global:is_win_family) {
     # copy includes
     $inst_inc_dir = Join-Path $install_dir 'include'
     mkdirs $inst_inc_dir
-    Copy-Item -Path $(Join-Path $buildsrc_dir 'include/*') -Destination $inst_inc_dir -Recurse -Force
+    Copy-Item -Path $(Join-Path $libsrc_dir 'include/*') -Destination $inst_inc_dir -Recurse -Force
 
     # copy .lib
     Copy-Item "${buildout}libGLESv2.dll.lib" "${inst_lib_dir}libGLESv2.dll.lib" -Force

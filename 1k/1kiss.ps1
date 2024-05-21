@@ -236,6 +236,7 @@ $options = @{
     dll    = $false
     u      = $false # whether delete 1kdist cross-platform prebuilt folder: path/to/_x
     dm     = $false # dump compiler preprocessors
+    i      = $false # perform install
 }
 
 $optName = $null
@@ -1837,16 +1838,23 @@ if (!$setupOnly) {
 
                     # step4. build
                     # apply additional build options
-                    $BUILD_ALL_OPTIONS += "--parallel"
-                    $BUILD_ALL_OPTIONS += "$($options.j)"
+                    $BUILD_ALL_OPTIONS += "--parallel", "$($options.j)"
 
+                    if (!$cmake_target) { $cmake_target = $options.t }
+                    if ($cmake_target) { $BUILD_ALL_OPTIONS += '--target', $cmake_target }
+                    $1k.println("BUILD_ALL_OPTIONS=$BUILD_ALL_OPTIONS, Count={0}" -f $BUILD_ALL_OPTIONS.Count)
+
+                    # forward non-cmake args to underlaying build toolchain, must at last
                     if (($cmake_generator -eq 'Xcode') -and !$BUILD_ALL_OPTIONS.Contains('--verbose')) {
                         $BUILD_ALL_OPTIONS += '--', '-quiet'
                     }
-                    $1k.println("BUILD_ALL_OPTIONS=$BUILD_ALL_OPTIONS, Count={0}" -f $BUILD_ALL_OPTIONS.Count)
-
                     $1k.println("cmake --build $BUILD_DIR $BUILD_ALL_OPTIONS")
                     cmake --build $BUILD_DIR $BUILD_ALL_OPTIONS | Out-Host
+
+                    if ($options.i) {
+                        $install_args = @($BUILD_DIR, '--config', $optimize_flag)
+                        cmake --install $install_args | Out-Host
+                    }
                 }
             }
             else {
