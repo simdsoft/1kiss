@@ -10,4 +10,4 @@ lipo -create install_osx_arm64/${LIB_NAME}/lib/$LIB_FILE install_osx_x64/${LIB_N
 lipo -info fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE
 
 mkdir -p ${DIST_DIR}/lib/mac/
-copy1k fat_tmp/${LIB_NAME}/mac/$LIB_FILE ${DIST_DIR}/lib/mac/
+copy1k fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE ${DIST_DIR}/lib/mac/
