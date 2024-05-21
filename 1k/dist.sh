@@ -283,6 +283,10 @@ for (( i=0; i<${libs_count}; ++i )); do
   echo "dist $lib_name ..."
   source src/$lib_name/dist1.sh $DIST_ROOT
   cd ${DIST_NAME}
+  if [ $DIST_REVISION = 'devtools' ] ; then
+    mv ./$lib_name ./$lib_name-$ver
+    lib_name=$lib_name-$ver
+  fi
   zip -q -r ../seprate/$lib_name.zip ./$lib_name
   cd ..
 done
