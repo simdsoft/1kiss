@@ -209,6 +209,18 @@ $manifest = @{
     cmdlinetools = '7.0+'; # android cmdlinetools
 }
 
+# the default generator of unix targets: linux, osx, ios, android, wasm
+$cmake_generators = @{
+    'linux'   = 'Unix Makefiles'
+    'android' = 'Ninja'
+    'wasm'    = 'Ninja'
+    'wasm64'  = 'Ninja'
+    'osx'     = 'Xcode'
+    'ios'     = 'Xcode'
+    'tvos'    = 'Xcode'
+    'watchos' = 'Xcode'
+}
+
 $channels = @{}
 
 # refer to: https://developer.android.com/studio#command-line-tools-only
@@ -248,7 +260,7 @@ foreach ($arg in $args) {
                 $optName = $optName.TrimEnd(':')
             }
             $flag_tag = [string]$optName[0]
-            if ($flag_tag -in 'j','O') {
+            if ($flag_tag -in 'j', 'O') {
                 $flag_val = $null
                 if ([int]::TryParse($optName.substring(1), [ref] $flag_val)) {
                     $optName = $null
@@ -256,7 +268,7 @@ foreach ($arg in $args) {
                     continue
                 }
             }
-            if($options[$optName] -is [bool]) {
+            if ($options[$optName] -is [bool]) {
                 $options[$optName] = $true
                 $optName = $null
             }
@@ -348,6 +360,7 @@ $Global:is_android = $TARGET_OS -eq 'android'
 $Global:is_ios = $TARGET_OS -eq 'ios'
 $Global:is_tvos = $TARGET_OS -eq 'tvos'
 $Global:is_watchos = $TARGET_OS -eq 'watchos'
+$Global:is_ios_sim = $false
 $Global:is_win_family = $Global:is_winrt -or $Global:is_win32
 $Global:is_darwin_embed_family = $Global:is_ios -or $Global:is_tvos -or $Global:is_watchos
 $Global:is_darwin_family = $Global:is_mac -or $Global:is_darwin_embed_family
@@ -735,10 +748,11 @@ function setup_glslcc() {
     }
 
     $suffix = $('win64.zip', 'linux.tar.gz', 'osx{0}.tar.gz').Get($HOST_OS)
-    if($IsMacOS) {
-        if([System.VersionEx]$glslcc_ver -ge [System.VersionEx]'1.9.4.1') {
+    if ($IsMacOS) {
+        if ([System.VersionEx]$glslcc_ver -ge [System.VersionEx]'1.9.4.1') {
             $suffix = $suffix -f "-$HOST_CPU"
-        } else {
+        }
+        else {
             $suffix = $suffix -f ''
         }
     }
@@ -842,10 +856,11 @@ function setup_cmake($skipOS = $false, $scope = 'local') {
             }
         }
         elseif ($IsLinux) {
-            if($scope -ne 'global') {
+            if ($scope -ne 'global') {
                 $1k.mkdirs($cmake_root)
                 & "$cmake_pkg_path" '--skip-license' '--exclude-subdir' "--prefix=$cmake_root" 1>$null 2>$null
-            } else {
+            }
+            else {
                 & "$cmake_pkg_path" '--skip-license' '--prefix=/usr/local' 1>$null 2>$null
             }
         }
@@ -1583,10 +1598,7 @@ if (!$setupOnly) {
     $BUILD_DIR = $null
     $SOURCE_DIR = $null
 
-    function resolve_out_dir($prefix, $sub_prefix) {
-        if (!$prefix) {
-            $prefix = $sub_prefix
-        }
+    function resolve_out_dir($prefix) {
         if ($is_host_target) {
             $out_dir = "${prefix}${TARGET_CPU}"
         }
@@ -1630,16 +1642,9 @@ if (!$setupOnly) {
         $BUILD_ALL_OPTIONS = @()
         $BUILD_ALL_OPTIONS += $buildOptions
         if (!$optimize_flag) {
-            if ($cmake_optimize_flags) {
-                $optimize_flag = $cmake_optimize_flags[$TARGET_OS]
-            }
-            if (!$optimize_flag) {
-                $optimize_flag = 'Release'
-            }
+            $optimize_flag = 'Release'
         }
-        if($optimize_flag) {
-            $BUILD_ALL_OPTIONS += '--config', $optimize_flag
-        }
+        $BUILD_ALL_OPTIONS += '--config', $optimize_flag
 
         # enter building steps
         $1k.println("Building target $TARGET_OS on $HOST_OS_NAME with toolchain $TOOLCHAIN ...")
@@ -1653,26 +1658,14 @@ if (!$setupOnly) {
 
         if ($options.u) {
             $CONFIG_ALL_OPTIONS += '-D_1KFETCH_UPGRADE=TRUE'
-        } else {
+        }
+        else {
             $CONFIG_ALL_OPTIONS += '-D_1KFETCH_UPGRADE=FALSE'
         }
 
         # determine generator, build_dir, inst_dir for non gradlew projects
         if (!$is_gradlew) {
             if (!$cmake_generator -and !$TARGET_OS.StartsWith('win')) {
-                # the default generator of unix targets: linux, osx, ios, android, wasm
-                if (!$cmake_generators) {
-                    $cmake_generators = @{
-                        'linux'   = 'Unix Makefiles'
-                        'android' = 'Ninja'
-                        'wasm'    = 'Ninja'
-                        'wasm64'  = 'Ninja'
-                        'osx'     = 'Xcode'
-                        'ios'     = 'Xcode'
-                        'tvos'    = 'Xcode'
-                        'watchos' = 'Xcode'
-                    }
-                }
                 $cmake_generator = $cmake_generators[$TARGET_OS]
                 if ($null -eq $cmake_generator) {
                     $cmake_generator = if (!$IsWin) { 'Unix Makefiles' } else { 'Ninja' }
@@ -1694,7 +1687,7 @@ if (!$setupOnly) {
                     $CONFIG_ALL_OPTIONS += "-DCMAKE_MAKE_PROGRAM=$ninja_prog"
                 }
 
-                if($cmake_generator -eq 'Xcode') {
+                if ($cmake_generator -eq 'Xcode') {
                     setup_xcode
                 }
             }
@@ -1710,15 +1703,16 @@ if (!$setupOnly) {
                     if ($opt.Length -gt 2) {
                         $BUILD_DIR = $opt.Substring(2).Trim()
                     }
-                    elseif(++$opti -lt $xopts.Count) {
+                    elseif (++$opti -lt $xopts.Count) {
                         $BUILD_DIR = $xopts[$opti]
                     }
                     ++$xopt_presets
                 }
-                elseif($opt.StartsWith('-S')) {
+                elseif ($opt.StartsWith('-S')) {
                     if ($opt.Length -gt 2) {
                         $SOURCE_DIR = $opt.Substring(2).Trim()
-                    } elseif(++$opti -lt $xopts.Count) {
+                    }
+                    elseif (++$opti -lt $xopts.Count) {
                         $SOURCE_DIR = $xopts[$opti]
                     }
                     ++$xopt_presets
@@ -1733,10 +1727,10 @@ if (!$setupOnly) {
             }
 
             if (!$BUILD_DIR) {
-                $BUILD_DIR = resolve_out_dir $cmake_build_prefix 'build_'
+                $BUILD_DIR = resolve_out_dir 'build_'
             }
             if (!$INST_DIR) {
-                $INST_DIR = resolve_out_dir $cmake_install_prefix 'install_'
+                $INST_DIR = resolve_out_dir 'install_'
             }
 
             if ($rebuild) {
@@ -1809,8 +1803,8 @@ if (!$setupOnly) {
                 $cmakeCachePath = $1k.realpath("$BUILD_DIR/CMakeCache.txt")
 
                 if ($mainDepChanged -or !$1k.isfile($cmakeCachePath) -or $forceConfig) {
-                    $config_cmd = if(!$is_wasm) { 'cmake' } else { 'emcmake' }
-                    if($is_wasm) {
+                    $config_cmd = if (!$is_wasm) { 'cmake' } else { 'emcmake' }
+                    if ($is_wasm) {
                         $CONFIG_ALL_OPTIONS = @('cmake') + $CONFIG_ALL_OPTIONS
                     }
 
