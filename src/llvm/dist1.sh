@@ -11,3 +11,4 @@ lipo -info fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE
 
 mkdir -p ${DIST_DIR}/lib/mac/
 copy1k fat_tmp/${LIB_NAME}/lib/mac/$LIB_FILE ${DIST_DIR}/lib/mac/
+rm -rf ${DIST_DIR}/lib/win32/x86
