@@ -80,6 +80,7 @@ jobs:
         body_path: ${{ env.DIST_NOTES }}
         files: |
           ./seprate/*.zip
+          ./seprate/*.7z
           ${{ env.DIST_VERLIST }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
