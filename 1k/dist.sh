@@ -286,7 +286,7 @@ for (( i=0; i<${libs_count}; ++i )); do
   if [ $DIST_REVISION = 'devtools' ] ; then
     mv ./$lib_name ./$lib_name-$ver
     lib_name=$lib_name-$ver
-    7z a -r ../seprate/$lib_name.zip ./$lib_name
+    7z a -r ../seprate/$lib_name.7z ./$lib_name
   else
     zip -q -r ../seprate/$lib_name.zip ./$lib_name
   fi
