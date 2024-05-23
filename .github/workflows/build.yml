@@ -356,7 +356,7 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: if ('${{ github.event.inputs.libs }}' -eq ''){ ./build.ps1 -p $env:BUILD_PLAT -a '*' -libs 'openssl' } else { ./build.ps1 -p $env:BUILD_PLAT -a '*' -libs '${{ github.event.inputs.libs }}' }
+        run: if ('${{ github.event.inputs.libs }}' -eq ''){ ./build.ps1 -p $env:BUILD_PLAT -a '*' -libs 'openssl,zlib' } else { ./build.ps1 -p $env:BUILD_PLAT -a '*' -libs '${{ github.event.inputs.libs }}' }
 
       - name: Upload
         uses: actions/upload-artifact@v4
