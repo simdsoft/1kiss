@@ -6,5 +6,5 @@ if ($IsWin) {
     $manifest['nasm'] = '2.15.05+'
 }
 
-$manifest['emsdk'] = '3.1.60+'
+$manifest['emsdk'] = '3.1.59+'
 $manifest['cmake'] = '3.29.3+'
