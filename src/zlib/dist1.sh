@@ -2,7 +2,7 @@ DIST_ROOT=$1
 LIB_NAME=zlib
 DIST_DIR="${DIST_ROOT}/${LIB_NAME}"
 
-dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_NATIVES
+dist_lib ${LIB_NAME} ${DIST_DIR} $DISTF_ALL
 
 create_xcfraemwork zlib ${LIB_NAME} libz.a
 
