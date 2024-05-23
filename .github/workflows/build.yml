@@ -340,15 +340,6 @@ jobs:
   wasm:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-  # Run a job for each of the specified target architectures:
-    strategy:
-      matrix:
-        plat:
-          - wasm
-          - wasm64
-    env:
-      BUILD_PLAT: ${{ matrix.plat }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -356,7 +347,24 @@ jobs:
 
       - name: Build
         shell: pwsh
-        run: if ('${{ github.event.inputs.libs }}' -eq ''){ ./build.ps1 -p $env:BUILD_PLAT -a '*' -libs 'openssl,zlib' } else { ./build.ps1 -p $env:BUILD_PLAT -a '*' -libs '${{ github.event.inputs.libs }}' }
+        run: if ('${{ github.event.inputs.libs }}' -eq ''){ ./build.ps1 -p wasm -a '*' -libs 'zlib,openssl' } else { ./build.ps1 -p wasm -a '*' -libs '${{ github.event.inputs.libs }}' }
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}
+  wasm64:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Build
+        shell: pwsh
+        run: if ('${{ github.event.inputs.libs }}' -eq ''){ ./build.ps1 -p wasm64 -a '*' -libs 'openssl' } else { ./build.ps1 -p wasm64 -a '*' -libs '${{ github.event.inputs.libs }}' }
 
       - name: Upload
         uses: actions/upload-artifact@v4
