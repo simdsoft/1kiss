@@ -215,6 +215,7 @@ if ($is_git_repo) {
         }
     }
     elseif ($pull_branch -and !$is_rev_mod) {
+        git checkout $branch_name
         git -C $lib_src pull
         $cur_rev_hash = $(git -C $lib_src rev-parse HEAD)
         $is_rev_mod = $old_rev_hash -ne $cur_rev_hash
