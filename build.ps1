@@ -6,6 +6,7 @@ param(
     $target_os,
     [Alias('a')]
     $target_cpu,
+    [Alias('t')]
     $libs,
     $sdk = '',
     [switch]$rebuild
