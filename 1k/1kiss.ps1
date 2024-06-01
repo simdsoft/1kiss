@@ -1899,7 +1899,7 @@ if (!$setupOnly) {
 
         Write-Output ("gn_buildargs_overrides=$gn_buildargs_overrides, Count={0}" -f $gn_buildargs_overrides.Count)
 
-        $BUILD_DIR = resolve_out_dir $null 'out/'
+        $BUILD_DIR = resolve_out_dir 'out/'
 
         if ($rebuild) {
             $1k.rmdirs($BUILD_DIR)
