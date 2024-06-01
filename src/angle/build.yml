@@ -8,5 +8,5 @@ cb_target: libEGL
 options: treat_warnings_as_errors=false
 options_darwin: angle_enable_gl=false angle_enable_vulkan=false
 options_msw: is_clang=false angle_enable_vulkan=false angle_enable_gl=false
-options_win32: angle_enable_d3d9=true
+options_win32: angle_enable_d3d9=true angle_enable_d3d11_wrap_fallback=true
 options_winrt: angle_enable_d3d9=false
