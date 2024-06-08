@@ -44,13 +44,14 @@ function fetch_repo($url, $name, $dest, $ext) {
         git clone --progress $url $dest | Out-Host
     }
     else {
-        $out = Join-Path $cache_dir "$Script:url_pkg_name$ext"
+        $filename = "$Script:url_pkg_name$ext"
+        $out = Join-Path $cache_dir $filename
         download_file $url $out
         try {
             if ($ext -eq '.zip') {
                 Expand-Archive -Path $out -DestinationPath $prefix -Force
             }
-            elseif ($Script:url_pkg_name -match '.+\.tar(\..*)?$'){
+            elseif ($filename -match '.+\.tar(\..*)?$'){
                 tar xf "$out" -C $prefix
             }
         }
@@ -62,7 +63,7 @@ function fetch_repo($url, $name, $dest, $ext) {
         if (!(Test-Path $dest -PathType Container)) {
             $original_lib_src = Join-Path $prefix $Script:url_pkg_name
             if (Test-Path $original_lib_src -PathType Container) {
-                Rename-Item $original_lib_src $dest 
+                Rename-Item $original_lib_src $dest -Force
             }
             else {
                 throw "fetch.ps1: the package name mismatch for $out"
