@@ -44,14 +44,13 @@ function fetch_repo($url, $name, $dest, $ext) {
         git clone --progress $url $dest | Out-Host
     }
     else {
-        $filename = "$Script:url_pkg_name$ext"
-        $out = Join-Path $cache_dir $filename
+        $out = Join-Path $cache_dir "$Script:url_pkg_name$ext"
         download_file $url $out
         try {
             if ($ext -eq '.zip') {
                 Expand-Archive -Path $out -DestinationPath $prefix -Force
             }
-            elseif ($filename -match '.+\.tar(\..*)?$'){
+            elseif ($ext -match '\.tar(\..*)?$'){
                 tar xf "$out" -C $prefix
             }
         }
