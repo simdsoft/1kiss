@@ -282,15 +282,20 @@ jobs:
     env:
       NO_DLL: ${{ github.event.inputs.no_dll }}
       BUILD_ARCH: ${{ matrix.arch }}
+      TOOLSET: '14.39'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: setup-msvc1439
+        shell: pwsh
+        run: .\1k\setup-msvc.ps1 -ver $env:TOOLSET
+
       - uses: ilammy/msvc-dev-cmd@v1
         with:
-          toolset: '14.39'
+          toolset: ${{ env.TOOLSET }}
           arch: ${{ env.BUILD_ARCH }}
 
       - name: Build
@@ -321,12 +326,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-      - uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: '14.39'
-          arch: ${{ env.BUILD_ARCH }}
-          uwp: true
 
       - name: Build
         shell: pwsh
