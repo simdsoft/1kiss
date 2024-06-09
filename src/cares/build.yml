@@ -1,6 +1,6 @@
 repo: https://github.com/c-ares/c-ares.git
 ver: 1.30.0
-tag_prefix: ''
+tag_prefix: 'v'
 tag_dot2ul: false
 cb_tool: cmake
 options: -DCARES_STATIC=ON -DCARES_SHARED=OFF -DCARES_BUILD_TOOLS=OFF
