@@ -289,7 +289,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: setup-msvc1439
+      - name: setup-msvc
         shell: pwsh
         run: .\1k\setup-msvc.ps1 -ver $env:TOOLSET
 
