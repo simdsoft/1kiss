@@ -1,0 +1,104 @@
+diff --git a/crypto/armv4cpuid.pl b/crypto/armv4cpuid.pl
+index 04b342551c..499cfc2e2e 100644
+--- a/crypto/armv4cpuid.pl
++++ b/crypto/armv4cpuid.pl
+@@ -292,7 +292,7 @@ atomic_add_spinlock:
+ .word	0
+ #endif
+ 
+-.extern	OPENSSL_armcap_P
++.hidden	OPENSSL_armcap_P
+ ___
+ 
+ print $code;
+diff --git a/crypto/bn/asm/armv4-gf2m.pl b/crypto/bn/asm/armv4-gf2m.pl
+index 17af0e0774..0fb3bc8752 100644
+--- a/crypto/bn/asm/armv4-gf2m.pl
++++ b/crypto/bn/asm/armv4-gf2m.pl
+@@ -325,7 +325,7 @@ $code.=<<___;
+ .align	5
+ 
+ #if __ARM_MAX_ARCH__>=7
+-.extern	OPENSSL_armcap_P
++.hidden	OPENSSL_armcap_P
+ #endif
+ ___
+ 
+diff --git a/crypto/bn/asm/armv4-mont.pl b/crypto/bn/asm/armv4-mont.pl
+index d85da92406..b970e11eff 100644
+--- a/crypto/bn/asm/armv4-mont.pl
++++ b/crypto/bn/asm/armv4-mont.pl
+@@ -749,7 +749,7 @@ $code.=<<___;
+ .asciz	"Montgomery multiplication for ARMv4/NEON, CRYPTOGAMS by <appro\@openssl.org>"
+ .align	2
+ #if __ARM_MAX_ARCH__>=7
+-.extern	OPENSSL_armcap_P
++.hidden	OPENSSL_armcap_P
+ #endif
+ ___
+ 
+diff --git a/crypto/chacha/asm/chacha-armv4.pl b/crypto/chacha/asm/chacha-armv4.pl
+index ac32d5bda7..b60d6bd320 100755
+--- a/crypto/chacha/asm/chacha-armv4.pl
++++ b/crypto/chacha/asm/chacha-armv4.pl
+@@ -1154,7 +1154,7 @@ $code.=<<___;
+ 	add		sp,sp,#4*(16+3)
+ 	ldmia		sp!,{r4-r11,pc}
+ .size	ChaCha20_neon,.-ChaCha20_neon
+-.extern	OPENSSL_armcap_P
++.hidden	OPENSSL_armcap_P
+ #endif
+ ___
+ }}}
+diff --git a/crypto/poly1305/asm/poly1305-armv4.pl b/crypto/poly1305/asm/poly1305-armv4.pl
+index b98beefa18..057a741715 100755
+--- a/crypto/poly1305/asm/poly1305-armv4.pl
++++ b/crypto/poly1305/asm/poly1305-armv4.pl
+@@ -1239,7 +1239,7 @@ $code.=<<___;
+ .asciz	"Poly1305 for ARMv4/NEON, CRYPTOGAMS by <appro\@openssl.org>"
+ .align	2
+ #if	__ARM_MAX_ARCH__>=7
+-.extern   OPENSSL_armcap_P
++.hidden   OPENSSL_armcap_P
+ #endif
+ ___
+ 
+diff --git a/crypto/sha/asm/sha1-armv4-large.pl b/crypto/sha/asm/sha1-armv4-large.pl
+index 2832c5b530..48449ecf5d 100644
+--- a/crypto/sha/asm/sha1-armv4-large.pl
++++ b/crypto/sha/asm/sha1-armv4-large.pl
+@@ -707,7 +707,7 @@ ___
+ }}}
+ $code.=<<___;
+ #if __ARM_MAX_ARCH__>=7
+-.extern	OPENSSL_armcap_P
++.hidden	OPENSSL_armcap_P
+ #endif
+ ___
+ 
+diff --git a/crypto/sha/asm/sha256-armv4.pl b/crypto/sha/asm/sha256-armv4.pl
+index 8bac84b1a8..e434fd43ec 100644
+--- a/crypto/sha/asm/sha256-armv4.pl
++++ b/crypto/sha/asm/sha256-armv4.pl
+@@ -693,7 +693,7 @@ $code.=<<___;
+ .asciz  "SHA256 block transform for ARMv4/NEON/ARMv8, CRYPTOGAMS by <appro\@openssl.org>"
+ .align	2
+ #if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+-.extern   OPENSSL_armcap_P
++.hidden   OPENSSL_armcap_P
+ #endif
+ ___
+ 
+diff --git a/crypto/sha/asm/sha512-armv4.pl b/crypto/sha/asm/sha512-armv4.pl
+index c8b8110671..8fc2cb34d0 100644
+--- a/crypto/sha/asm/sha512-armv4.pl
++++ b/crypto/sha/asm/sha512-armv4.pl
+@@ -660,7 +660,7 @@ $code.=<<___;
+ .asciz	"SHA512 block transform for ARMv4/NEON, CRYPTOGAMS by <appro\@openssl.org>"
+ .align	2
+ #if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+-.extern	OPENSSL_armcap_P
++.hidden	OPENSSL_armcap_P
+ #endif
+ ___
+ 
