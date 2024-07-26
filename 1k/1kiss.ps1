@@ -484,6 +484,9 @@ function devtool_url($filename) {
 function version_eq($ver1, $ver2) {
     return $ver1 -eq $ver2
 }
+function version_like($ver1, $ver2) {
+    return $ver1 -like $ver2
+}
 
 # $ver2: accept x.y.z-rc1
 function version_ge($ver1, $ver2) {
@@ -567,29 +570,39 @@ function find_prog($name, $path = $null, $mode = 'ONLY', $cmd = $null, $params =
 
     # try get match expr and preferred ver
     $checkVerCond = $null
-    $requiredMin = ''
+    $minimalVer = ''
     $preferredVer = ''
+    $wildcardVer = ''
     $requiredVer = $manifest[$name]
     if ($requiredVer) {
         $preferredVer = $null
-        if ($requiredVer.EndsWith('+')) {
-            $preferredVer = $requiredVer.TrimEnd('+')
-            $checkVerCond = '$(version_ge $foundVer $preferredVer)'
-        }
-        elseif ($requiredVer -eq '*') {
+        if ($requiredVer -eq '*') {
             $checkVerCond = '$True'
             $preferredVer = 'latest'
         }
         else {
             $verArr = $requiredVer.Split('~')
             $isRange = $verArr.Count -gt 1
+            $minimalVer = $verArr[0]
             $preferredVer = $verArr[$isRange]
-            if ($isRange -gt 1) {
-                $requiredMin = $verArr[0]
-                $checkVerCond = '$(version_in_range $foundVer $requiredMin $preferredVer)'
+            if ($preferredVer.EndsWith('+')) {
+                $preferredVer = $preferredVer.TrimEnd('+')
+                if ($minimalVer.EndsWith('+')) { $minimalVer = $minimalVer.TrimEnd('+') }
+                $checkVerCond = '$(version_ge $foundVer $minimalVer)'
             }
             else {
-                $checkVerCond = '$(version_eq $foundVer $preferredVer)'
+                if ($isRange) {
+                    $checkVerCond = '$(version_in_range $foundVer $minimalVer $preferredVer)'
+                }
+                else {
+                    if (!$preferredVer.Contains('*')) {
+                        $checkVerCond = '$(version_eq $foundVer $preferredVer)'
+                    } else {
+                        $wildcardVer = $preferredVer
+                        $preferredVer = $wildcardVer.TrimLast('*')
+                        $checkVerCond = '$(version_like $foundVer $wildcardVer)'
+                    }
+                }
             }
         }
         if (!$checkVerCond) {
@@ -623,7 +636,7 @@ function find_prog($name, $path = $null, $mode = 'ONLY', $cmd = $null, $params =
         else {
             $foundVer = "$($cmd_info.Version)"
         }
-        [void]$requiredMin
+        [void]$minimalVer
         if ($checkVerCond) {
             $matched = Invoke-Expression $checkVerCond
             if ($matched) {
@@ -642,7 +655,6 @@ function find_prog($name, $path = $null, $mode = 'ONLY', $cmd = $null, $params =
     }
     else {
         if ($preferredVer) {
-            # if (!$silent) { $1k.println("Not found $name, needs install: $preferredVer") }
             $found_rets = $null, $preferredVer
         }
         else {
@@ -1218,7 +1230,9 @@ function setup_msvc() {
     if (!$cl_prog) {
         if ($VS_INST) {
             Import-Module "$VS_PATH\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-            Enter-VsDevShell -VsInstanceId $VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments "-arch=$target_cpu -host_arch=x64 -no_logo"
+            $dev_cmd_args = "-arch=$target_cpu -host_arch=x64 -no_logo"
+            if (!$manifest['msvc'].EndsWith('+')) { $dev_cmd_args += " -vcvars_ver=$cl_ver" }
+            Enter-VsDevShell -VsInstanceId $VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments $dev_cmd_args
 
             $cl_prog, $cl_ver = find_prog -name 'msvc' -cmd 'cl' -silent $true -usefv $true
             $1k.println("Using msvc: $cl_prog, version: $cl_ver")

@@ -1,5 +1,5 @@
-repo: https://curl.se/download/curl-8.9.0.zip
-ver: 8.9.0
+repo: https://curl.se/download/curl-8.9.1.zip
+ver: 8.9.1
 tag_prefix: curl-
 tag_dot2ul: true
 cb_tool: cmake

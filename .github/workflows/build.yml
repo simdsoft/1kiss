@@ -291,12 +291,7 @@ jobs:
 
       - name: setup-msvc
         shell: pwsh
-        run: .\1k\setup-msvc.ps1 -ver $env:TOOLSET
-
-      - uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: ${{ env.TOOLSET }}
-          arch: ${{ env.BUILD_ARCH }}
+        run: .\1k\setup-msvc.ps1 -ver $env:TOOLSET -arch $env:BUILD_ARCH
 
       - name: Build
         shell: pwsh
@@ -317,15 +312,20 @@ jobs:
       matrix:
         arch:
           - x64
-          - amd64_arm64
+          - arm64
     env:
       NO_DLL: ${{ github.event.inputs.no_dll }}
       BUILD_ARCH: ${{ matrix.arch }}
+      TOOLSET: '14.39'
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+
+      - name: setup-msvc
+        shell: pwsh
+        run: .\1k\setup-msvc.ps1 -ver $env:TOOLSET -arch $env:BUILD_ARCH
 
       - name: Build
         shell: pwsh

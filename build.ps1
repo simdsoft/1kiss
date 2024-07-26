@@ -134,6 +134,7 @@ mkdirs $install_root
 $embed_family = ''
 if ($is_win_family) {
     $os_family = 'msw'
+    setup_msvc
 }
 else {
     $os_family = 'unix'
