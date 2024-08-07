@@ -222,7 +222,7 @@ Foreach ($lib_name in $libs) {
         $patches = Get-ChildItem (Split-Path $patch_script -Parent) -Filter '*.patch'
         foreach($patch_file in $patches) {
             println "apply patch: $patch_file"
-            git -C $lib_src apply --verbose $patch_file
+            git -C $lib_src apply --verbose --ignore-whitespace $patch_file
         }
     }
 
