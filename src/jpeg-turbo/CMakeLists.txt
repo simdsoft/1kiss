@@ -5,7 +5,7 @@ if(CMAKE_EXECUTABLE_SUFFIX)
 endif()
 
 project(libjpeg-turbo C)
-set(VERSION 3.0.3)
+set(VERSION 3.0.4)
 set(COPYRIGHT_YEAR "1991-2024")
 string(REPLACE "." ";" VERSION_TRIPLET ${VERSION})
 list(GET VERSION_TRIPLET 0 VERSION_MAJOR)
@@ -309,12 +309,12 @@ endif()
 # 1: + In-memory source/destination managers (libjpeg-turbo 1.3.x)
 # 2: + Partial image decompression functions (libjpeg-turbo 1.5.x)
 # 3: + ICC functions (libjpeg-turbo 2.0.x)
-# 4: + 12-bit-per-component and lossless functions (libjpeg-turbo 2.2.x)
+# 4: + 12-bit-per-sample and lossless functions (libjpeg-turbo 3.0.x)
 #
 # libjpeg v8 API/ABI emulation:
 # 1: + Partial image decompression functions (libjpeg-turbo 1.5.x)
 # 2: + ICC functions (libjpeg-turbo 2.0.x)
-# 3: + 12-bit-per-component and lossless functions (libjpeg-turbo 2.2.x)
+# 3: + 12-bit-per-sample and lossless functions (libjpeg-turbo 3.0.x)
 set(SO_AGE 3)
 if(NOT WITH_JPEG8)
   set(SO_AGE 4)
@@ -1202,7 +1202,7 @@ foreach(libtype ${TEST_LIBTYPES})
 
       set(TESTORIG testorig12.jpg)
       set(MD5_JPEG_RGB_ISLOW 9d7369207c520d37f2c1cbfcb82b2964)
-      set(MD5_JPEG_RGB_ISLOW2 a00bd20d8ae49684640ef7177d2e0b64)
+      set(MD5_JPEG_RGB_ISLOW2 e619791332a99813bdca9f56fd60f9f9)
       set(MD5_PPM_RGB_ISLOW f3301d2219783b8b3d942b7239fa50c0)
       set(MD5_JPEG_422_IFAST_OPT 7322e3bd2f127f7de4b40d4480ce60e4)
       set(MD5_PPM_422_IFAST 79807fa552899e66a04708f533e16950)
@@ -1259,7 +1259,7 @@ foreach(libtype ${TEST_LIBTYPES})
       set(MD5_JPEG_CROP cdb35ff4b4519392690ea040c56ea99c)
 
       set(MD5_JPEG_EXAMPLE_COMPRESS 5e502da0c3c0f957a58c536f31e973dc)
-      set(MD5_PPM_EXAMPLE_DECOMPRESS 2ff0e8505ee6e0ffaeb24037d5650b57)
+      set(MD5_PPM_EXAMPLE_DECOMPRESS 70194fdcb73370ee7ba0db868d0c6fc8)
     else()
       set(cjpeg cjpeg)
       set(djpeg djpeg)
@@ -1268,7 +1268,7 @@ foreach(libtype ${TEST_LIBTYPES})
 
       set(TESTORIG testorig.jpg)
       set(MD5_JPEG_RGB_ISLOW 1d44a406f61da743b5fd31c0a9abdca3)
-      set(MD5_JPEG_RGB_ISLOW2 31d121e57b6c2934c890a7fc7763bcd4)
+      set(MD5_JPEG_RGB_ISLOW2 b811e5ad807beb9384e51ef6a47f715d)
       set(MD5_PPM_RGB_ISLOW 00a257f5393fef8821f2b88ac7421291)
       set(MD5_BMP_RGB_ISLOW_565 f07d2e75073e4bb10f6c6f4d36e2e3be)
       set(MD5_BMP_RGB_ISLOW_565D 4cfa0928ef3e6bb626d7728c924cfda4)
@@ -1343,7 +1343,7 @@ foreach(libtype ${TEST_LIBTYPES})
       set(MD5_JPEG_CROP b4197f377e621c4e9b1d20471432610d)
 
       set(MD5_JPEG_EXAMPLE_COMPRESS 95d4d72e2ef127332654c2599afb47bf)
-      set(MD5_PPM_EXAMPLE_DECOMPRESS 6fdde7301575bfd711e295b969b6b3de)
+      set(MD5_PPM_EXAMPLE_DECOMPRESS dea1d7bbc37e39adf628342c86096641)
     endif()
 
     # CC: null  SAMP: fullsize  FDCT: islow  ENT: huff
@@ -1362,7 +1362,7 @@ foreach(libtype ${TEST_LIBTYPES})
     set_tests_properties(${djpeg}-${libtype}-rgb-islow-icc-cmp PROPERTIES
       DEPENDS ${djpeg}-${libtype}-rgb-islow)
 
-    add_bittest(${jpegtran} icc "-copy;all;-icc;${TESTIMAGES}/test2.icc"
+    add_bittest(${jpegtran} icc "-copy;all;-icc;${TESTIMAGES}/test3.icc"
       ${testout}_rgb_islow2.jpg ${testout}_rgb_islow.jpg
       ${MD5_JPEG_RGB_ISLOW2} ${cjpeg}-${libtype}-rgb-islow)
 
@@ -1673,9 +1673,7 @@ foreach(libtype ${TEST_LIBTYPES})
 
     add_test(NAME example-${sample_bits}bit-${libtype}-decompress
       COMMAND example${suffix} decompress ${EXAMPLE_12BIT_ARG}
-        ${testout}-example.jpg ${testout}-example.ppm)
-    set_tests_properties(example-${sample_bits}bit-${libtype}-decompress
-      PROPERTIES DEPENDS example-${sample_bits}bit-${libtype}-compress)
+        ${TESTIMAGES}/${TESTORIG} ${testout}-example.ppm)
     add_test(NAME example-${sample_bits}bit-${libtype}-decompress-cmp
       COMMAND md5cmp ${MD5_PPM_EXAMPLE_DECOMPRESS} ${testout}-example.ppm)
     set_tests_properties(example-${sample_bits}bit-${libtype}-decompress-cmp
