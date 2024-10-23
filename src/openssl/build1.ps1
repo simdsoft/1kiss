@@ -129,4 +129,3 @@ else {
     }
 }
 
-$Global:openssl_dir = $install_dir

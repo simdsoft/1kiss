@@ -233,6 +233,7 @@ Foreach ($lib_name in $libs) {
     Push-Location $lib_src
     $install_dir = Join-Path $install_root $lib_name
     mkdirs $install_dir
+    Set-Variable -Name "${lib_name}_install_dir" -Value $install_dir -Scope Global
     if ($build_conf.cb_tool -ne 'custom') {
         $_config_options = $build_conf.options
         if ($build_conf.cb_tool -eq 'cmake') {
