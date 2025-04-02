@@ -89,7 +89,7 @@ $compatMode = $false
 if ($Global:IsWin) {
     if (!$OutputEncoding -or $OutputEncoding.CodePage -ne 65001) {
         $OutputEncoding = [System.Text.Encoding]::UTF8
-        try { 
+        try {
             [System.Console]::OutputEncoding = $OutputEncoding
         }
         catch {
@@ -145,10 +145,10 @@ class _1kiss {
         }
     }
     [void] addpath([string]$path) { $this.addpath($path, $false) }
-    [void] addpath([string]$path, [bool]$append) { 
+    [void] addpath([string]$path, [bool]$append) {
         if (!$path -or $env:PATH.Contains($path)) { return }
-        if (!$append) { $env:PATH = "$path$Global:ENV_PATH_SEP$env:PATH" } 
-        else { $env:PATH = "$env:PATH$Global:ENV_PATH_SEP$path" } 
+        if (!$append) { $env:PATH = "$path$Global:ENV_PATH_SEP$env:PATH" }
+        else { $env:PATH = "$env:PATH$Global:ENV_PATH_SEP$path" }
     }
 
     [void] pause($msg) {
@@ -231,7 +231,9 @@ $manifest = @{
     python       = '3.8.0+';
     jdk          = '17.0.10+'; # jdk17+ works for android cmdlinetools 7.0+
     emsdk        = '3.1.53+';
-    'cmdline-tools' = '12.0'; # android cmdlinetools
+    cmdlinetools = '12.0'; # android cmdline-tools
+    buildtools   = '34.0.0'; # android build-tools
+    target_sdk   = '35'      # android platforms
 }
 
 # the default generator requires explicit specified: osx, ios, android, wasm
@@ -252,12 +254,6 @@ $cmdlinetools_rev = '11076708' # 12.0
 
 $ndk_r23d_rev = '12186248'
 # $ndk_r25d_rev = '12161346'
-
-$android_sdk_tools = @{
-    'cmdline-tools' = '12.0'
-    'build-tools' = '34.0.0'
-    'platforms'   = '35'
-}
 
 # eva: evaluated_args
 $options = @{
@@ -474,6 +470,14 @@ $Global:is_msvc = $TOOLCHAIN_NAME -eq 'msvc'
 $manifest_file = Join-Path $myRoot 'manifest.ps1'
 if ($1k.isfile($manifest_file)) {
     . $manifest_file
+}
+
+if($1k.isfile($Global:__1k_user_profile)) {
+    $1k.println("Loading user build profile: $__1k_user_profile")
+    $user_profile = ConvertFrom-Props (Get-Content $__1k_user_profile)
+    foreach($entry in $user_profile.GetEnumerator()) {
+        $manifest[$entry.Key] = $entry.Value
+    }
 }
 
 $install_prefix = if ($options.prefix) { $options.prefix } else { Join-Path $HOME '.1kiss' }
@@ -762,9 +766,9 @@ function download_and_expand($url, $out, $dest) {
     }
 }
 
-function resolve_path ($path, $prefix = $null) { 
-    if ($1k.isabspath($path)) { 
-        return $path 
+function resolve_path ($path, $prefix = $null) {
+    if ($1k.isabspath($path)) {
+        return $path
     }
     else {
         if (!$prefix) { $prefix = $install_prefix }
@@ -808,7 +812,7 @@ function fetch_pkg($url, $out = $null, $exrep = $null, $prefix = $null) {
     else {
         $prefix = $install_prefix
     }
-    
+
     download_and_expand $url $out $prefix
 
     if ($pfn_rename) { &$pfn_rename }
@@ -831,7 +835,7 @@ function find_vs() {
 
         $required_vs_ver = $manifest['vs']
         if (!$required_vs_ver) { $required_vs_ver = '12.0+' }
-        
+
         # refer: https://learn.microsoft.com/en-us/visualstudio/install/workload-and-component-ids?view=vs-2022
         $require_comps = @('Microsoft.VisualStudio.Component.VC.Tools.x86.x64', 'Microsoft.VisualStudio.Product.BuildTools')
         $vs_installs = ConvertFrom-Json "$(&$VSWHERE_EXE -version $required_vs_ver.TrimEnd('+') -format 'json' -requires $require_comps -requiresAny -prerelease)"
@@ -877,20 +881,29 @@ $vs_installs = ConvertFrom-Json "$(&$vswhere -version "$vs_major.0" -format 'jso
 $vs_installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
 $vs_path = $vs_installs[0].installationPath
 
+function install_msvc_comp($comp_id) {
+    Write-Host "Installing $comp_id into $vs_path ..."
+    &$vs_installer modify --quiet --installPath $vs_path --add $comp_id | Out-Host
+    if ($?) {
+        Write-Host "Install $comp_id success."
+    }
+    else {
+        Write-Error "Install $comp_id fail!"
+        exit 1
+    }
+}
+
+# msvc
 $vs_arch = @{x64 = 'x86.x64'; x86 = 'x86.x64'; arm64 = 'ARM64'; arm = 'ARM' }[$arch]
 $msvc_comp_id = "Microsoft.VisualStudio.Component.VC.$ver.$vs_ver.$vs_arch" # refer to: https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
-Write-Host "Installing $msvc_comp_id ..."
-&$vs_installer modify --quiet --installPath $vs_path --add $msvc_comp_id | Out-Host
+install_msvc_comp $msvc_comp_id
 
-if ($?) {
-    Write-Host "Install $msvc_comp_id success."
-}
-else {
-    Write-Error "Install $msvc_comp_id fail!"
-    exit 1
-}
+# mfc
+$suffix = @{x64 = ''; x86 = ''; arm64 = '.ARM64'; arm = '.ARM' }[$arch]
+$mfc_comp_id = "Microsoft.VisualStudio.Component.VC.$ver.$vs_ver.MFC$suffix"
+install_msvc_comp $mfc_comp_id
 '@
-    $1k.println("Installing $ver', please press YES in UAC dialog, and don't close popup install window ...")
+    $1k.println("Installing $ver, please press YES in UAC dialog, and don't close popup install window ...")
     $__install_script = [System.IO.Path]::GetTempFileName() + '.ps1'
     [System.IO.File]::WriteAllText($__install_script, $__install_code)
     $process = Start-Process powershell -ArgumentList "-File `"`"$__install_script`"`" -ver $ver -arch $arch" -Verb runas -PassThru -Wait
@@ -898,10 +911,10 @@ else {
     [System.IO.File]::Delete($__install_script)
 
     if ($install_ret -eq 0) {
-        $1k.println("Install msvc-$ver' succeed")
+        $1k.println("Install msvc-$ver succeed")
     }
     else {
-        throw "Install msvc-$ver' fail!"
+        throw "Install msvc-$ver fail!"
     }
 }
 
@@ -1031,7 +1044,12 @@ function setup_cmake($skipOS = $false) {
             $cmake_app_contents = Join-Path $cmake_dir 'CMake.app/Contents'
         }
         if (!$1k.isdir($cmake_dir)) {
-            fetch_pkg $cmake_url
+            if ($IsLinux) {
+                fetch_pkg $cmake_url -out $cmake_pkg_path
+            }
+            else {
+                fetch_pkg $cmake_url
+            }
         }
 
         if ($1k.isdir($cmake_dir)) {
@@ -1068,7 +1086,7 @@ function setup_cmake($skipOS = $false) {
 
         $1k.println("Using cmake: $cmake_prog, version: $cmake_ver")
     }
-    
+
     $1k.addpath($cmake_bin)
     return $cmake_prog, $cmake_ver
 }
@@ -1306,11 +1324,11 @@ function setup_android_sdk() {
     $sdk_comps = @()
 
     ### cmdline-tools ###
-    $cmdlinetools_ver = $($android_sdk_tools['cmdline-tools'])
+    $cmdlinetools_ver = $manifest['cmdlinetools']
     $sdkmanager_prog, $sdkmanager_ver = $null, $null
     $cmdlinetools_prefix = Join-Path $sdk_root "cmdline-tools"
     $cmdlinetools_bin = Join-Path $cmdlinetools_prefix "$cmdlinetools_ver/bin"
-    $sdkmanager_prog, $sdkmanager_ver = (find_prog -name 'cmdline-tools' -cmd 'sdkmanager' -path $cmdlinetools_bin -params "--version", "--sdk_root=$sdk_root")
+    $sdkmanager_prog, $sdkmanager_ver = (find_prog -name 'cmdlinetools' -cmd 'sdkmanager' -path $cmdlinetools_bin -params "--version", "--sdk_root=$sdk_root")
     if (!$sdkmanager_prog) {
         $suffix = $('win', 'linux', 'mac').Get($HOST_OS)
         if (!$sdkmanager_prog) {
@@ -1319,7 +1337,7 @@ function setup_android_sdk() {
             $cmdlinetools_pkg_name = "commandlinetools-$suffix-$($cmdlinetools_rev)_latest.zip"
             $cmdlinetools_url = "https://dl.google.com/android/repository/$cmdlinetools_pkg_name"
             fetch_pkg $cmdlinetools_url -o $cmdlinetools_pkg_name -exrep "cmdline-tools=$cmdlinetools_ver" -prefix $cmdlinetools_prefix
-            $sdkmanager_prog, $_ = (find_prog -name 'cmdline-tools' -cmd 'sdkmanager' -path $cmdlinetools_bin -params "--version", "--sdk_root=$sdk_root" -silent $True)
+            $sdkmanager_prog, $_ = (find_prog -name 'cmdlinetools' -cmd 'sdkmanager' -path $cmdlinetools_bin -params "--version", "--sdk_root=$sdk_root" -silent $True)
             if (!$sdkmanager_prog) {
                 throw "Install cmdlinetools version: $sdkmanager_ver fail"
             }
@@ -1338,9 +1356,9 @@ function setup_android_sdk() {
             # - https://ci.android.com/builds/submitted/12186248/win64/latest/android-ndk-12186248-windows-x86_64.zip
             # - https://ci.android.com/builds/submitted/12186248/linux/latest/android-ndk-12186248-linux-x86_64.zip
             # - https://ci.android.com/builds/submitted/12186248/darwin_mac/latest/android-ndk-12186248-darwin-x86_64.zip
-	    
+
             $1k.println("Not found suitable android ndk, installing from ci.android.com ...")
-	    
+
             $_artifact = @("android-ndk-${ndk_r23d_rev}-windows-x86_64.zip",
                 "android-ndk-${ndk_r23d_rev}-linux-x86_64.zip",
                 "android-ndk-${ndk_r23d_rev}-darwin-x86_64.zip").Get($HOST_OS)
@@ -1353,8 +1371,8 @@ function setup_android_sdk() {
             if (!$1k.isdir($ndk_root)) { throw "Install android-ndk-r23d fail, please try again" }
         }
         else {
-            $1k.println("Not found suitable android ndk, installing by sdkmanager ...")
-	    
+            $1k.println("Not found suitable android ndk, installing ndk-$ndk_ver by sdkmanager ...")
+
             $matchInfos = (exec_prog -prog $sdkmanager_prog -params "--sdk_root=$sdk_root", '--list' | Select-String 'ndk;')
             if ($null -ne $matchInfos -and $matchInfos.Count -gt 0) {
                 $ndks = @{}
@@ -1382,14 +1400,14 @@ function setup_android_sdk() {
     }
 
     if (!$ndkOnly) {
-        $sdk_comps_list = 'platform-tools', "platforms/android-$($android_sdk_tools['platforms'])", "build-tools/$($android_sdk_tools['build-tools'])"
+        $sdk_comps_list = 'platform-tools', "platforms/android-$($manifest['target_sdk'])", "build-tools/$($manifest['buildtools'])"
         foreach ($comp in $sdk_comps_list) {
             if (!$1k.isfile("$sdk_root/$comp/source.properties") -or $updateAdt) {
                 $sdk_comps += $comp.Replace('/', ';')
             }
         }
     }
-    
+
     if ($sdk_comps) {
         $sdk_cmdline_args = '--verbose', "--sdk_root=$sdk_root"
         $sdk_cmdline_args += $sdk_comps
@@ -1445,7 +1463,23 @@ function setup_msvc() {
             if (!$manifest['msvc'].EndsWith('+')) { $dev_cmd_args += " -vcvars_ver=$cl_ver" }
 
             Import-Module "$vs_path\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-            Enter-VsDevShell -VsInstanceId $Global:VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments $dev_cmd_args
+            $1k.println("Enter vs dev shell ...")
+            Enter-VsDevShell -VsInstanceId $Global:VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments $dev_cmd_args -ErrorAction SilentlyContinue
+            if ($?) {
+                $1k.println('Enter vs dev shell success.')
+            }
+            else {
+                # vs2022 x64,x86 share same msvc component
+                install_msvc $cl_ver 'x64'
+                $1k.println("Enter vs dev shell ...")
+                Enter-VsDevShell -VsInstanceId $Global:VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments $dev_cmd_args -ErrorAction SilentlyContinue
+                if ($?) {
+                    $1k.println('Enter vs dev shell success.')
+                }
+                else {
+                    throw "Enter vs dev shell fail, please check your vs installation"
+                }
+            }
 
             $cl_prog, $cl_ver = find_prog -name 'msvc' -cmd 'cl' -silent $true -usefv $true
             $1k.println("Using msvc: $cl_prog, version: $cl_ver")
@@ -1522,8 +1556,10 @@ function preprocess_win() {
         $vs_ver = [VersionEx]$Global:VS_INST.installationVersion
         if ($vs_ver -ge [VersionEx]'16.0') {
             $outputOptions += '-A', $arch
-            if ($TOOLCHAIN_VER) {
+            if ($TOOLCHAIN_VER -match '^\d+$') {
                 $outputOptions += "-Tv$TOOLCHAIN_VER"
+            } elseif($TOOLCHAIN_VER -match '^\d+\.\d+$') {
+                $outputOptions += '-T', "version=$TOOLCHAIN_VER"
             }
         }
         else {
@@ -1857,6 +1893,10 @@ if (!$setupOnly) {
             $CONFIG_ALL_OPTIONS = @()
         }
 
+        if ($env:__1K_CXXSTD) {
+            $CONFIG_ALL_OPTIONS += "-DCMAKE_CXX_STANDARD=$env:__1K_CXXSTD"
+        }
+
         if ($options.u) {
             $CONFIG_ALL_OPTIONS += '-D_1KFETCH_UPGRADE=TRUE'
         }
@@ -2045,7 +2085,7 @@ if (!$setupOnly) {
                     # apply additional build options
                     $BUILD_ALL_OPTIONS += "--parallel", "$($options.j)"
 
-                    
+
                     $1k.println("BUILD_ALL_OPTIONS=$BUILD_ALL_OPTIONS, Count={0}" -f $BUILD_ALL_OPTIONS.Count)
 
                     # forward non-cmake args to underlaying build toolchain, must at last
@@ -2091,7 +2131,7 @@ if (!$setupOnly) {
                             exit $LASTEXITCODE
                         }
                     }
-                    
+
                     if ($options.i) {
                         $install_args = @($BUILD_DIR, '--config', $optimize_flag)
                         cmake --install $install_args | Out-Host
