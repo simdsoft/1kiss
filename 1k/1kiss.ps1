@@ -1470,7 +1470,7 @@ function setup_msvc() {
             }
             else {
                 # vs2022 x64,x86 share same msvc component
-                install_msvc $cl_ver 'x64'
+                install_msvc $cl_ver $TARGET_CPU
                 $1k.println("Enter vs dev shell ...")
                 Enter-VsDevShell -VsInstanceId $Global:VS_INST.instanceId -SkipAutomaticLocation -DevCmdArguments $dev_cmd_args -ErrorAction SilentlyContinue
                 if ($?) {
