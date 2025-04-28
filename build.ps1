@@ -29,6 +29,7 @@ if (!$libs) {
     $libs = @(
         'zlib'
         'openssl'
+        'opus'
         'cares'
         'curl'
         'jpeg-turbo'

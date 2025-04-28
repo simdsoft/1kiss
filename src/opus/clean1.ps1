@@ -1,0 +1,13 @@
+$install_dir = $args[0]
+
+if ((Test-Path $install_dir -PathType Container)) {
+    Write-Output "Cleaning ${install_dir}..."
+    # Delete files what we don't want
+    if($IsWindows) {
+        sremove "$install_dir\bin\curl-config"
+    } else {
+        sremove "$install_dir\bin"
+    }
+    sremove "$install_dir\lib\cmake"
+    sremove "$install_dir\lib\pkgconfig"
+}

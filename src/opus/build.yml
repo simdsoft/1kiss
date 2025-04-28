@@ -1,0 +1,9 @@
+repo: https://github.com/xiph/opus.git
+ver: 1.5.2
+tag_prefix: v
+tag_dot2ul: false
+cb_tool: cmake
+options: -DOPUS_INSTALL_PKG_CONFIG_MODULE=OFF -DOPUS_INSTALL_CMAKE_CONFIG_MODULE=OFF -DOPUS_BUILD_PROGRAMS=OFF -DOPUS_BUILD_TESTING=OFF -DOPUS_CUSTOM_MODES=OFF
+options_cross:
+options_unix:
+options_msw: 
