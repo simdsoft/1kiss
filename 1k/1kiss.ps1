@@ -84,20 +84,22 @@ $Global:EXE_SUFFIX = @('', '.exe')[$IsWin]
 
 $Script:cmake_generator = $null
 
-$compatMode = $false
+$is_pwsh_ise = !!$psISE
 # perfer utf-8 encoding
 if ($Global:IsWin) {
     if (!$OutputEncoding -or $OutputEncoding.CodePage -ne 65001) {
         $OutputEncoding = [System.Text.Encoding]::UTF8
-        try {
-            [System.Console]::OutputEncoding = $OutputEncoding
-        }
-        catch {
-            $compatMode = $True
-        }
+    }
+
+    try {
+        [System.Console]::OutputEncoding = $OutputEncoding
+    }
+    catch {
+        # the [Console]::OutputEncoding not allow to modify inside powershell ise
+        $is_pwsh_ise = $true
     }
 }
-$ErrorActionPreference = @('Stop', 'Continue')[$compatMode]
+$ErrorActionPreference = @('Stop', 'Continue')[$is_pwsh_ise]
 
 # import VersionEx and others
 . (Join-Path $PSScriptRoot 'extensions.ps1')
@@ -335,7 +337,13 @@ $osVer = if ($IsWin) { "Microsoft Windows $([System.Environment]::OSVersion.Vers
 
 # arm64,x64
 # uname -m: arm64/aarch64,x86_64
-$HOST_CPU = [System.Runtime.InteropServices.RuntimeInformation, mscorlib]::OSArchitecture.ToString().ToLower()
+if ($IsWin) {
+    $__1k_archs = @{9="x64"; 10="arm64"}
+    $__1k_arch_code = [int](Get-CimInstance Win32_Processor).Architecture[0]
+    $HOST_CPU = $__1k_archs[$__1k_arch_code]
+} else {
+    $HOST_CPU = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower()
+}
 
 $1k.println("PowerShell $pwsh_ver on $osVer")
 
@@ -343,7 +351,7 @@ $1k.println("PowerShell $pwsh_ver on $osVer")
 $TARGET_OS = $options.p
 if (!$TARGET_OS) {
     # choose host target if not specified by command line automatically
-    $TARGET_OS = $options.p = $('win32', 'linux', 'osx').Get($HOST_OS_INT)
+    $TARGET_OS = $options.p = @('win32', 'linux', 'osx')[$HOST_OS_INT]
 }
 else {
     $target_os_norm = @{winuwp = 'winrt'; mac = 'osx' }[$TARGET_OS]
@@ -368,14 +376,9 @@ function eval($str, $raw = $false) {
 }
 
 function create_symlink($sourcePath, $destPath) {
-    # try link ninja exist cmake bin directory
     & "$myRoot\fsync.ps1" -s $sourcePath -d $destPath -l $true 2>$null
-
-    if (!$? -and $IsWin) {
-        # try runas admin again
-        $mklink_args = "-Command ""& ""$myRoot\fsync.ps1"" -s '$sourcePath' -d '$destPath' -l `$true 2>`$null"""
-        Write-Host "mklink_args={$mklink_args}"
-        Start-Process powershell -ArgumentList $mklink_args -WindowStyle Hidden -Wait -Verb runas
+    if(!$?) {
+        throw "create_symlink $destPath ==> $sourcePath fail"
     }
 }
 
@@ -429,7 +432,7 @@ if (!$setupOnly) {
     $1k.println("$(Out-String -InputObject $options)")
 }
 
-$HOST_OS = $('windows', 'linux', 'macos').Get($HOST_OS_INT)
+$HOST_OS = @('windows', 'linux', 'macos')[$HOST_OS_INT]
 
 # determine toolchain
 $TOOLCHAIN = $options.cc
@@ -716,6 +719,9 @@ function find_prog($name, $path = $null, $mode = 'ONLY', $cmd = $null, $params =
     if ($storedPATH) {
         $env:PATH = $storedPATH
     }
+
+    $Error.Clear()
+
     return $found_rets
 }
 
@@ -967,7 +973,7 @@ function setup_axslcc() {
         return $axslcc_prog
     }
 
-    $suffix = $('win64.zip', 'linux.tar.gz', 'osx{0}.tar.gz').Get($HOST_OS_INT)
+    $suffix = @('win64.zip', 'linux.tar.gz', 'osx{0}.tar.gz')[$HOST_OS_INT]
     if ($IsMacOS) {
         if ([System.VersionEx]$axslcc_ver -ge [System.VersionEx]'1.9.4.1') {
             $suffix = $suffix -f "-$HOST_CPU"
@@ -983,15 +989,14 @@ function setup_axslcc() {
     $axslcc_prog = (Join-Path $axslcc_bin "axslcc$EXE_SUFFIX")
     if ($1k.isfile($axslcc_prog)) {
         $1k.println("Using axslcc: $axslcc_prog, version: $axslcc_ver")
-        return $axslcc_prog
+    } else {
+        throw "Install axslcc fail"
     }
-
-    throw "Install axslcc fail"
 }
 
 function setup_ninja() {
     if (!$manifest['ninja']) { return $null }
-    $suffix = $('win', 'linux', 'mac').Get($HOST_OS_INT)
+    $suffix = @('win', 'linux', 'mac')[$HOST_OS_INT]
     $ninja_bin = Join-Path $install_prefix 'ninja'
     $ninja_prog, $ninja_ver = find_prog -name 'ninja'
     if ($ninja_prog) {
@@ -1022,12 +1027,12 @@ function setup_cmake($skipOS = $false) {
     if (!$cmake_prog) {
         $1k.rmdirs($cmake_root)
 
-        $cmake_suffix = @(".zip", ".sh", ".tar.gz").Get($HOST_OS_INT)
+        $cmake_suffix = @(".zip", ".sh", ".tar.gz")[$HOST_OS_INT]
         if ($HOST_OS_INT -ne $HOST_MAC) {
-            $cmake_pkg_name = "cmake-$cmake_ver-$HOST_OS_NAME-x86_64"
+            $cmake_pkg_name = "cmake-$cmake_ver-$HOST_OS-x86_64"
         }
         else {
-            $cmake_pkg_name = "cmake-$cmake_ver-$HOST_OS_NAME-universal"
+            $cmake_pkg_name = "cmake-$cmake_ver-$HOST_OS-universal"
         }
 
         $cmake_pkg_path = Join-Path $install_prefix "$cmake_pkg_name$cmake_suffix"
@@ -1153,7 +1158,7 @@ function setup_nasm() {
 function setup_jdk() {
     if (!$manifest['jdk']) { return $null }
     $arch_suffix = if ($HOST_CPU -eq 'x64') { 'x64' } else { 'aarch64' }
-    $suffix = $("windows-$arch_suffix.zip", "linux-$arch_suffix.tar.gz", "macOS-$arch_suffix.tar.gz").Get($HOST_OS_INT)
+    $suffix = @("windows-$arch_suffix.zip", "linux-$arch_suffix.tar.gz", "macOS-$arch_suffix.tar.gz")[$HOST_OS_INT]
     $javac_prog, $jdk_ver = find_prog -name 'jdk' -cmd 'javac'
     if ($javac_prog) {
         return $javac_prog
@@ -1177,8 +1182,6 @@ function setup_jdk() {
     }
 
     $1k.println("Using jdk: $javac_prog, version: $jdk_ver")
-
-    return $javac_prog
 }
 
 function setup_unzip() {
@@ -1334,7 +1337,7 @@ function setup_android_sdk() {
     $cmdlinetools_bin = Join-Path $cmdlinetools_prefix "$cmdlinetools_ver/bin"
     $sdkmanager_prog, $sdkmanager_ver = (find_prog -name 'cmdlinetools' -cmd 'sdkmanager' -path $cmdlinetools_bin -params "--version", "--sdk_root=$sdk_root")
     if (!$sdkmanager_prog) {
-        $suffix = $('win', 'linux', 'mac').Get($HOST_OS_INT)
+        $suffix = @('win', 'linux', 'mac')[$HOST_OS_INT]
         if (!$sdkmanager_prog) {
             $1k.println("Installing cmdlinetools version: $sdkmanager_ver ...")
 
@@ -1365,8 +1368,8 @@ function setup_android_sdk() {
 
             $_artifact = @("android-ndk-${ndk_r23d_rev}-windows-x86_64.zip",
                 "android-ndk-${ndk_r23d_rev}-linux-x86_64.zip",
-                "android-ndk-${ndk_r23d_rev}-darwin-x86_64.zip").Get($HOST_OS_INT)
-            $_target_os = @('win64', 'linux', 'darwin_mac').Get($HOST_OS_INT)
+                "android-ndk-${ndk_r23d_rev}-darwin-x86_64.zip")[$HOST_OS_INT]
+            $_target_os = @('win64', 'linux', 'darwin_mac')[$HOST_OS_INT]
             . (Join-Path $myRoot 'resolv-url.ps1') -artifact $_artifact -target $_target_os -build_id $ndk_r23d_rev -manifest gcloud -out_var 'artifact_info'
             $artifact_url = $artifact_info[0].messageData
             $full_ver = "23.3.${ndk_r23d_rev}"
@@ -1764,7 +1767,7 @@ validHostAndToolchain
 
 ########## setup build tools if not installed #######
 setup_unzip
-setup_axslcc | Out-Host
+setup_axslcc
 $cmake_prog, $Script:cmake_ver = setup_cmake
 
 if ($Global:is_win_family) {
@@ -1778,7 +1781,7 @@ if ($Global:is_win32) {
         $ninja_prog = setup_ninja
     }
     if ($Global:is_clang) {
-        $null = setup_llvm
+        setup_llvm
     }
 }
 elseif ($Global:is_android) {
@@ -1791,7 +1794,7 @@ elseif ($Global:is_android) {
         }
     }
 
-    $null = setup_jdk # setup android sdk cmdlinetools require jdk
+    setup_jdk # setup android sdk cmdlinetools require jdk
     $sdk_root, $ndk_root = setup_android_sdk
     $env:ANDROID_HOME = $sdk_root
     $env:ANDROID_NDK = $ndk_root
@@ -1801,7 +1804,7 @@ elseif ($Global:is_android) {
     $env:ANDROID_NDK_HOME = $ndk_root
     $env:ANDROID_NDK_ROOT = $ndk_root
 
-    $ndk_host = @('windows', 'linux', 'darwin').Get($HOST_OS_INT)
+    $ndk_host = @('windows', 'linux', 'darwin')[$HOST_OS_INT]
     $env:ANDROID_NDK_BIN = Join-Path $ndk_root "toolchains/llvm/prebuilt/$ndk_host-x86_64/bin"
     function active_ndk_toolchain() {
         $1k.addpath($env:ANDROID_NDK_BIN)
