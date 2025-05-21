@@ -128,3 +128,4 @@ else {
     }
 }
 
+Copy-Item ./apps/openssl.cnf $install_dir -Force
