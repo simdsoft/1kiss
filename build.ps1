@@ -267,7 +267,7 @@ Foreach ($lib_name in $libs) {
                 $compiler_dumped = $true
             }
 
-            &$1k_script -p $target_os -a $target_cpu -xc $_config_options @forward_args @evaluated_args @args
+            &$1k_script -p $target_os -a $target_cpu -O3 -xc $_config_options @forward_args @evaluated_args @args
         }
         elseif ($is_gn) {
             &$1k_script -p $target_os -a $target_cpu -xc $_config_options -xt 'gn' -t "$($cb_target)" @forward_args @args
