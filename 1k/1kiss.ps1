@@ -5,7 +5,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2012-2024 HALX99
+# Copyright (c) 2012-2025 HALX99
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -1649,6 +1649,7 @@ function preprocess_andorid() {
         $cmake_toolchain_file = Join-Path $ndk_root 'build/cmake/android.toolchain.cmake'
         $arch = $t_archs[$options.a]
         $outputOptions += "-DCMAKE_TOOLCHAIN_FILE=$cmake_toolchain_file", "-DANDROID_ABI=$arch"
+        $outputOptions += "-DANDROID_USE_LEGACY_TOOLCHAIN_FILE=false"
         # If set to ONLY, then only the roots in CMAKE_FIND_ROOT_PATH will be searched
         # If set to BOTH, then the host system paths and the paths in CMAKE_FIND_ROOT_PATH will be searched
         # If set to NEVER, then the roots in CMAKE_FIND_ROOT_PATH will be ignored and only the host system root will be used
