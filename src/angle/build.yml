@@ -1,5 +1,5 @@
-repo: https://chromium.googlesource.com/angle/angle.git
 ver: 115
+repo: https://chromium.googlesource.com/angle/angle.git
 tag_prefix: ''
 tag_dot2ul: false
 targets: win32,winrt

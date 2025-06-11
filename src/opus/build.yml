@@ -1,5 +1,5 @@
-repo: https://github.com/xiph/opus.git
 ver: 1.5.2
+repo: https://github.com/xiph/opus.git
 tag_prefix: v
 tag_dot2ul: false
 cb_tool: cmake

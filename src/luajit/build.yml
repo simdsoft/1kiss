@@ -1,5 +1,5 @@
-repo: https://github.com/luajit/luajit.git
 ver: 2.1
+repo: https://github.com/luajit/luajit.git
 tag_prefix: v
 tag_dot2ul: false
 cb_tool: custom

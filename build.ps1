@@ -185,7 +185,12 @@ Foreach ($lib_name in $libs) {
     if ($is_gn) {
         setup_gclient
     }
-    . $fetch_script -uri $build_conf.repo -ver $version -rev $revision -prefix $build_src -name $lib_name
+    if ($build_conf.repo.contains('$ver')) {
+        $repo_url = $build_conf.repo -replace '\$ver', $version
+    } else {
+        $repo_url = $build_conf.repo
+    }
+    . $fetch_script -uri $repo_url -ver $version -rev $revision -prefix $build_src -name $lib_name
 
     # preprocess $build_conf.options
     if ($build_conf.options) {
