@@ -94,17 +94,19 @@ if ($IsWin) {
     $pwshPath = $(Get-Command pwsh).Path
     $pwshDir = Split-Path -Path $pwshPath
 
-    echo "Before relocate powershell"
-    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI } | Out-Host
+    $powershell_ver = $(powershell -Command { $PSVersionTable.PSVersion.ToString(); } | Out-String)
+    if ([System.VersionEx]$powershell_ver -lt [System.VersionEx]'7.0.0') {
 
-    $eap = $ErrorActionPreference
-    $ErrorActionPreference = 'SilentlyContinue'
-    Copy-Item "$pwshDir\pwsh.exe" "$pwshDir\powershell.exe"
-    $ErrorActionPreference = $eap
+        $eap = $ErrorActionPreference
+        $ErrorActionPreference = 'SilentlyContinue'
+        Start-Process powershell -ArgumentList '-Command', "Copy-Item '$pwshDir\pwsh.exe' '$pwshDir\powershell.exe'" -WindowStyle Hidden -Wait -Verb runas
+        $ErrorActionPreference = $eap
 
-    $env:Path = "$pwshPath;$env:Path"
-    echo "After relocate powershell"
-    powershell -Command { $pwshVSI = 'PowerShell ' + $PSVersionTable.PSVersion.ToString(); echo $pwshVSI } | Out-Host
+        $env:Path = "$pwshPath;$env:Path"
+        $powershell_ver = $(powershell -Command { $PSVersionTable.PSVersion.ToString(); } | Out-String)
+    }
+
+    echo "powershell.exe version was relocated to $powershell_ver"
 }
 
 if ($Global:is_android) {
@@ -189,6 +191,14 @@ Foreach ($lib_name in $libs) {
         $repo_url = $build_conf.repo -replace '\$ver', $version
     } else {
         $repo_url = $build_conf.repo
+    }
+
+    if (!$repo_url.EndsWith('.git') -and $rebuild) {
+        $sentry_file = Join-Path $build_src "$lib_name/_1kiss"
+        if (Test-Path $sentry_file -PathType Leaf) {
+            println "Deleting sentry file: $sentry_file"
+            Remove-Item $sentry_file -Force
+        }
     }
     . $fetch_script -uri $repo_url -ver $version -rev $revision -prefix $build_src -name $lib_name
 
