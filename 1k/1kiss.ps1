@@ -253,7 +253,10 @@ $cmake_generators = @{
 $channels = @{}
 
 # refer to: https://developer.android.com/studio#command-line-tools-only
-$cmdlinetools_rev = '11076708' # 12.0
+$cmdlinetools_revs = @{
+    '12.0' = '11076708'
+    '19.0' = '13114758'
+}
 
 $ndk_r23d_rev = '12186248'
 # $ndk_r25d_rev = '12161346'
@@ -561,6 +564,12 @@ function version_in_range($ver1, $verMin, $verMax) {
 # validate $env:PATH to avoid unexpected shell script behavior
 if ([Regex]::Match($env:PATH, "`'|`"").Success) {
     throw "Please remove any `' or `" from your PATH list"
+}
+
+# trim and get preferred version
+function trim_ver($pattern) {
+    $vers = $pattern.Split('~')
+    return $vers[$vers.Count -gt 1].TrimLast('+')
 }
 
 # validate cmd follow symlink recurse
@@ -1188,8 +1197,16 @@ function setup_unzip() {
     if ($IsWin) { return }
     $unzip_cmd_info = Get-Command 'unzip' -ErrorAction SilentlyContinue
     if (!$unzip_cmd_info) {
-        elseif ($IsLinux) {
-            if ($(which dpkg)) { sudo apt install unzip }
+        if ($IsLinux) {
+            if ($(which dpkg)) { 
+                sudo apt install unzip
+            }
+            elseif($(which pacman)) {
+                sudo pacman -S --needed --noconfirm unzip
+            }
+            else {
+                Write-Warning 'Current linux distro is not official supported'
+            }
         }
         elseif ($IsMacOS) {
             brew install unzip
@@ -1331,7 +1348,9 @@ function setup_android_sdk() {
     $sdk_comps = @()
 
     ### cmdline-tools ###
-    $cmdlinetools_ver = $manifest['cmdlinetools']
+    $cmdlinetools_ver = trim_ver $manifest['cmdlinetools']
+    $cmdlinetools_rev = $cmdlinetools_revs[$cmdlinetools_ver]
+
     $sdkmanager_prog, $sdkmanager_ver = $null, $null
     $cmdlinetools_prefix = Join-Path $sdk_root "cmdline-tools"
     $cmdlinetools_bin = Join-Path $cmdlinetools_prefix "$cmdlinetools_ver/bin"
@@ -1511,7 +1530,7 @@ function setup_msvc() {
 function setup_xcode() {
     $xcode_prog, $xcode_ver = find_prog -name 'xcode' -cmd "xcodebuild" -params @('-version')
     if (!$xcode_prog) {
-        throw "Missing Xcode, please install"
+        throw "The command 'xcodebuild' not work, if you confirm Xcode was installed on this computer, please execute 'sudo xcode-select -switch /Applications/Xcode.app' and try again"
     }
 }
 
