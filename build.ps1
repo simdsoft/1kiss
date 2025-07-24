@@ -1,3 +1,4 @@
+#!/usr/bin/env pwsh
 # $target_os = $args[0]
 # $target_cpu = $args[1]
 # $libs = $args[2]
@@ -157,6 +158,15 @@ Foreach ($lib_name in $libs) {
     $lib_info = $lib_name.Split(':')
     $lib_name = $lib_info[0]
     $cb_target = $lib_info[1]
+
+    if ($IsLinux -and $lib_name -eq 'llvm') {
+        # need install llvm-clang to build llvm-20+, otherwise, 
+        # will raise internal compiler error when compile llvm/lib/Target/AArch64/AsmParser/AArch64AsmParser.cpp
+        # in ubuntu-22.04 gcc 11.x, not sure whether gcc 13 on ubuntu-24.04 work?
+        $llvm_setup = Join-Path $_1k_root '1k/llvm.ps1'
+        &$llvm_setup 'install' '19'
+    }
+
     $build_conf_path = Join-Path $_1k_root "src/$lib_name/build.yml"
     $build_conf = ConvertFrom-Yaml -Yaml (Get-Content $build_conf_path -raw)
     if ($build_conf.targets -and !$build_conf.targets.contains($target_os)) {

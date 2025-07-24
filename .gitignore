@@ -366,3 +366,6 @@ MigrationBackup/
 /cache
 
 fat_tmp
+
+1k/llvm.sh
+llvm.sh
