@@ -243,3 +243,16 @@ function ConvertFrom-Props {
 
     return $props
 }
+
+function ConvertTo-Props {
+    param(
+        [Parameter(Mandatory=$true)]
+        $InputObject
+    )
+
+    $str_ret = ''
+    foreach ($entry in $InputObject.GetEnumerator()) {
+        $str_ret += "$($entry.Key)=$($entry.Value)`n"
+    }
+    return $str_ret
+}

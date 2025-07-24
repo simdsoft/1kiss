@@ -38,7 +38,7 @@ if (Test-Path $destPath -PathType Any) { # dest already exist
     if ($linkOnly) { # is symlink and dest exist
         $fileItem = (Get-Item $destPath)
         if ($fileItem.Target -eq $srcPath) {
-            Write-Host "fsync.ps1: Symlink $destPath ===> $($fileItem.Target) exists"
+            Write-Host "fsync.ps1: Symlink $destPath => $($fileItem.Target) exists"
             return
         }
         Write-Host "fsync.ps1: Removing old link target $($fileItem.Target)"
