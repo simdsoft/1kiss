@@ -20,7 +20,7 @@ if ($action -eq 'install') {
     echo "Installing llvm-$ver ..."
     wget https://apt.llvm.org/llvm.sh
     chmod +x llvm.sh
-    sudo ./llvm.sh $ver
+    sudo ./llvm.sh $ver all
   }
 }
 
@@ -33,6 +33,7 @@ if ($action -eq 'active' -or $action -eq 'install') {
   sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-$ver $priority
   sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-$ver $priority
   sudo update-alternatives --install /usr/bin/lldb lldb /usr/bin/lldb-$ver $priority
+  sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-$ver $priority
 
   # list available llvm versions
   sudo update-alternatives --display clang
@@ -52,7 +53,10 @@ if ($action -eq 'active' -or $action -eq 'install') {
   # check result llvm version
   $clang_cmd = Get-Command "clang" -ErrorAction SilentlyContinue
   echo "Activated llvm-clang: $($clang_cmd.Source), version: $actived_ver"
-} 
+}
+elseif($action -eq 'list') {
+  sudo update-alternatives --display clang
+}
 else {
   &clang-$ver --version
 }
