@@ -1,3 +1,8 @@
+# 
+# NOTES:
+# since chromium/5941, angle contains submodules
+# latest chromium/7258, require use_custom_libcxx=false on msvc
+#
 $major_ver = $args[0]
 $chromeVersion = "$major_ver.0.0.0"
 $fullCommitHash = ''
@@ -10,5 +15,4 @@ if($chromeRelInfo) {
     Write-Host "chrome version: $chromeVersion, angle head ref: $fullCommitHash"
 }
 
-# since chromium/5941, angle contains submodules
 return $chromeVersion, $fullCommitHash

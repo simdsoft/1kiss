@@ -236,11 +236,16 @@ if ($is_git_repo) {
     }
 }
 
+# whether the repo use gn build system?
+$is_gn = Test-Path (Join-Path $lib_src '.gn') -PathType Leaf
+
 if ($is_rev_mod) {
     $sentry_content = "ver: $version"
     if ($is_git_repo) {
         if ((Test-Path (Join-Path $lib_src '.gitmodules') -PathType Leaf)) {
-            git -C $lib_src submodule update --recursive --init
+            if (!$is_gn) {
+                git -C $lib_src submodule update --recursive --init
+            }
         }
         if ($branch_name) {
             # tracking branch
@@ -262,7 +267,7 @@ if ($is_rev_mod) {
 }
 
 # google gclient spec
-if (Test-Path (Join-Path $lib_src '.gn') -PathType Leaf) {
+if ($is_gn) {
     # the repo use google gn build system manage deps and build
     Push-Location $lib_src
     # angle (A GLES native implementation by google)
