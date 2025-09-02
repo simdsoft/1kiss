@@ -7,6 +7,8 @@ $chromeRelInfo = $(ConvertFrom-Json -InputObject "$chromeRelStr" -AsHashtable)
 if($chromeRelInfo) {
     $chromeVersion = $chromeRelInfo['version']
     $fullCommitHash = $chromeRelInfo['hashes']['angle']
+    Write-Host "chrome version: $chromeVersion, angle head ref: $fullCommitHash"
 }
 
+# since chromium/5941, angle contains submodules
 return $chromeVersion, $fullCommitHash

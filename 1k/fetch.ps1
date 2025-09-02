@@ -212,10 +212,14 @@ if ($is_git_repo) {
     }
 
     if ($old_rev_hash -ne $new_rev_hash) {
-        git -C $lib_src checkout $revision 1>$null 2>$null
+        git -C $lib_src checkout -- .
+        git -C $lib_src checkout $revision 1>$null
+        if ($LASTEXITCODE -ne 0) {
+            throw "fetch.ps1: checkout $lib_src to version: $revision fail"
+        }
         $cur_rev_hash = $(git -C $lib_src rev-parse HEAD)
         if ($cur_rev_hash -ne $new_rev_hash) {
-            println "fetch.ps1: warning: cur_rev_hash($cur_rev_hash) != new_rev_hash($new_rev_hash)"
+            throw "fetch.ps1: cur_rev_hash($cur_rev_hash) != new_rev_hash($new_rev_hash)"
         }
 
         $is_rev_mod = $true
@@ -263,12 +267,18 @@ if (Test-Path (Join-Path $lib_src '.gn') -PathType Leaf) {
     Push-Location $lib_src
     # angle (A GLES native implementation by google)
     if (Test-Path 'scripts/bootstrap.py' -PathType Leaf) {
+        # need reset local modifications before execute gclient sync -D
+        git -C $lib_src checkout -- .
+        $build_tool_dir = Join-Path $lib_src 'build'
+        if (Test-Path $build_tool_dir -PathType Container) {
+          git -C $build_tool_dir checkout -- .
+        }
         python scripts/bootstrap.py
     }
     # darwin (A WebGPU native implementation by google)
     if (Test-Path 'scripts/standalone.gclient' -PathType Leaf) {
         Copy-Item scripts/standalone.gclient .gclient -Force
     }
-    gclient sync -D
+    gclient sync
     Pop-Location
 }

@@ -772,7 +772,7 @@ function download_and_expand($url, $out, $dest) {
         $1k.mkdirs($dest)
         if ($out.EndsWith('.zip')) {
             if ($IsWin) {
-                Expand-Archive -Path $out -DestinationPath $dest
+                Expand-Archive -Path $out -DestinationPath $dest -Force
             }
             else {
                 unzip -d $dest $out | Out-Null
@@ -995,6 +995,11 @@ function setup_axslcc() {
         return $axslcc_prog
     }
 
+    $axslcc_prog = (Join-Path $axslcc_bin "axslcc$EXE_SUFFIX")
+    if($1k.isfile($axslcc_prog)) {
+        $1k.del($axslcc_prog)
+    }
+
     $suffix = @('win64.zip', 'linux.tar.gz', 'osx{0}.tar.gz')[$HOST_OS_INT]
     if ($IsMacOS) {
         if ([System.VersionEx]$axslcc_ver -ge [System.VersionEx]'1.9.4.1') {
@@ -1008,7 +1013,6 @@ function setup_axslcc() {
     $glscc_base_url = $mirror_current.axslcc
     fetch_pkg "$mirror_url_base$glscc_base_url/v$axslcc_ver/axslcc-$axslcc_ver-$suffix" -exrep "axslcc"
 
-    $axslcc_prog = (Join-Path $axslcc_bin "axslcc$EXE_SUFFIX")
     if ($1k.isfile($axslcc_prog)) {
         $1k.println("Using axslcc: $axslcc_prog, version: $axslcc_ver")
     } else {
@@ -1211,7 +1215,7 @@ function setup_unzip() {
     $unzip_cmd_info = Get-Command 'unzip' -ErrorAction SilentlyContinue
     if (!$unzip_cmd_info) {
         if ($IsLinux) {
-            if ($(which dpkg)) { 
+            if ($(which dpkg)) {
                 sudo apt install unzip
             }
             elseif($(which pacman)) {
@@ -1291,28 +1295,38 @@ function setup_android_sdk() {
         $ndk_ver = $ndk_ver.Substring(0, $ndk_ver.Length - 1)
     }
 
-    $sdk_dirs = @()
-    if ($Script:preferred_sdk_dir) {
-        $1k.println("Add preferred android sdk dir: $Script:preferred_sdk_dir")
-        $sdk_dirs += $Script:preferred_sdk_dir
-    } else {
-        $__1k_sdk_root = Join-Path $install_prefix 'adt/sdk'
-        $1k.insert([ref]$sdk_dirs, $env:ANDROID_HOME)
-        $1k.insert([ref]$sdk_dirs, $env:ANDROID_SDK_ROOT)
-        $1k.insert([ref]$sdk_dirs, $__1k_sdk_root)
-    }
 
     $ndk_minor_base = [int][char]'a'
 
     # looking up require ndk installed in exists sdk roots
     $selected_sdk_root = $null
-    foreach ($sdk_dir in $sdk_dirs) {
+    if($Script:preferred_sdk_dir) {
+        $selected_sdk_root = $Script:preferred_sdk_dir
+        $1k.println("Using android sdk dir (Preferred): $selected_sdk_root")
+    }
+    elseif ($env:ANDROID_HOME) {
+        $selected_sdk_root = $env:ANDROID_HOME
+        $1k.println("Using android sdk dir from env:ANDROID_HOME: $selected_sdk_root")
+    }
+    elseif($env:ANDROID_SDK_ROOT) {
+        $selected_sdk_root = $env:ANDROID_SDK_ROOT
+        $1k.println("Using android sdk dir from env:ANDROID_SDK_ROOT: $selected_sdk_root")
+    }
+    else {
+        $selected_sdk_root = Join-Path $install_prefix 'adt/sdk'
+        $1k.println("Using android sdk dir from axmol external: $selected_sdk_root")
+    }
+
+    # C:\Users\halx99\AppData\Roaming\Google\AndroidStudio2024.3\options\android.sdk.path.xml
+    $sdk_root = $selected_sdk_root
+    $1k.mkdirs($sdk_root)
+
+    $find_ndk_in = {
+        param($sdk_dir)
         if (!$sdk_dir -or !$1k.isdir($sdk_dir)) {
-            continue
+            return $null
         }
         $1k.println("Looking require $ndk_ver$IsGraterThan in $sdk_dir")
-        $sdk_root = $sdk_dir
-        $ndk_root = $null
 
         $ndk_major = ($ndk_ver -replace '[^0-9]', '')
         $ndk_minor_off = "$ndk_major".Length + 1
@@ -1321,7 +1335,7 @@ function setup_android_sdk() {
 
         $ndk_parent = Join-Path $sdk_dir 'ndk'
         if (!$1k.isdir($ndk_parent)) {
-            continue
+            return $null
         }
 
         # find ndk in sdk
@@ -1339,41 +1353,24 @@ function setup_android_sdk() {
                 }
             }
         }
+
+        $ndk_dir = $null
         if ($IsGraterThan) {
             if ($ndk_rev_max -ge $ndk_rev_base) {
-                $ndk_root = $ndks[$ndk_rev_max]
+                $ndk_dir = $ndks[$ndk_rev_max]
             }
         }
         else {
-            $ndk_root = $ndks[$ndk_rev_base]
+            $ndk_dir = $ndks[$ndk_rev_base]
         }
 
-        if ($null -ne $ndk_root) {
-            $selected_sdk_root = $sdk_root
-            $1k.println("Found $ndk_root in $sdk_root ...")
-            break
+        if ($null -ne $ndk_dir) {
+            $1k.println("Found $ndk_dir in $sdk_dir ...")
+            return $ndk_dir
         }
     }
 
-    if(!$selected_sdk_root) {
-        if($Script:preferred_sdk_dir) {
-            $selected_sdk_root = $Script:preferred_sdk_dir
-        }
-        elseif ($env:ANDROID_HOME) {
-            $selected_sdk_root = $env:ANDROID_HOME
-        }
-        elseif($env:ANDROID_SDK_ROOT) {
-            $selected_sdk_root = $env:ANDROID_SDK_ROOT
-        }
-        else {
-            $selected_sdk_root = Join-Path $install_prefix 'adt/sdk'
-        }
-        $1k.mkdirs($selected_sdk_root)
-    }
-
-    # C:\Users\halx99\AppData\Roaming\Google\AndroidStudio2024.3\options\android.sdk.path.xml
-    $sdk_root = $selected_sdk_root
-    $1k.println("Using android sdk dir: $sdk_root")
+    $ndk_root = &$find_ndk_in $selected_sdk_root
 
     $sdk_comps = @()
 
@@ -1874,7 +1871,7 @@ if (!$setupOnly) {
     $BUILD_DIR = $null
     $SOURCE_DIR = $null
 
-    function resolve_out_dir($prefix) {
+    function resolve_build_dir($prefix) {
         if ($is_host_target) {
             if (!$is_host_cpu) {
                 $out_dir = "${prefix}${TARGET_CPU}"
@@ -2032,10 +2029,10 @@ if (!$setupOnly) {
             }
 
             if (!$BUILD_DIR) {
-                $BUILD_DIR = resolve_out_dir 'build_'
+                $BUILD_DIR = resolve_build_dir 'build_'
             }
             if (!$INST_DIR) {
-                $INST_DIR = resolve_out_dir 'install_'
+                $INST_DIR = resolve_build_dir 'install_'
             }
 
             if ($rebuild) {
@@ -2245,10 +2242,17 @@ if (!$setupOnly) {
 
         Write-Output ("gn_buildargs_overrides=$gn_buildargs_overrides, Count={0}" -f $gn_buildargs_overrides.Count)
 
-        $BUILD_DIR = resolve_out_dir 'out/'
-
+        $out_dir = $1k.realpath('out')
         if ($rebuild) {
-            $1k.rmdirs($BUILD_DIR)
+            $1k.rmdirs($out_dir)
+            $1k.mkdirs($out_dir)
+        }
+
+        if ($is_host_target) {
+            $BUILD_DIR = $1k.realpath("$out_dir/$TARGET_CPU/")
+        }
+        else {
+            $BUILD_DIR = $1k.realpath("$out_dir/${TARGET_OS}_$TARGET_CPU/")
         }
 
         $gn_gen_args = @('gen', $BUILD_DIR)

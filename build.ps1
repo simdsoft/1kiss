@@ -241,7 +241,8 @@ Foreach ($lib_name in $libs) {
     # patch before build
     $patch_script = Join-Path $_1k_root "src/$lib_name/patch1.ps1"
     if (Test-Path $patch_script -PathType Leaf) {
-        &$patch_script $lib_src
+        println "execute custom patch script '$patch_script'"
+        &$patch_script $lib_src $build_conf.ver
     }
     else {
         if (!(Test-Path (Join-Path $lib_src '.git') -PathType Container)) {
@@ -257,7 +258,10 @@ Foreach ($lib_name in $libs) {
     }
 
     if ($build_conf.repo.EndsWith('.git') -and $rebuild) {
-        git -C $lib_src clean -dfx -e _1kiss
+        # gclent manage submodules manually, so don't do git clean
+        if (!$is_gn) {
+          git -C $lib_src clean -dfx -e _1kiss
+        }
     }
 
     $install_script = Join-Path $_1k_root "src/$lib_name/install1.ps1"
