@@ -353,14 +353,12 @@ MigrationBackup/
 *.xsxproj
 
 .vs
-/buildsrc
-/install*
 .vscode
 .DS_Store
 
-/build_*
-/buildsrc_*
-/**/build
+/build*
+
+/install*
 
 /tools
 /cache
