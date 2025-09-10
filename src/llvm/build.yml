@@ -1,4 +1,4 @@
-ver: 20.1.8
+ver: 21.1.0
 repo: https://github.com/llvm/llvm-project.git
 tag_prefix: llvmorg-
 tag_dot2ul: false
