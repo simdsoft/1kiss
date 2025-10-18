@@ -49,7 +49,8 @@ json_data_file = os.path.join(script_dir, 'win_toolchain.json')
 # The first version is assumed by this script to be the one that is packaged,
 # which makes a difference for the arm64 runtime.
 MSVS_VERSIONS = collections.OrderedDict([
-    ('2022', '17.0'),  # Default and packaged version of Visual Studio.
+    ('2026', '18.0'),  # Default and packaged version of Visual Studio.
+    ('2022', '17.0'),
     ('2019', '16.0'),
     ('2017', '15.0'),
 ])
@@ -57,6 +58,7 @@ MSVS_VERSIONS = collections.OrderedDict([
 # List of preferred VC toolset version based on MSVS
 # Order is not relevant for this dictionary.
 MSVC_TOOLSET_VERSION = {
+    '2026': 'VC150',
     '2022': 'VC143',
     '2019': 'VC142',
     '2017': 'VC141',
@@ -193,7 +195,7 @@ def GetVisualStudioVersion():
                               '/Microsoft Visual Studio/%s' % version)
     if path and any(
         os.path.exists(os.path.join(path, edition))
-        for edition in ('Enterprise', 'Professional', 'Community', 'Preview',
+        for edition in ('Enterprise', 'Professional', 'Community', 'Preview', 'Insiders',
                         'BuildTools')):
       available_versions.append(version)
       break
@@ -221,6 +223,9 @@ def DetectVisualStudioPath():
   else:
     program_files_path_variable = '%ProgramFiles(x86)%'
   for path in (os.environ.get('vs%s_install' % version_as_year),
+              os.path.expandvars(program_files_path_variable +
+                                  '/Microsoft Visual Studio/%s/Insiders' %
+                                  version_as_year),
                os.path.expandvars(program_files_path_variable +
                                   '/Microsoft Visual Studio/%s/Enterprise' %
                                   version_as_year),
