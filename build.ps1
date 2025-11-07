@@ -1,17 +1,14 @@
 #!/usr/bin/env pwsh
-# $target_os = $args[0]
-# $target_cpu = $args[1]
-# $libs = $args[2]
 param(
-    [Alias('p')]
-    $target_os,
-    [Alias('a')]
-    $target_cpu,
-    [Alias('t')]
+    $platform,
+    $arch,
     $libs,
     $sdk = '',
     [switch]$rebuild
 )
+
+$target_os = $platform
+$target_cpu = $arch
 
 Set-Alias println Write-Host
 
