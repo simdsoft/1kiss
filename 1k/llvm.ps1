@@ -23,6 +23,23 @@ if ($action -eq 'install') {
     sudo ./llvm.sh $ver all
   }
 }
+elseif ($action -eq 'uninstall') {
+  # uninstall
+  echo "Uninstalling llvm-$ver ..."
+
+  # remove alternatives
+  sudo update-alternatives --remove clang /usr/bin/clang-$ver
+  sudo update-alternatives --remove clang++ /usr/bin/clang++-$ver
+  sudo update-alternatives --remove lldb /usr/bin/lldb-$ver
+  sudo update-alternatives --remove clang-format /usr/bin/clang-format-$ver
+
+  # uninstall llvm packages via apt
+  echo "Removing llvm-$ver packages ..."
+  sudo apt remove -y llvm-$ver clang-$ver lldb-$ver clang-format-$ver
+  sudo apt autoremove -y
+
+  echo "llvm-$ver has been uninstalled."
+}
 
 # active
 if ($action -eq 'active' -or $action -eq 'install') {
@@ -54,9 +71,8 @@ if ($action -eq 'active' -or $action -eq 'install') {
   $clang_cmd = Get-Command "clang" -ErrorAction SilentlyContinue
   echo "Activated llvm-clang: $($clang_cmd.Source), version: $actived_ver"
 }
-elseif($action -eq 'list') {
+elseif ($action -eq 'list') {
   sudo update-alternatives --display clang
 }
-else {
-  &clang-$ver --version
-}
+
+clang --version
