@@ -1,4 +1,4 @@
-ver: 1.34.5
+ver: 1.34.6
 repo: https://github.com/c-ares/c-ares.git
 tag_prefix: 'v'
 tag_dot2ul: false
