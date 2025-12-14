@@ -46,10 +46,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     
     - name: Download artifacts from workflow build
-      uses: dawidd6/action-download-artifact@v3
+      uses: dawidd6/action-download-artifact@v11
       with:
         # Optional, GitHub token
         github_token: ${{secrets.GITHUB_TOKEN}}
