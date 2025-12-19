@@ -88,8 +88,8 @@ elseif ($action -eq 'uninstall') {
 
   # uninstall llvm packages via apt
   echo "Removing llvm-$ver packages ..."
-  sudo apt remove -y "llvm-$ver*" "clang-$ver*" "lldb-$ver*"
-  sudo apt autoremove -y
+  sudo apt-get remove -y "llvm-$ver*" "clang-$ver*" "lldb-$ver*"
+  sudo apt-get autoremove -y
 
   echo "llvm-$ver has been uninstalled."
 }

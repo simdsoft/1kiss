@@ -68,8 +68,11 @@ $HOST_LINUX = 1 # targets: linux,android
 $HOST_MAC = 2 # targets: android,ios,osx(macos),tvos,watchos
 
 # 0: windows, 1: linux, 2: macos
-$Global:IsWin = $IsWindows -or ("$env:OS" -eq 'Windows_NT')
-if ($Global:IsWin) { $HOST_OS_INT = $HOST_WIN }
+
+# import VersionEx and others
+. (Join-Path $PSScriptRoot 'extensions.ps1')
+
+if ($IsWin) { $HOST_OS_INT = $HOST_WIN }
 else {
     if ($IsLinux) { $HOST_OS_INT = $HOST_LINUX }
     elseif ($IsMacOS) { $HOST_OS_INT = $HOST_MAC }
@@ -98,9 +101,6 @@ if ($Global:IsWin) {
     }
 }
 $ErrorActionPreference = @('Stop', 'Continue')[$is_pwsh_ise]
-
-# import VersionEx and others
-. (Join-Path $PSScriptRoot 'extensions.ps1')
 
 class _1kiss {
     [void] println($msg) {
@@ -335,7 +335,7 @@ if ([VersionEx]$pwsh_ver -lt [VersionEx]"7.0") {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 }
 
-$osVer = if ($IsWin) { "Microsoft Windows $([System.Environment]::OSVersion.Version.ToString())" } else { $PSVersionTable.OS }
+$osVerString = if ($IsWin) { "Microsoft Windows $($NtOSVersion.ToString())" } else { $PSVersionTable.OS }
 
 # arm64,x64
 # uname -m: arm64/aarch64,x86_64
@@ -347,7 +347,7 @@ if ($IsWin) {
     $HOST_CPU = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower()
 }
 
-$1k.println("PowerShell $pwsh_ver on $osVer")
+$1k.println("PowerShell $pwsh_ver on $osVerString")
 
 # determine build target os
 $TARGET_OS = $options.p
@@ -1177,7 +1177,7 @@ function setup_nasm() {
         }
         elseif ($IsLinux) {
             if ($(which dpkg)) {
-                sudo apt install nasm
+                sudo apt-get install -y nasm
             }
         }
         elseif ($IsMacOS) {
@@ -1226,7 +1226,7 @@ function setup_unzip() {
     if (!$unzip_cmd_info) {
         if ($IsLinux) {
             if ($(which dpkg)) {
-                sudo apt install unzip
+                sudo apt-get install -y unzip
             }
             elseif($(which pacman)) {
                 sudo pacman -S --needed --noconfirm unzip
@@ -1259,7 +1259,7 @@ function setup_7z() {
             $1k.addpath($7z_bin)
         }
         elseif ($IsLinux) {
-            if ($(which dpkg)) { sudo apt install p7zip-full }
+            if ($(which dpkg)) { sudo apt-get install -y p7zip-full }
         }
         elseif ($IsMacOS) {
             brew install p7zip
@@ -1336,7 +1336,7 @@ function setup_android_sdk() {
         if (!$sdk_dir -or !$1k.isdir($sdk_dir)) {
             return $null
         }
-        $1k.println("Looking require $ndk_ver$IsGraterThan in $sdk_dir")
+        $1k.println("Looking require android ndk $ndk_ver$IsGraterThan in $sdk_dir")
 
         $ndk_major = ($ndk_ver -replace '[^0-9]', '')
         $ndk_minor_off = "$ndk_major".Length + 1
@@ -1674,7 +1674,7 @@ function preprocess_win() {
 function preprocess_linux() {
     $outputOptions = @()
     if ($Global:is_clang) {
-        $outputOptions += '-DCMAKE_C_COMPILER=clang', '-DCMAKE_CXX_COMPILER=clang++'
+        $outputOptions += "-DCMAKE_TOOLCHAIN_FILE=$PSScriptRoot/clang.cmake"
     }
     return , $outputOptions
 }
@@ -1896,7 +1896,7 @@ if (!$setupOnly) {
               return $1k.realpath("$prefix${TARGET_OS}_$TARGET_CPU/")
           }
         }
-        
+
         if ($is_host_target) {
             if (!$is_host_cpu) {
                 $out_dir = "${prefix}${TARGET_CPU}"

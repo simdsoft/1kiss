@@ -67,12 +67,10 @@ elif [ $HOST_OS = 'Linux' ] ; then
 
         sudo_cmd=$(which sudo)
         if ! command -v curl >/dev/null 2>&1; then
-            $sudo_cmd apt update
-            $sudo_cmd apt install --allow-unauthenticated --yes curl
+            $sudo_cmd apt-get update
+            $sudo_cmd apt-get install -y curl
         fi
-        # if uname -a | grep -q "Ubuntu"; then
-            # $sudo_cmd snap install powershell --classic
-        # else
+
         pwsh_pkg="powershell_$pwsh_ver-1.deb_$icu_arch.deb"
         pwsh_pkg_out="$cacheDir/$pwsh_pkg"
         if [ ! -f  "$pwsh_pkg_out" ] ; then
