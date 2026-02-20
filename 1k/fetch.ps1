@@ -249,6 +249,7 @@ if ($is_git_repo) {
         if ($branch_name -ne $revision) {
             $cur_rev_hash = &$checkout_revision
             $is_ref_mod = $true
+            $branch_name = $null
         }
     }
 }
