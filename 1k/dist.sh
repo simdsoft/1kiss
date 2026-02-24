@@ -167,9 +167,13 @@ function dist_lib {
     fi
 
     if [ $(($DIST_FLAGS & $DISTF_LINUX)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/linux
-        copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/
-        copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/
+        mkdir -p ${DIST_DIR}/lib/linux/x64
+        copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/x64/
+        copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/x64/
+
+        mkdir -p ${DIST_DIR}/lib/linux/arm64
+        copy1k "install_linux_arm64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/arm64/
+        copy1k "install_linux_arm64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/arm64/
     fi
 
     if [ $(($DIST_FLAGS & $DISTF_ANDROID)) != 0 ]; then

@@ -34,12 +34,33 @@ env:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  linux:
+  linux-x64:
     # The type of runner that the job will run on
     runs-on: ubuntu-22.04
     
     env:
       BUILD_ARCH: x64
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v6
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1 -p linux -a $env:BUILD_ARCH -libs '${{ github.event.inputs.libs }}'
+
+      - name: Upload
+        uses: actions/upload-artifact@v6
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}
+  linux-arm64:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-22.04-arm
+    
+    env:
+      BUILD_ARCH: arm64
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
