@@ -39,7 +39,9 @@ for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then
 - osx: 
   - arm64 (M1+)
   - x86_64
-- linux: x86_64
+- linux: 
+  - x86_64
+  - arm64
 - ios:
   - arm64
   - arm64 simulator
@@ -51,10 +53,10 @@ for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then
 - android
   - armv7
   - arm64
-  - x86 (DEPRECATED)
+  - x86 (`DEPRECATED`)
   - x86_64
 - win32 (Windows Desktop Apps)
-  - x86 (DEPRECATED)
+  - x86 (`DEPRECATED`)
   - x86_64
 - winrt/winuwp (Windows Universal Apps)
   - x86_64

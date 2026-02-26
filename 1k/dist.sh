@@ -78,11 +78,13 @@ function dist_lib {
 
         # mkdir for platform spec config header file
         if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
-            mkdir -p ${DIST_DIR}/include/win32/${INC_DIR}
-            mkdir -p ${DIST_DIR}/include/win64/${INC_DIR}
-            mkdir -p ${DIST_DIR}/include/linux/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/win-x86/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/win-x64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/winrt-x64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/winrt-arm64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/linux-x64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/linux-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/mac/${INC_DIR}
-            # mkdir -p ${DIST_DIR}/include/ios-arm/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-arm64-sim/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/ios-x64/${INC_DIR}
@@ -90,10 +92,10 @@ function dist_lib {
             mkdir -p ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/tvos-arm64-sim/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/tvos-x64/${INC_DIR}
-            mkdir -p ${DIST_DIR}/include/android-arm/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/android-armv7/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/android-x86/${INC_DIR}
-            mkdir -p ${DIST_DIR}/include/android-x86_64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/android-x64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/wasm/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/wasm64/${INC_DIR}
         elif [ "$CONF_TEMPLATE" = "config_ab.h.in" ] ; then
@@ -120,21 +122,23 @@ function dist_lib {
 
             # copy platform spec config header file
             if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
-                cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win32/${INC_DIR}
-                cp install_win32_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win64/${INC_DIR}
-                cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux/${INC_DIR}
+                cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win-x86/${INC_DIR}
+                cp install_win32_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win-x64/${INC_DIR}
+                cp install_winrt_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/winrt-x64/${INC_DIR}
+                cp install_winrt_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/winrt-arm64/${INC_DIR}
+                cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux-x64/${INC_DIR}
+                cp install_linux_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux-arm64/${INC_DIR}
                 cp install_osx_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/mac/${INC_DIR}
-                # cp install_ios_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm/${INC_DIR}
                 cp install_ios_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64/${INC_DIR}
                 cp install_ios_arm64_sim/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-arm64-sim/${INC_DIR}
                 cp install_ios_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/ios-x64/${INC_DIR}
                 cp install_tvos_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64/${INC_DIR}
                 cp install_tvos_arm64_sim/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-arm64-sim/${INC_DIR}
                 cp install_tvos_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/tvos-x64/${INC_DIR}
-                cp install_android_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm/${INC_DIR}
+                cp install_android_armv7/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-armv7/${INC_DIR}
                 cp install_android_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-arm64/${INC_DIR}
                 cp install_android_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86/${INC_DIR}
-                cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x86_64/${INC_DIR}
+                cp install_android_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/android-x64/${INC_DIR}
                 try_copy_file install_wasm/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/wasm/${INC_DIR}
                 try_copy_file install_wasm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/wasm64/${INC_DIR}
 
@@ -167,9 +171,13 @@ function dist_lib {
     fi
 
     if [ $(($DIST_FLAGS & $DISTF_LINUX)) != 0 ]; then
-        mkdir -p ${DIST_DIR}/lib/linux
-        copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/
-        copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/
+        mkdir -p ${DIST_DIR}/lib/linux/x64
+        copy1k "install_linux_x64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/x64/
+        copy1k "install_linux_x64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/x64/
+
+        mkdir -p ${DIST_DIR}/lib/linux/arm64
+        copy1k "install_linux_arm64/${LIB_NAME}/lib/*.a" ${DIST_DIR}/lib/linux/arm64/
+        copy1k "install_linux_arm64/${LIB_NAME}/lib/*.so" ${DIST_DIR}/lib/linux/arm64/
     fi
 
     if [ $(($DIST_FLAGS & $DISTF_ANDROID)) != 0 ]; then
