@@ -58,6 +58,7 @@ for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then
 - win32 (Windows Desktop Apps)
   - x86 (`DEPRECATED`)
   - x86_64
+  - arm64 (since v115)
 - winrt/winuwp (Windows Universal Apps)
   - x86_64
   - arm64
