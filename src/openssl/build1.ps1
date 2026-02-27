@@ -13,30 +13,17 @@ $env:CXX = $null
 
 if ($target_os.StartsWith('win')) {
     # require preinstalled perl interpreter: https://strawberryperl.com/releases.html
-    if ($target_cpu -eq "x86") {
-        if (!$is_winrt) {
-            $TARGET_OPTIONS += 'VC-WIN32'
-        }
-        else {
-            $TARGET_OPTIONS += 'VC-WIN32-UWP'
+    switch($target_cpu) {
+        'x86' { $ossl_cpu_opt = 'VC-WIN32' }
+        'x64' { $ossl_cpu_opt = 'VC-WIN64A' }
+        'arm64' { $ossl_cpu_opt = 'VC-WIN64-ARM' }
+        default {
+            throw "Unsupported arch: $target_cpu"
         }
     }
-    else {
-        if (!$is_winrt) {
-            $TARGET_OPTIONS += 'VC-WIN64A'
-        }
-        else {
-            if ($target_cpu -eq 'x64') {
-                $TARGET_OPTIONS += 'VC-WIN64A-UWP'
-            }
-            elseif ($target_cpu -eq 'arm64') {
-                $TARGET_OPTIONS += 'VC-WIN64-ARM-UWP'
-            }
-            else {
-                Write-Output "Unsupported arch: $target_cpu"
-                return 1
-            }
-        }
+
+    if ($is_winrt) {
+        $ossl_cpu_opt += '-UWP'
     }
 
     if ($env:NO_DLL -eq 'true') {

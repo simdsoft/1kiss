@@ -41,7 +41,7 @@ for example, if you use git to clone axmol(~80MB) and run it's `setup.ps1`, then
   - x86_64
 - linux: 
   - x86_64
-  - arm64
+  - arm64 (since v114)
 - ios:
   - arm64
   - arm64 simulator

@@ -80,6 +80,7 @@ function dist_lib {
         if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
             mkdir -p ${DIST_DIR}/include/win-x86/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/win-x64/${INC_DIR}
+            mkdir -p ${DIST_DIR}/include/win-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/winrt-x64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/winrt-arm64/${INC_DIR}
             mkdir -p ${DIST_DIR}/include/linux-x64/${INC_DIR}
@@ -124,6 +125,7 @@ function dist_lib {
             if [ "$CONF_TEMPLATE" = "config.h.in" ] ; then
                 cp install_win32_x86/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win-x86/${INC_DIR}
                 cp install_win32_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win-x64/${INC_DIR}
+                cp install_win32_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/win-arm64/${INC_DIR}
                 cp install_winrt_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/winrt-x64/${INC_DIR}
                 cp install_winrt_arm64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/winrt-arm64/${INC_DIR}
                 cp install_linux_x64/${LIB_NAME}/include/${INC_DIR}${CONF_HEADER} ${DIST_DIR}/include/linux-x64/${INC_DIR}
@@ -158,6 +160,10 @@ function dist_lib {
         mkdir -p ${DIST_DIR}/lib/win32/x64
         copy1k "install_win32_x64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/win32/x64/
         copy1k "install_win32_x64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/x64/
+
+        mkdir -p ${DIST_DIR}/lib/win32/arm64
+        copy1k "install_win32_arm64/${LIB_NAME}/lib/*.lib" ${DIST_DIR}/lib/win32/arm64/
+        copy1k "install_win32_arm64/${LIB_NAME}/bin/*.dll" ${DIST_DIR}/lib/win32/arm64/
     fi
 
     if [ $(($DIST_FLAGS & $DISTF_WINRT)) != 0 ]; then
