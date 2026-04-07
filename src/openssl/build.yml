@@ -1,4 +1,4 @@
-ver: 3.0.19
+ver: 3.0.20
 repo: https://github.com/openssl/openssl/releases/download/openssl-$ver/openssl-$ver.tar.gz
 tag_prefix: openssl-
 tag_dot2ul: false
