@@ -18,13 +18,17 @@ if ($target_os.StartsWith('win')) {
     }
     Expand-Archive -Path $zip_path -DestinationPath $tmp_dir -Force
 
+    $arch_dir = if ($target_cpu -eq 'x64') { 'x64' } else { $target_cpu }
     $bin_dir = Join-Path $install_dir "bin"
     $lib_dir = Join-Path $install_dir "lib"
     mkdirs $bin_dir
     mkdirs $lib_dir
-
-    Copy-Item (Join-Path $tmp_dir "bin/dxcompiler.dll") $bin_dir -Force
-    Copy-Item (Join-Path $tmp_dir "lib/dxcompiler.lib") $lib_dir -Force
+    Copy-Item (Join-Path $tmp_dir "bin/$arch_dir/dxcompiler.dll") $bin_dir -Force
+    Copy-Item (Join-Path $tmp_dir "lib/$arch_dir/dxcompiler.lib") $lib_dir -Force
+    $inc_src = Join-Path $tmp_dir "inc"
+    if (Test-Path $inc_src) {
+        Copy-Item $inc_src (Join-Path $install_dir "include") -Recurse -Force
+    }
 } else {
     $build_dir = Join-Path $lib_src "build"
     mkdirs $build_dir
@@ -39,18 +43,5 @@ if ($target_os.StartsWith('win')) {
 
     cmake -S $lib_src -B $build_dir @config_opts
     cmake --build $build_dir --target dxcompiler
-
-    $lib_dir = Join-Path $install_dir "lib"
-    mkdirs $lib_dir
-
-    if ($target_os -eq 'linux') {
-        $so = Join-Path $build_dir "lib/libdxcompiler.so"
-        if (Test-Path $so) { Copy-Item $so $lib_dir }
-    } elseif ($target_os -eq 'osx') {
-        $dylib = Join-Path $build_dir "lib/libdxcompiler.dylib"
-        if (!(Test-Path $dylib)) {
-            $dylib = Join-Path $build_dir "Release/lib/libdxcompiler.dylib"
-        }
-        if (Test-Path $dylib) { Copy-Item $dylib $lib_dir }
-    }
+    cmake --install $build_dir --prefix $install_dir
 }
