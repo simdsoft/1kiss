@@ -46,4 +46,20 @@ if ($target_os.StartsWith('win')) {
     cmake -S $lib_src -B $build_dir @config_opts
     cmake --build $build_dir --target dxcompiler
     cmake --install $build_dir --component dxcompiler --prefix $install_dir
+
+    # dxcompiler component doesn't install headers; copy them from source
+    $inc_src = Join-Path $lib_src "include/dxc"
+    $inc_dest = Join-Path $install_dir "include/dxc"
+    if (Test-Path $inc_src) {
+        mkdirs (Join-Path $install_dir "include")
+        Copy-Item $inc_src (Join-Path $install_dir "include") -Recurse -Force
+    }
+
+    # Ensure WinAdapter.h exists (required by dxcapi.h)
+    $wa_file = Join-Path $inc_dest "WinAdapter.h"
+    if (-not (Test-Path $wa_file)) {
+        $wa_url = "https://raw.githubusercontent.com/microsoft/DirectXShaderCompiler/v$($build_conf.ver)/include/dxc/WinAdapter.h"
+        Write-Output "Downloading $wa_url ..."
+        Invoke-WebRequest -Uri $wa_url -OutFile $wa_file
+    }
 }
