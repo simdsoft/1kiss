@@ -43,5 +43,5 @@ if ($target_os.StartsWith('win')) {
 
     cmake -S $lib_src -B $build_dir @config_opts
     cmake --build $build_dir --target dxcompiler
-    cmake --install $build_dir --prefix $install_dir
+    cmake --install $build_dir --component dxcompiler --prefix $install_dir
 }
