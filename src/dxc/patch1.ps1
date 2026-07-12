@@ -1,5 +1,6 @@
 $lib_src = $args[0]
 $cmakelists = Join-Path $lib_src "external/SPIRV-Tools/source/CMakeLists.txt"
+if (!(Test-Path $cmakelists)) { return }
 $content = Get-Content $cmakelists -Raw
 
 # 1. Wrap build-version.inc in a custom target (avoids Xcode new build system error)
