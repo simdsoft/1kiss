@@ -3,7 +3,8 @@ $cmakelists = Join-Path $lib_src "external/SPIRV-Tools/source/CMakeLists.txt"
 if (!(Test-Path $cmakelists)) { return }
 $content = Get-Content $cmakelists -Raw
 
-# 1. Wrap build-version.inc in a custom target (avoids Xcode new build system error)
+# 1. Remove any pre-existing duplicate targets (upstream bug) and add exactly one
+$content = $content -replace 'add_custom_target\(spirv-tools-build-version DEPENDS \$\{SPIRV_TOOLS_BUILD_VERSION_INC\}\)\s*', ''
 $content = $content.Replace(
     '   COMMENT "Update build-version.inc in the SPIRV-Tools build directory (if necessary).")',
     '   COMMENT "Update build-version.inc in the SPIRV-Tools build directory (if necessary).")' +
