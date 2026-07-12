@@ -24,7 +24,9 @@ if ($target_os.StartsWith('win')) {
     mkdirs $bin_dir
     mkdirs $lib_dir
     Copy-Item (Join-Path $tmp_dir "bin/$arch_dir/dxcompiler.dll") $bin_dir -Force
+    Copy-Item (Join-Path $tmp_dir "bin/$arch_dir/dxil.dll") $bin_dir -Force
     Copy-Item (Join-Path $tmp_dir "lib/$arch_dir/dxcompiler.lib") $lib_dir -Force
+    Copy-Item (Join-Path $tmp_dir "lib/$arch_dir/dxil.lib") $lib_dir -Force
     $inc_src = Join-Path $tmp_dir "inc"
     if (Test-Path $inc_src) {
         Copy-Item $inc_src (Join-Path $install_dir "include") -Recurse -Force
