@@ -79,7 +79,7 @@ jobs:
 
   osx-x64:
     # The type of runner that the job will run on
-    runs-on: macos-15-intel
+    runs-on: macos-latest
     
     env:
       BUILD_ARCH: 'x64'
