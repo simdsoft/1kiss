@@ -27,10 +27,7 @@ if ($target_os.StartsWith('win')) {
     Copy-Item (Join-Path $tmp_dir "bin/$arch_dir/dxil.dll") $bin_dir -Force
     Copy-Item (Join-Path $tmp_dir "lib/$arch_dir/dxcompiler.lib") $lib_dir -Force
     Copy-Item (Join-Path $tmp_dir "lib/$arch_dir/dxil.lib") $lib_dir -Force
-    $inc_src = Join-Path $tmp_dir "inc"
-    if (Test-Path $inc_src) {
-        Copy-Item $inc_src (Join-Path $install_dir "include") -Recurse -Force
-    }
+    # headers not copied here (only needed on non-Windows; handled by dist1.sh or axslcc CMake)
 } else {
     $build_dir = Join-Path $lib_src "build"
     mkdirs $build_dir
