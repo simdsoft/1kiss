@@ -300,7 +300,6 @@ jobs:
         arch:
           - x86
           - x64
-          - arm64
     env:
       NO_DLL: ${{ github.event.inputs.no_dll }}
       BUILD_ARCH: ${{ matrix.arch }}
@@ -313,6 +312,27 @@ jobs:
       - name: Build
         shell: pwsh
         run: .\build.ps1 -p win32 -a $env:BUILD_ARCH -libs '${{ github.event.inputs.libs }}'
+
+      - name: Upload
+        uses: actions/upload-artifact@v6
+        with:
+          path: ./${{ env.install_path }}/**
+          name: ${{ env.install_path }}
+  win32-arm64:
+    # The type of runner that the job will run on
+    runs-on: windows-11-arm
+    
+    env:
+      NO_DLL: ${{ github.event.inputs.no_dll }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v6
+
+      - name: Build
+        shell: pwsh
+        run: .\build.ps1 -p win32 -a arm64 -libs '${{ github.event.inputs.libs }}'
 
       - name: Upload
         uses: actions/upload-artifact@v6
