@@ -1,9 +1,9 @@
-ver: 1.9.2602.24
+ver: 1.9.2607
 repo: https://github.com/microsoft/DirectXShaderCompiler.git
 tag_prefix: v
 tag_dot2ul: false
 cb_tool: custom
-win32_prebuilt: dxc_2026_05_27.zip
+win32_prebuilt: dxc_2026_07_29.zip
 targets: win32,linux,osx
 archs: x64,arm64
 options: -C cmake/caches/PredefinedParams.cmake -DSPIRV_BUILD_TESTS=OFF -DHLSL_INCLUDE_TESTS=OFF -DHLSL_BUILD_DXILCONV=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_DOCS=OFF -DCLANG_ENABLE_STATIC_ANALYZER=OFF
