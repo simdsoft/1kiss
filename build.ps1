@@ -152,9 +152,7 @@ if ($is_darwin_family) {
 $compiler_dumped = $false
 
 Foreach ($lib_name in $libs) {
-    $lib_info = $lib_name.Split(':')
-    $lib_name = $lib_info[0]
-    $cb_target = $lib_info[1]
+    $cb_target = $null
 
     if ($IsLinux -and $lib_name -eq 'llvm') {
         # need install llvm-clang to build llvm-20+, otherwise, 
