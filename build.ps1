@@ -211,27 +211,27 @@ Foreach ($lib_name in $libs) {
 
     # preprocess $build_conf.options
     if ($build_conf.options) {
-        $build_conf.options = (eval $build_conf.options).Split(' ')
+        $build_conf.options = split_options (eval $build_conf.options)
     }
     else {
         $build_conf.options = @()
     }
 
     if (!$is_host_target -and $build_conf.options_cross) {
-        $build_conf.options += (eval $build_conf.options_cross).Split(' ')
+        $build_conf.options += split_options (eval $build_conf.options_cross)
     }
     
     if ($build_conf."options_$os_family") {
-        $build_conf.options += (eval $build_conf."options_$os_family") -split ' '
+        $build_conf.options += split_options (eval $build_conf."options_$os_family")
     }
     if ($build_conf."options_$embed_family") {
-        $build_conf.options += (eval $build_conf."options_$embed_family") -split ' '
+        $build_conf.options += split_options (eval $build_conf."options_$embed_family")
     }
     if ($build_conf."options_$darwin_family") {
-        $build_conf.options += (eval $build_conf."options_$darwin_family") -split ' '
+        $build_conf.options += split_options (eval $build_conf."options_$darwin_family")
     }
     if ($build_conf."options_$target_os") {
-        $build_conf.options += (eval $build_conf."options_$target_os") -split ' '
+        $build_conf.options += split_options (eval $build_conf."options_$target_os")
     }
     println "Building $lib_name in $lib_src..."
     println "build_conf.options: $($build_conf.options)"

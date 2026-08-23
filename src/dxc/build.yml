@@ -9,4 +9,4 @@ archs: x64,arm64
 options: -C cmake/caches/PredefinedParams.cmake -DSPIRV_BUILD_TESTS=OFF -DHLSL_INCLUDE_TESTS=OFF -DHLSL_BUILD_DXILCONV=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_DOCS=OFF -DCLANG_ENABLE_STATIC_ANALYZER=OFF
 options_unix: -DCMAKE_BUILD_TYPE=Release -DCMAKE_PLATFORM_NO_VERSIONED_SONAME=1
 options_linux: -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-options_osx: -DCMAKE_CXX_FLAGS=-Wno-invalid-specialization
+options_osx: -DCMAKE_CXX_FLAGS="-Wno-invalid-specialization -Wno-error=unknown-warning-option"

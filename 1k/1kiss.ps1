@@ -370,11 +370,45 @@ if (!$Global:target_minsdk) {
 # define some useful global vars
 function eval($str, $raw = $false) {
     if (!$raw) {
-        return Invoke-Expression "`"$str`""
+        # Escape characters that would otherwise terminate the wrapper string.
+        $eval_str = $str.Replace('`', '``').Replace('"', '`"')
+        return Invoke-Expression "`"$eval_str`""
     }
     else {
         return Invoke-Expression $str
     }
+}
+
+function split_options($str) {
+    $options = [System.Collections.Generic.List[string]]::new()
+    $current = [System.Text.StringBuilder]::new()
+    $quote = [char]0
+
+    foreach ($ch in [char[]]$str) {
+        if (($ch -eq '"' -or $ch -eq "'") -and ($quote -eq [char]0 -or $quote -eq $ch)) {
+            if ($quote -eq [char]0) {
+                $quote = $ch
+            }
+            else {
+                $quote = [char]0
+            }
+        }
+        elseif ([char]::IsWhiteSpace($ch) -and $quote -eq [char]0) {
+            if ($current.Length -gt 0) {
+                [void]$options.Add($current.ToString())
+                [void]$current.Clear()
+            }
+        }
+        else {
+            [void]$current.Append($ch)
+        }
+    }
+
+    if ($current.Length -gt 0) {
+        [void]$options.Add($current.ToString())
+    }
+
+    return $options.ToArray()
 }
 
 function create_symlink($sourcePath, $destPath) {
