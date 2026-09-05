@@ -69,6 +69,19 @@ $HOST_MAC = 2 # targets: android,ios,osx(macos),tvos,watchos
 
 # 0: windows, 1: linux, 2: macos
 
+# Strict mode is not required by 1kiss; keep optional variables compatible with
+# PowerShell hosts that enable it in the caller or profile.
+$strict_mode_enabled = $false
+Remove-Variable -Name __1k_strict_mode_probe -ErrorAction SilentlyContinue
+try {
+    $null = $__1k_strict_mode_probe
+}
+catch {
+    $strict_mode_enabled = $true
+}
+Write-Host "1kiss: StrictMode=$(@('Off', 'On')[$strict_mode_enabled]), LanguageMode=$($ExecutionContext.SessionState.LanguageMode)"
+Set-StrictMode -Off
+
 # import VersionEx and others
 . (Join-Path $PSScriptRoot 'extensions.ps1')
 
