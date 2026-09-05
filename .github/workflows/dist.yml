@@ -46,7 +46,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     
     - name: Download artifacts from workflow build
       uses: dawidd6/action-download-artifact@v11
