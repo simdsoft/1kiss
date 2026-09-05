@@ -164,12 +164,14 @@ Foreach ($lib_name in $libs) {
 
     $build_conf_path = Join-Path $_1k_root "src/$lib_name/build.yml"
     $build_conf = ConvertFrom-Yaml -Yaml (Get-Content $build_conf_path -raw)
-    if ($build_conf.targets -and !$build_conf.targets.contains($target_os)) {
+    $build_targets = $build_conf['targets']
+    if ($build_targets -and !$build_targets.contains($target_os)) {
         println "Skip build $lib_name which is not allow for target: $target_os"
         continue
     }
     
-    if ($build_conf.archs -and !$build_conf.archs.contains($target_cpu)) {
+    $build_archs = $build_conf['archs']
+    if ($build_archs -and !$build_archs.contains($target_cpu)) {
         println "Skip build $lib_name which is not allow for arch: $target_cpu"
         continue
     }
