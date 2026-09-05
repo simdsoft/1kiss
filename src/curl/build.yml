@@ -1,4 +1,4 @@
-ver: 8.21.0
+ver: 8.22.0
 repo: https://curl.se/download/curl-$ver.zip
 tag_prefix: curl-
 tag_dot2ul: true
