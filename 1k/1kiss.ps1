@@ -408,7 +408,9 @@ function split_options($str) {
         [void]$options.Add($current.ToString())
     }
 
-    return $options.ToArray()
+    # Return the string array as one pipeline object so a single option does not
+    # collapse to a scalar string at the call site.
+    return ,$options.ToArray()
 }
 
 function create_symlink($sourcePath, $destPath) {
