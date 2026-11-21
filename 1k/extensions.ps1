@@ -1,7 +1,7 @@
 # PowerShell 5.x No builtin variable: $IsWindows
-if ($Global:__1k_ext_imported) { return }
+if ($Global:__1k_ext_imported_v3) { return }
 
-$Global:__1k_ext_imported = $true
+$Global:__1k_ext_imported_v3 = $true
 
 $Global:IsWin = $IsWindows -or ("$env:OS" -eq 'Windows_NT')
 
@@ -233,6 +233,9 @@ namespace System
 }
 
 
+$Global:pwsh_ver = [Regex]::Match($PSVersionTable.PSVersion.ToString(), '(\d+\.)+(\*|\d+)').Value
+$Global:IsPwsh7OrLater = [VersionEx]$Global:pwsh_ver -ge [VersionEx]"7.0"
+
 function Global:ConvertFrom-Props {
     param(
         [Parameter(Mandatory = $true)]
@@ -268,56 +271,43 @@ function Global:ConvertTo-Props {
     return $str_ret
 }
 
-# Copyright (c) Matthias Wolf, Mawosoft.
+function Global:Get-NativeArchitecture {
+    $arch = $null
+    if ($Global:IsPwsh7OrLater) {
+        $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower()
+    }
+    else {
+        # refer to: https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-processor
+        try {
+            $processorInfo = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop | Select-Object -First 1
 
-<#
-.SYNOPSIS
-    Gets the StrictMode version applying to the scope of the caller.
-    This is a pendant to Set-StrictMode.
-.OUTPUTS
-    [version] object of the StrictMode. A value of 0.0 equals -Off, a value of $null indicates
-    that Set-StrictMode has not be called at all within the caller's scope.
-#>
-function Get-StrictMode {
-    [CmdletBinding()]
-    [OutputType([version])]
-    param ()
-    $callerFrame = $null
-    $e = ([System.Collections.IEnumerable][runspace]::DefaultRunspace.Debugger.GetCallStack()).GetEnumerator()
-    if ($e.MoveNext() -and $e.MoveNext()) {
-        $callerFrame = $e.Current
-    }
-    $edisp = $e -as [System.IDisposable]
-    if ($null -ne $edisp) { $edisp.Dispose() }
-    if ($null -eq $callerFrame) {
-        return # Should not happen
-    }
-    $bfi = [System.Reflection.BindingFlags]'Instance, NonPublic'
-    $piInternal = [System.Management.Automation.SessionState].GetProperty('Internal', $bfi)
-    $thisState = $piInternal.GetValue($ExecutionContext.SessionState)
-    $callerFunctionContext = [System.Management.Automation.CallStackFrame].GetProperty(
-        'FunctionContext', $bfi).GetValue($callerFrame)
-    # The real SessionState of the caller is only available via
-    #   CallStackFrame.FunctionContext._scriptBlock.SessionState
-    $callerState = $piInternal.GetValue([scriptblock].GetProperty('SessionState', $bfi).GetValue(
-            $callerFunctionContext.GetType().GetField('_scriptBlock', $bfi).GetValue($callerFunctionContext)))
-    $scope = $piInternal.PropertyType.GetProperty('CurrentScope', $bfi).GetValue($callerState)
-    $moduleScope = $piInternal.PropertyType.GetProperty('ModuleScope', $bfi).GetValue($callerState)
-    $tiScope = $scope.GetType()
-    $piParent = $tiScope.GetProperty('Parent', $bfi)
-    $piMode = $tiScope.GetProperty('StrictModeVersion', $bfi)
-    if ($callerState -eq $thisState) {
-        # Adjust scope if we share SessionState with caller
-        $scope = $piParent.GetValue($scope)
-    }
-    while ($null -ne $scope) {
-        [version]$mode = $piMode.GetValue($scope)
-        if ($null -ne $mode) {
-            return $mode
+            switch ($processorInfo.Architecture) {
+                0 { $arch = "x86" }   # 32-bit Intel/AMD
+                5 { $arch = "arm32" }   # 32-bit ARM
+                12 { $arch = "arm64" }   # treat ARM as arm64 target
+                9 { $arch = "x64" }   # 64-bit Intel/AMD
+                6 { $arch = "ia64" }   # Intel Itanium
+                default { $arch = "x86" }   # fallback
+            }
         }
-        # Modules don't inherit strict mode from global scope.
-        if ($scope -eq $moduleScope) { break }
-        $scope = $piParent.GetValue($scope)
+        catch {
+            # Fallback: only 32/64 bit detection if WMI/CIM is not available
+            if ([System.Environment]::Is64BitOperatingSystem) {
+                $arch = "x64"
+            }
+            else {
+                $arch = "x86"
+            }
+        }
     }
-    return $null
+
+    return $arch
+}
+
+function Global:eval($code) {
+    return Invoke-Expression $code
+}
+
+function Global:expand_str($str) {
+    return $ExecutionContext.InvokeCommand.ExpandString($str)
 }

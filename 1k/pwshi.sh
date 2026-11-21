@@ -6,19 +6,17 @@
 
 HOST_OS=$(uname)
 
-myRoot=$(dirname "$0")
-
 cacheDir=~/.1kiss
 mkdir -p $cacheDir
 
 pwsh_ver=$1
 if [ "$pwsh_ver" = "" ] ; then
-    pwsh_ver='7.5.4'
+    pwsh_ver='7.6.10'
 fi
 
 pwsh_min_ver=$2
 if [ "$pwsh_min_ver" = "" ] ; then
-    pwsh_min_ver='7.3.0'
+    pwsh_min_ver='7.4.0'
 fi
 
 if [[ "$pwsh_ver" < "$pwsh_min_ver" ]] ; then
@@ -40,13 +38,16 @@ function check_pwsh {
     echo "pwshi: Installing PowerShell $preferred_ver ..."
 }
 
-HOST_ARCH=$(uname -m)
-if [ "$HOST_ARCH" = 'x86_64' ] ; then
+HOST_CPU=$(uname -m)
+if [[ "$HOST_CPU" = 'arm64' || "$HOST_CPU" == 'aarch64' ]] ; then
+    pwsh_arch=arm64
+    icu_arch=arm64
+elif [ "$HOST_CPU" = 'x86_64' ] ; then
     pwsh_arch=x64
     icu_arch=amd64
 else
-    pwsh_arch=$HOST_ARCH
-    icu_arch=$HOST_ARCH
+    echo "pwshi: Unsupported HOST CPU: $HOST_CPU"
+    exit 1
 fi
 
 icu_pkg_out=""
@@ -62,10 +63,14 @@ if [ $HOST_OS = 'Darwin' ] ; then
     sudo xattr -rd com.apple.quarantine "$pwsh_pkg_out"
     sudo installer -pkg "$pwsh_pkg_out" -target /
 elif [ $HOST_OS = 'Linux' ] ; then
-    if command -v dpkg > /dev/null; then  # Linux distro: deb (ubuntu)
+    distro=$(grep -oP '(?<=^ID_LIKE=).+' /etc/os-release | tr -d '"')
+    if [ "$distro" = "" ] ; then
+        distro=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
+    fi
+    sudo_cmd=$(command -v sudo)
+    if [ "$distro" = "debian" ] ; then  # Linux distro: deb (ubuntu)
         check_pwsh $pwsh_min_ver $pwsh_ver
 
-        sudo_cmd=$(which sudo)
         if ! command -v curl >/dev/null 2>&1; then
             $sudo_cmd apt-get update
             $sudo_cmd apt-get install -y curl
@@ -148,14 +153,22 @@ elif [ $HOST_OS = 'Linux' ] ; then
         # install powershell
         $sudo_cmd dpkg -i "$pwsh_pkg_out"
         $sudo_cmd apt install -f --allow-unauthenticated --yes powershell
-    elif command -v pacman > /dev/null; then # Linux distro: Arch
-        # refer: https://ephos.github.io/posts/2018-9-17-Pwsh-ArchLinux
-        # available pwsh version, refer to: https://aur.archlinux.org/packages/powershell-bin
-        check_pwsh $pwsh_min_ver
-        git clone https://aur.archlinux.org/powershell-bin.git $cacheDir/powershell-bin
-        cd $cacheDir/powershell-bin
-        makepkg -si --needed --noconfirm
-        cd -
+    else
+        # install generic edition from tar package for other linux distro manually
+        check_pwsh $pwsh_min_ver $pwsh_ver
+        pwsh_pkg="powershell-$pwsh_ver-linux-$pwsh_arch.tar.gz"
+        pwsh_pkg_out="$cacheDir/$pwsh_pkg"
+        if [ ! -f  "$pwsh_pkg_out" ] ; then
+            curl -L "https://github.com/PowerShell/PowerShell/releases/download/v$pwsh_ver/$pwsh_pkg" -o "$pwsh_pkg_out"
+        fi
+        pwsh_inst_dir="$cacheDir/powershell"
+        mkdir -p "$pwsh_inst_dir"
+        pwsh_path="$pwsh_inst_dir/pwsh"
+        if [ ! -f "$pwsh_path" ]; then
+            tar xvf "$pwsh_pkg_out" -C "$pwsh_inst_dir"
+        fi
+        chmod +x "$pwsh_path"
+        $sudo_cmd ln -s "$pwsh_path" /usr/local/bin/pwsh
     fi
 else
     echo "pwshi: Unsupported HOST OS: $HOST_OS"

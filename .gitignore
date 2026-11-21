@@ -362,6 +362,7 @@ MigrationBackup/
 
 /tools
 /cache
+/1k/.env
 
 fat_tmp
 
