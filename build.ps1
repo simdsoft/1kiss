@@ -151,16 +151,16 @@ if ($is_darwin_family) {
 
 $compiler_dumped = $false
 
+if ($IsLinux -and $libs.Contains('llvm') -and ($target_os -eq 'linux')) {
+    # need install llvm-clang to build llvm-20+, otherwise, 
+    # will raise internal compiler error when compile llvm/lib/Target/AArch64/AsmParser/AArch64AsmParser.cpp
+    # in ubuntu-22.04 gcc 11.x, not sure whether gcc 13 on ubuntu-24.04 work?
+    $llvm_setup = Join-Path $_1k_root '1k/llvm.ps1'
+    &$llvm_setup 'install' '19'
+}
+
 Foreach ($lib_name in $libs) {
     $cb_target = $null
-
-    if ($IsLinux -and $lib_name -eq 'llvm') {
-        # need install llvm-clang to build llvm-20+, otherwise, 
-        # will raise internal compiler error when compile llvm/lib/Target/AArch64/AsmParser/AArch64AsmParser.cpp
-        # in ubuntu-22.04 gcc 11.x, not sure whether gcc 13 on ubuntu-24.04 work?
-        $llvm_setup = Join-Path $_1k_root '1k/llvm.ps1'
-        &$llvm_setup 'install' '19'
-    }
 
     $build_conf_path = Join-Path $_1k_root "src/$lib_name/build.yml"
     $build_conf = ConvertFrom-Yaml -Yaml (Get-Content $build_conf_path -raw)
