@@ -22,6 +22,32 @@ function sremove($path) {
     if (Test-Path $path) { Remove-Item $path -Recurse -Force } 
 }
 
+# YAML options are arguments, not PowerShell commands. Split before expanding
+# variables so a quoted flag or an install path containing spaces stays one argument.
+function Expand-BuildOptions([string]$text) {
+    $token = [System.Text.StringBuilder]::new()
+    $quote = [char]0
+    foreach ($ch in $text.ToCharArray()) {
+        if ($ch -eq $quote) {
+            $quote = [char]0
+        }
+        elseif ($quote -eq [char]0 -and ($ch -eq '"' -or $ch -eq "'")) {
+            $quote = $ch
+        }
+        elseif ($quote -eq [char]0 -and [char]::IsWhiteSpace($ch)) {
+            if ($token.Length) {
+                expand_str ($token.ToString())
+                [void]$token.Clear()
+            }
+        }
+        else {
+            [void]$token.Append($ch)
+        }
+    }
+    if ($quote -ne [char]0) { throw "Unclosed quote in build options: $text" }
+    if ($token.Length) { expand_str ($token.ToString()) }
+}
+
 # determine build lib list
 if (!$libs) {
     $libs = @(
@@ -209,30 +235,16 @@ Foreach ($lib_name in $libs) {
     }
     . $fetch_script -uri $repo_url -ver $version -rev $revision -prefix $build_src -name $lib_name
 
-    # preprocess $build_conf.options
-    if ($build_conf['options']) {
-        $build_conf['options'] = split_options (eval $build_conf['options'])
+    $optionKeys = @('options')
+    if (!$is_host_target) { $optionKeys += 'options_cross' }
+    foreach ($suffix in $os_family, $embed_family, $darwin_family, $target_os) {
+        if ($suffix) { $optionKeys += "options_$suffix" }
     }
-    else {
-        $build_conf['options'] = @()
-    }
-
-    if (!$is_host_target -and $build_conf['options_cross']) {
-        $build_conf['options'] += split_options (eval $build_conf['options_cross'])
-    }
-
-    if ($build_conf["options_$os_family"]) {
-        $build_conf['options'] += split_options (eval $build_conf["options_$os_family"])
-    }
-    if ($build_conf["options_$embed_family"]) {
-        $build_conf['options'] += split_options (eval $build_conf["options_$embed_family"])
-    }
-    if ($build_conf["options_$darwin_family"]) {
-        $build_conf['options'] += split_options (eval $build_conf["options_$darwin_family"])
-    }
-    if ($build_conf["options_$target_os"]) {
-        $build_conf['options'] += split_options (eval $build_conf["options_$target_os"])
-    }
+    $build_conf['options'] = @(
+        foreach ($key in $optionKeys) {
+            if ($build_conf[$key]) { Expand-BuildOptions $build_conf[$key] }
+        }
+    )
     println "Building $lib_name in $lib_src..."
     println "build_conf.options: $($build_conf.options)"
     # patch before build

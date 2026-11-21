@@ -13,17 +13,33 @@
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS TRUE)
-  string(TOLOWER "${CMAKE_GENERATOR_PLATFORM}" _gp_lcase)
 
-  if("${_gp_lcase}" MATCHES "win32")
-    set(WIN32 TRUE)
-    set(ARCH_ALIAS "x86")
-  elseif("${_gp_lcase}" STREQUAL "arm64")
-    set(WIN64 TRUE)
-    set(ARCH_ALIAS "arm64")
+  include(${CMAKE_CURRENT_LIST_DIR}/windows.cmake)
+
+  if(CMAKE_GENERATOR_PLATFORM)
+    string(TOLOWER "${CMAKE_GENERATOR_PLATFORM}" _target_cpu)
+  elseif(CLANG_TARGET_TRIPLE)
+    set(_target_cpu ${CLANG_TARGET_TRIPLE})
+  endif()
+
+  if(_target_cpu)
+    if("${_target_cpu}" MATCHES "win32|i686")
+      set(WIN32 TRUE)
+      set(ARCH_ALIAS "x86")
+    elseif("${_target_cpu}" MATCHES "arm64|aarch64")
+      set(WIN64 TRUE)
+      set(ARCH_ALIAS "arm64")
+    else()
+      set(WIN64 TRUE)
+      set(ARCH_ALIAS "x64")
+    endif()
   else()
-    set(WIN64 TRUE)
-    set(ARCH_ALIAS "x64")
+    # https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ARCHITECTURE_ID.html
+    string(TOLOWER "${CMAKE_C_COMPILER_ARCHITECTURE_ID}" ARCH_ALIAS)
+
+    if(ARCH_ALIAS MATCHES "64")
+      set(WIN64 TRUE)
+    endif()
   endif()
 
   set(PLATFORM_NAME win32)
@@ -43,6 +59,25 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LINUX TRUE)
   set(PLATFORM_NAME linux)
+
+  if(NOT DEFINED ARCH_ALIAS)
+    message(STATUS "Detecting build target triple ...")
+    execute_process(
+      COMMAND ${CMAKE_CXX_COMPILER} -dumpmachine
+      OUTPUT_VARIABLE _target_cpu
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    message(STATUS "Detected build target triple: ${_target_cpu}")
+
+    if(_target_cpu MATCHES "x86_64")
+      set(ARCH_ALIAS "x64")
+    elseif(_target_cpu MATCHES "arm64|aarch64")
+      set(ARCH_ALIAS "arm64")
+    else()
+      message(FATAL_ERROR "Unsupported platform: ${_target_cpu}")
+    endif()
+  endif()
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   set(WASM TRUE)
   set(EMSCRIPTEN TRUE)
@@ -72,8 +107,36 @@ else()
   message(AUTHOR_WARNING "Unhandled platform: ${CMAKE_SYSTEM_NAME}")
 endif()
 
+if(NOT "${ARCH_ALIAS}" STREQUAL "")
+  set(ARCH_ALIAS ${ARCH_ALIAS} CACHE STRING "" FORCE)
+else()
+  # CMAKE_SYSTEM_PROCESSOR: AMD64, ARM64, aarch64, x86_64, i686(android x86 already handled)
+  string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} _target_cpu)
+
+  if(_target_cpu MATCHES "x86_64|amd64")
+    set(ARCH_ALIAS x64 CACHE STRING "" FORCE)
+  elseif(_target_cpu MATCHES "arm64|aarch64")
+    set(ARCH_ALIAS arm64 CACHE STRING "" FORCE)
+  elseif(_target_cpu MATCHES "armv7")
+    set(ARCH_ALIAS armv7 CACHE STRING "" FORCE)
+  else()
+    message(WARNING "Unknown architecture: ${_target_cpu}")
+  endif()
+endif()
+
+message(STATUS "🔧 Evaluated ARCH_ALIAS=${ARCH_ALIAS}")
+
 if(NOT DEFINED WIN32)
   set(WIN32 FALSE)
+endif()
+
+if(NOT DEFINED WASM)
+  set(WASM FALSE)
+endif()
+
+# compiler id
+if(NOT WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  set(FULL_CLANG TRUE)
 endif()
 
 # generators that are capable of organizing into a hierarchy of folders

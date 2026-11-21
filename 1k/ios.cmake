@@ -35,7 +35,7 @@ if(NOT DEFINED DEPLOYMENT_TARGET)
       if(XCODE_VERSION LESS "14.3.0")
         set(DEPLOYMENT_TARGET "11.0" CACHE STRING "" FORCE)
       else() # xcode 14.3+ require 12.0 for c++ std::get
-        set(DEPLOYMENT_TARGET "12.0" CACHE STRING "" FORCE)
+        set(DEPLOYMENT_TARGET "13.0" CACHE STRING "" FORCE)
       endif()
     endif()
   elseif(PLAT STREQUAL "tvOS")
@@ -44,6 +44,13 @@ if(NOT DEFINED DEPLOYMENT_TARGET)
     set(DEPLOYMENT_TARGET "8.0" CACHE STRING "" FORCE)
   else()
     message(FATAL_ERROR "PLAT=${PLAT} unsupported!")
+  endif()
+endif()
+
+if(PLAT STREQUAL "iOS" AND XCODE_VERSION VERSION_GREATER_EQUAL "27.0")
+  if(DEPLOYMENT_TARGET LESS "15.0")
+    set(DEPLOYMENT_TARGET "15.0" CACHE STRING "" FORCE)
+    message(STATUS "Adjust iOS deployment target to 15.0 since Xcode 27.0+ requires a minimum deployment target of 15.0")
   endif()
 endif()
 
@@ -128,15 +135,14 @@ else()
   set(CMAKE_XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
 endif()
 
-# Set find path mode properly for cross-compiling
-# refer to: https://discourse.cmake.org/t/find-package-stops-working-when-cmake-system-name-ios/4609/6
-# BUT: CMAKE_FIND_ROOT_PATH is preferred for additional search directories when cross-compiling
-# set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH CACHE STRING "")
-# set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH CACHE STRING "")
-# set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH CACHE STRING "")
-
-# by default, we want find host program only when cross-compiling
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER CACHE STRING "")
+# Configure find path mode for cross-compiling:
+# - Use host tools only when cross-compiling (find_program).
+# - Restrict package, library, and path lookups to CMAKE_FIND_ROOT_PATH when cross-compiling.
+# Reference: https://cmake.org/cmake/help/book/mastering-cmake/chapter/Cross%20Compiling%20With%20CMake.html
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER CACHE STRING "" FORCE)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY CACHE STRING "" FORCE)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY CACHE STRING "" FORCE)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY CACHE STRING "" FORCE)
 
 # Sets CMAKE_SYSTEM_PROCESSOR properly
 if(ARCHS MATCHES "((arm64|arm64e|x86_64)(^|;|, )?)+")
@@ -150,7 +156,7 @@ if(ARCHS MATCHES "((arm64|arm64e|x86_64)(^|;|, )?)+")
   endif()
 endif()
 
-# This little function lets you set any XCode specific property, refer to: ios.toolchain.cmake
+# This little function lets you set any Xcode specific property, refer to: ios.toolchain.cmake
 function(set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
   if(ARGC LESS 4 OR ARGV3 STREQUAL "All")
     set_property(TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})

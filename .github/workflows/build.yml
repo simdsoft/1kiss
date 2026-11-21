@@ -6,8 +6,9 @@ on:
   push:
     paths:
       - .github/workflows/build.yml
-      - 1k/build*
-      - 1k/ios.cmake
+      - build.ps1
+      - 1k/**
+      - '!1k/dist.sh'
       - src/**/build*
       - src/**/install*
       - src/**/patch*
